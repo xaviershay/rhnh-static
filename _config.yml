@@ -9,6 +9,9 @@ url: "https://rhnh.net" # the base hostname & protocol for your site, e.g. http:
 timezone: "Etc/UTC"
 permalink: "/:year/:month/:day/:title"
 
+assets:
+  digest: true
+
 jekyll-archives:
   enabled:
     - tags
