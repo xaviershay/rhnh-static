@@ -2,7 +2,7 @@
 layout: post
 title:  "Selenium, webrat and the firefox beta"
 date:   2009-05-18 16:30:00 +00:00
-tags:   ["Code", "rails", "selenium", "webrat"]
+tags:   ["code", "rails", "selenium", "webrat"]
 ---
 {% raw %}
 *UPDATE: * Latest version of webrat (0.5.3, maybe earlier) includes a fixed version of selenium, so you shouldn't need this hack.

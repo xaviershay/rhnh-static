@@ -2,7 +2,7 @@
 layout: post
 title:  "PostgreSQL 9 and ruby full text search tricks"
 date:   2011-02-25 04:30:52 +00:00
-tags:   ["Ruby", "datamapper", "dbiyf", "postgresql", "rails"]
+tags:   ["datamapper", "dbiyf", "postgresql", "rails", "ruby"]
 ---
 {% raw %}
 I have just released an introduction to PostgreSQL screencast, published through PeepCode. It is over an hour long and covers a large number of juicy topics:

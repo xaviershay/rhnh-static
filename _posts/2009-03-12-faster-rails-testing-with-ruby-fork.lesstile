@@ -2,7 +2,7 @@
 layout: post
 title:  "Faster rails testing with ruby_fork"
 date:   2009-03-12 08:45:03 +00:00
-tags:   ["Code", "Ruby", "rails", "ruby_fork", "testing"]
+tags:   ["code", "rails", "ruby", "ruby_fork", "testing"]
 ---
 {% raw %}
 A long running test suite isn't the problem. Your build server can take care of that. A second or two here or there, no one notices.

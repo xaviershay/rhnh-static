@@ -2,7 +2,7 @@
 layout: post
 title:  "Classifier gem rubbish for recommending posts"
 date:   2008-04-16 19:16:00 +00:00
-tags:   ["Code", "Ruby", "classifier", "gsl", "lsi"]
+tags:   ["classifier", "code", "gsl", "lsi", "ruby"]
 ---
 {% raw %}
 Chatting with "Tim":http://toolmantim.com today he suggested maybe using Classifier::LSI would be a cool way to offer 'related posts' suggestions for a blog.

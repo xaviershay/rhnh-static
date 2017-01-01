@@ -2,7 +2,7 @@
 layout: post
 title:  "Speeding Up Rails Rake"
 date:   2010-09-07 03:30:00 +00:00
-tags:   ["Code", "Ruby", "rails", "rake"]
+tags:   ["code", "rails", "rake", "ruby"]
 ---
 {% raw %}
 On a brand new rails project (this article is rails 3, but the same principle applies to rails 2), @rake --tasks@ takes about a second to run. This is just the time it takes to load all the tasks, as a result any task you define will take at least this amount of time to run, even if it is has nothing to do with rails. Tab completion is slow. That makes me sad.

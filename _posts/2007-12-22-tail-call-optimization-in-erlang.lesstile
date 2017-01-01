@@ -2,7 +2,7 @@
 layout: post
 title:  "Tail call optimization in erlang"
 date:   2007-12-22 06:03:00 +00:00
-tags:   ["Code", "erlang", "optimization", "recursion"]
+tags:   ["code", "erlang", "optimization", "recursion"]
 ---
 {% raw %}
 --- erlang

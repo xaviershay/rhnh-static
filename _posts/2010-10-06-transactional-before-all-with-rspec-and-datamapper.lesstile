@@ -2,7 +2,7 @@
 layout: post
 title:  "Transactional before all with RSpec and DataMapper"
 date:   2010-10-06 23:31:02 +00:00
-tags:   ["Code", "Ruby", "datamapper", "rspec"]
+tags:   ["code", "datamapper", "rspec", "ruby"]
 ---
 {% raw %}
 By default, @before(:all)@ in rspec executes _outside_ of any transaction, meaning that you can't really use it for creating objects. Normally this should go in a @before(:each)@, but for a spec with simple creation and a large number of assertions this is terribly inefficient.

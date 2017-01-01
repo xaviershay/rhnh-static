@@ -2,7 +2,7 @@
 layout: post
 title:  "Duplicate Data"
 date:   2010-08-22 19:18:00 +00:00
-tags:   ["Code", "Ruby", "dbiyf", "rails"]
+tags:   ["code", "dbiyf", "rails", "ruby"]
 ---
 {% raw %}
 *UPDATE:* If you are on PostgreSQL, check this "updated query":http://rhnh.net/2011/04/30/deleting-duplicate-data-with-postgresql, it's more useful.

@@ -2,7 +2,7 @@
 layout: post
 title:  "Pizza"
 date:   2007-02-11 09:31:00 +00:00
-tags:   ["Food", "Recipe", "dinner", "pizza", "vegetarian"]
+tags:   ["dinner", "food", "pizza", "recipe", "vegetarian"]
 ---
 {% raw %}
 Team effort with my Dad for Sunday night dinner.

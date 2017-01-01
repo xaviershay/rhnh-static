@@ -2,7 +2,7 @@
 layout: post
 title:  "A Banana a Day"
 date:   2005-03-25 09:40:00 +00:00
-tags:   ["Code", "optimization", "perl", "sql"]
+tags:   ["code", "optimization", "perl", "sql"]
 ---
 {% raw %}
 h3. SQL Optimization

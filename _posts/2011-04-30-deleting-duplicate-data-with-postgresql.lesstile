@@ -2,7 +2,7 @@
 layout: post
 title:  "Deleting duplicate data with PostgreSQL"
 date:   2011-04-30 03:05:45 +00:00
-tags:   ["Code", "dbiyf", "postgresql", "sql"]
+tags:   ["code", "dbiyf", "postgresql", "sql"]
 ---
 {% raw %}
 Here is an update to a query I posted a while back for "detecting duplicate data":http://rhnh.net/2010/08/22/duplicate-data. It allows you to select all but one of the resulting duplicates, for easy deletion. It only works on PostgreSQL, but is pretty neat. It uses a window function!

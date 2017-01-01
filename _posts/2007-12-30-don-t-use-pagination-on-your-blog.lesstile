@@ -2,7 +2,7 @@
 layout: post
 title:  "Don't use pagination on your blog"
 date:   2007-12-30 08:24:00 +00:00
-tags:   ["Code", "ideology"]
+tags:   ["code", "ideology"]
 ---
 {% raw %}
 What problem are you trying to solve? In my case, I don't want the bottom of the page to be a dead end. Paging would appear to be a good solution - click next page, get more content. Alas, it has issues:

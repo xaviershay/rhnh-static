@@ -2,7 +2,7 @@
 layout: post
 title:  "Straight Sailing with Magellan"
 date:   2006-06-24 11:23:00 +00:00
-tags:   ["Code", "Ruby", "plugin", "rails"]
+tags:   ["code", "plugin", "rails", "ruby"]
 ---
 {% raw %}
 "Magellan":/projects/magellan is a Ruby on Rails plugin that provides a framework for abstracting navigation logic out of your views and controllers, allowing you to write neater, more reusable code.

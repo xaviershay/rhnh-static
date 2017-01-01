@@ -2,7 +2,7 @@
 layout: post
 title:  "Full stack testing rack applications"
 date:   2009-11-18 19:25:00 +00:00
-tags:   ["Code", "Ruby", "cloudkit", "oauth", "rack"]
+tags:   ["cloudkit", "code", "oauth", "rack", "ruby"]
 ---
 {% raw %}
 Herein is described a method for full stack testing "CloudKit":http://getcloudkit.com/ apps. The same techniques could easily be applied to other rack web application or framework, which is pretty much all the ruby ones these days ("rails":http://rubyonrails.org/, "sinatra":http://www.sinatrarb.com/, "pancake":http://github.com/hassox/pancake, etc...) This method is ideal for non-html services. For HTML you're probably better off just using webrat/selenium.

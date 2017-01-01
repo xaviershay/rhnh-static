@@ -2,7 +2,7 @@
 layout: post
 title:  "YAML persistence"
 date:   2006-05-06 17:50:00 +00:00
-tags:   ["Code", "Ruby", "persistence", "yaml"]
+tags:   ["code", "persistence", "ruby", "yaml"]
 ---
 {% raw %}
 Fixed up my persistence code to not have to specify variables as an array, and committed my changes to CVS. Funny that on the day I got developer access to clxmlserial, I switched it out of my project in favour of YAML. Of course, I need to add a persistent attribute to that also, but it works a little different from XML:

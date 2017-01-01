@@ -2,7 +2,7 @@
 layout: post
 title:  "Padrino, MongoHQ and Heroku"
 date:   2010-10-13 09:43:01 +00:00
-tags:   ["Code", "Ruby", "heroku", "mongodb", "padrino"]
+tags:   ["code", "heroku", "mongodb", "padrino", "ruby"]
 ---
 {% raw %}
 Next time I google for this I'll find the answer waiting:

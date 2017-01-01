@@ -2,7 +2,7 @@
 layout: post
 title:  "Nested Transactions in Postgres with DataMapper"
 date:   2010-10-06 04:34:00 +00:00
-tags:   ["Code", "Ruby", "datamapper", "pg"]
+tags:   ["code", "datamapper", "pg", "ruby"]
 ---
 {% raw %}
 Hacks to get nested transactions support for Postgres in DataMapper. Not extensively tested, more a proof of concept. It re-opens the existing @Transaction@ class to add a check for whether we need a nested transaction or not, and adds a new @NestedTransaction@ transaction primitive that issues savepoint commands rather than begin/commit.

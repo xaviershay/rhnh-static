@@ -2,7 +2,7 @@
 layout: post
 title:  "Rails 3, Ruby 1.9.2, Windows 2008, and SQL Server 2008 Tutorial"
 date:   2010-10-10 00:00:00 +00:00
-tags:   ["Code", "Ruby", "odbc", "rails", "sqlserver"]
+tags:   ["code", "odbc", "rails", "ruby", "sqlserver"]
 ---
 {% raw %}
 This took me a while to figure out, especially since I'm not so great with either windows or SQL server, but in the end the process isn't so difficult.

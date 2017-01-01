@@ -2,7 +2,7 @@
 layout: post
 title:  "Participation in the open source gift economy"
 date:   2009-11-07 15:29:00 +00:00
-tags:   ["Ethics", "open source"]
+tags:   ["ethics", "open source"]
 ---
 {% raw %}
 Programmers should not use open source "for free". If you are using open source code, you need to be thinking about your contribution back to the economy. Open source is a gift economy, and can only flourish with participation. While there is no legal or expected obligation for using open source code, there is an ethical duty to contribute to the health of the economy which you are benefiting from. The type of contribution you can make varies depending on what skills you can offer. Patches, documentation, advocacy, feedback, money - at least one of these is open to anyone (at a basic level) no matter what your level of competency, even to non-programmers. The most computer illiterate can still talk something up to his friends!

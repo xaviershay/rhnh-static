@@ -2,7 +2,7 @@
 layout: post
 title:  "acts_as_list will break in production"
 date:   2010-06-30 02:12:00 +00:00
-tags:   ["Code", "Ruby", "activerecord", "acts_as_list", "dbiyf", "rails"]
+tags:   ["activerecord", "acts_as_list", "code", "dbiyf", "rails", "ruby"]
 ---
 {% raw %}
 @acts_as_list@ doesn't work in a typical production deployment. It pretends to for a while, but every application will eventually have issues with it that result in real problems for your users. Here is a short 4 minute long screencast showing you how it breaks, and also a quick fix which will prevent your data from becoming corrupted.

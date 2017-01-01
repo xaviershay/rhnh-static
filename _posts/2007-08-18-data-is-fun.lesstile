@@ -2,7 +2,7 @@
 layout: post
 title:  "Data is fun"
 date:   2007-08-18 08:16:00 +00:00
-tags:   ["Code", "Life", "dancing", "data", "processing", "tufte"]
+tags:   ["code", "dancing", "data", "life", "processing", "tufte"]
 ---
 {% raw %}
 This is a story about a graph.

@@ -2,7 +2,7 @@
 layout: post
 title:  "Object#send_with_default"
 date:   2007-10-02 07:37:00 +00:00
-tags:   ["Code", "Ruby", "core extensions", "object", "rails"]
+tags:   ["code", "core extensions", "object", "rails", "ruby"]
 ---
 {% raw %}
 Avoid those pesky whiny nils! @send_with_default@ won't complain.

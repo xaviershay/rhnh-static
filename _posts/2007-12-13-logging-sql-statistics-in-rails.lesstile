@@ -2,7 +2,7 @@
 layout: post
 title:  "Logging SQL statistics in rails"
 date:   2007-12-13 09:40:00 +00:00
-tags:   ["Code", "Ruby", "activerecord", "plugin", "rails", "sql", "statistics"]
+tags:   ["activerecord", "code", "plugin", "rails", "ruby", "sql", "statistics"]
 ---
 {% raw %}
 When your sysadmin comes to you -whinging- with a valid concern that your app is reading 60 gazillion records from the DB, you kinda wish you had a bit more information than % time spent in the DB. So I wrote a plugin that counts both the number of selects/updates/inserts/deletes and also the number of records affected. [This plugin is no longer available, the code is below for posterity.]

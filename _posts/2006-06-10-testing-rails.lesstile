@@ -2,7 +2,7 @@
 layout: post
 title:  "Testing rails"
 date:   2006-06-10 06:45:00 +00:00
-tags:   ["Code", "Ruby", "rails", "testing", "time", "validation"]
+tags:   ["code", "rails", "ruby", "testing", "time", "validation"]
 ---
 {% raw %}
 I was working on creating functional tests for some of my code today, a task made ridiculously easy by rails. To add extra value, I added an assertion (from <a href="http://scottraymond.net/articles/2005/09/20/rails-xhtml-validation">Scott Raymond</a>) to validate my markup against the w3c online validator:

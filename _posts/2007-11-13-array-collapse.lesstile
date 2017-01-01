@@ -2,7 +2,7 @@
 layout: post
 title:  "Array#collapse"
 date:   2007-11-13 06:10:00 +00:00
-tags:   ["Code", "Ruby", "array", "core extensions"]
+tags:   ["array", "code", "core extensions", "ruby"]
 ---
 {% raw %}
 --- ruby

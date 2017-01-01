@@ -2,7 +2,7 @@
 layout: post
 title:  "YAML Tutorial"
 date:   2011-01-31 10:37:00 +00:00
-tags:   ["Code", "Ruby", "psych", "yaml"]
+tags:   ["code", "psych", "ruby", "yaml"]
 ---
 {% raw %}
 Many years ago I wrote a "tutorial on using YAML in ruby":http://rhnh.net/2006/06/25/yaml-tutorial. It still sees the most google traffic of any post, by far. So people want to know about YAML? I'll help them out.

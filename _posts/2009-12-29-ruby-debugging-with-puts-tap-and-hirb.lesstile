@@ -2,7 +2,7 @@
 layout: post
 title:  "Ruby debugging with puts, tap and Hirb"
 date:   2009-12-29 00:27:00 +00:00
-tags:   ["Code", "Ruby", "hirb", "rails", "testing"]
+tags:   ["code", "hirb", "rails", "ruby", "testing"]
 ---
 {% raw %}
 I use @puts@ heaps when debugging. Combined with @tap@, it's pretty handy. You can jump right in the middle of a method chain without having to move things around into variables.

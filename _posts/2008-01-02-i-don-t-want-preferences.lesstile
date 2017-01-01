@@ -2,7 +2,7 @@
 layout: post
 title:  "I don't want preferences"
 date:   2008-01-02 07:39:00 +00:00
-tags:   ["Code", "enki", "ideology"]
+tags:   ["code", "enki", "ideology"]
 ---
 {% raw %}
 Or why I'm writing another blog engine for ruby

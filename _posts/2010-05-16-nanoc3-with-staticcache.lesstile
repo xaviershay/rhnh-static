@@ -2,7 +2,7 @@
 layout: post
 title:  "Nanoc3 with Rack::StaticCache"
 date:   2010-05-16 04:00:00 +00:00
-tags:   ["Code", "Ruby", "nanoc3"]
+tags:   ["code", "nanoc3", "ruby"]
 ---
 {% raw %}
 There is a neat piece of middleware introduced in rack-contrib 0.9.3 called @Rack::StaticCache@. It allows you to version your static assets (images, css) so that you can set infinite expires headers on them. All you need is a version number trailing your file name, and it is routed through to the underlying file. Whenever you change the file, you change the version.

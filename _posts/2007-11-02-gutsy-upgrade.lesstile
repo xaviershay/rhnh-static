@@ -2,7 +2,7 @@
 layout: post
 title:  "Gutsy upgrade"
 date:   2007-11-02 23:52:00 +00:00
-tags:   ["Code", "linux", "ubuntu"]
+tags:   ["code", "linux", "ubuntu"]
 ---
 {% raw %}
 Just upgraded Ubuntu from feisty (7.04) to gusty (7.10). Was a bit touch and go for a moment ... got a filesystem check failure on reboot. Miamoto_musashi, my knight in shining armour from #roro, saved the day. @ls -l /dev/disk/by-id/@ revealed that my HDs had been remapped from @/dev/hd@ to @/dev/sd@. The gutsy upgrade had modified all of the standard partitions to use UUIDs, but had failed to update a custom mount I had (@/data -> /dev/hdc1@). Changed that over in @/etc/fstab@, reboot, hooray we have a winner.

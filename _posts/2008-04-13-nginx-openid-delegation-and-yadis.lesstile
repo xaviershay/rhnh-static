@@ -2,7 +2,7 @@
 layout: post
 title:  "Nginx, OpenID delegation and YADIS"
 date:   2008-04-13 10:54:00 +00:00
-tags:   ["Code", "nginx", "openid", "yadis"]
+tags:   ["code", "nginx", "openid", "yadis"]
 ---
 {% raw %}
 Typically OpenID delegation reads delegation information out of HTML headers on your home page:

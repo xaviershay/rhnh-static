@@ -2,7 +2,7 @@
 layout: post
 title:  "BacktraceCleaner and gems in rails"
 date:   2009-09-01 23:42:00 +00:00
-tags:   ["Code", "Ruby", "patch", "rails"]
+tags:   ["code", "patch", "rails", "ruby"]
 ---
 {% raw %}
 *UPDATE:* Fixed the monkey-patch to match the latest version of the patch, and to explicitly require Rails::BacktraceCleaner before patching it to make sure it has been loaded

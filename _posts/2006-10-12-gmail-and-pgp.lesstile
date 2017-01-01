@@ -2,7 +2,7 @@
 layout: post
 title:  "Gmail and PGP"
 date:   2006-10-12 10:53:00 +00:00
-tags:   ["Code", "Ruby", "email", "gmail", "mousehole", "pgp"]
+tags:   ["code", "email", "gmail", "mousehole", "pgp", "ruby"]
 ---
 {% raw %}
 Recently I set myself up to be able to use PGP signing and encryption with Thunderbird. Privacy: it'll cure what ails ya. That's all well and great when I'm at home, but it's kind of hard to use my desktop when I'm roaming the wild savannah of Africa. The two webmail products I use don't support PGP (gmail and the one provided by my hosting). So I've started work on a "mouseHole":http://code.whytheluckystiff.net/mouseHole script - "PgPirate":http://rhnh.svnrepository.com/svn/public/ruby/pgpirate/ - that checks the code before it hits my browser and processes all the PGP stuff for me. Next step is to get it installed on a USB flash drive with "ProxyLike":http://whytheluckystiff.net/mouseHole/proxylike.user.rb so I can use it on most any other computer I happen to find myself using.

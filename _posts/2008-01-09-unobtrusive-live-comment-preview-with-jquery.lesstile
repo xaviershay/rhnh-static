@@ -2,7 +2,7 @@
 layout: post
 title:  "Unobtrusive live comment preview with jQuery"
 date:   2008-01-09 12:35:00 +00:00
-tags:   ["Code", "javascript", "jquery", "rails"]
+tags:   ["code", "javascript", "jquery", "rails"]
 ---
 {% raw %}
 Live preview is shiny. First get your self a URL that renders a comment. In rails maybe something like the following.

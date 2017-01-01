@@ -2,7 +2,7 @@
 layout: post
 title:  "Practical Hpricot: CruiseControl.rb results"
 date:   2007-08-21 07:33:00 +00:00
-tags:   ["Code", "Ruby", "cruisecontrol.rb", "hpricot"]
+tags:   ["code", "cruisecontrol.rb", "hpricot", "ruby"]
 ---
 {% raw %}
 --- ruby

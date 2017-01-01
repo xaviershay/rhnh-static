@@ -2,7 +2,7 @@
 layout: post
 title:  "Get with the times: IMAP"
 date:   2007-10-31 01:45:00 +00:00
-tags:   ["Code", "email"]
+tags:   ["code", "email"]
 ---
 {% raw %}
 Last night I bought a fastmail account that I can use to host my rhnh.net mail. It supports IMAP. I really should have found out about this a long time ago, I've been living in the POP dark ages. I'm not going to list the benefits - many have done so before. I'm just going to say: If you're still using POP, stop kidding yourself and get on to IMAP. Your quality of life will improve.

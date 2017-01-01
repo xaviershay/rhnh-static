@@ -2,7 +2,7 @@
 layout: post
 title:  "acts_as_state_machine is not concurrent"
 date:   2010-07-05 04:54:00 +00:00
-tags:   ["Code", "Ruby", "aasm", "activerecord", "acts_as_state_machine", "dbiyf", "rails"]
+tags:   ["aasm", "activerecord", "acts_as_state_machine", "code", "dbiyf", "rails", "ruby"]
 ---
 {% raw %}
 Here is a short 4 minute screencast in which I show you how the acts as state machine (AASM) gem fails in a concurrent environment, and also how to fix it.

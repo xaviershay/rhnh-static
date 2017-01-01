@@ -2,7 +2,7 @@
 layout: post
 title:  "Let's go bowling"
 date:   2007-05-12 02:15:00 +00:00
-tags:   ["Code", "Ruby", "bowling", "functional"]
+tags:   ["bowling", "code", "functional", "ruby"]
 ---
 {% raw %}
 --- ruby

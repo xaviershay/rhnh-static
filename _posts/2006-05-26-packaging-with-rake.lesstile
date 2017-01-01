@@ -2,7 +2,7 @@
 layout: post
 title:  "Packaging with Rake"
 date:   2006-05-26 13:04:00 +00:00
-tags:   ["Ruby", "rake", "rubyscript2exe", "zip"]
+tags:   ["rake", "ruby", "rubyscript2exe", "zip"]
 ---
 {% raw %}
 Automated the packaging process for winchester this morning use rake, the ruby build system. A few hurdles to jump, but I can now package up a release on either linux or windows with one line.

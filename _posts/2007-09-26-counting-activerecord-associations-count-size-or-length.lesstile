@@ -2,7 +2,7 @@
 layout: post
 title:  "Counting ActiveRecord associations: count, size or length?"
 date:   2007-09-26 23:16:00 +00:00
-tags:   ["Code", "Ruby", "activerecord", "rails"]
+tags:   ["activerecord", "code", "rails", "ruby"]
 ---
 {% raw %}
 Short answer: @size@. Here's why.

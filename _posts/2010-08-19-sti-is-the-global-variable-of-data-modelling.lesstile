@@ -2,7 +2,7 @@
 layout: post
 title:  "STI is the global variable of data modelling"
 date:   2010-08-19 18:30:38 +00:00
-tags:   ["Code", "Ruby", "dbiyf", "rails", "sti"]
+tags:   ["code", "dbiyf", "rails", "ruby", "sti"]
 ---
 {% raw %}
 A Single Table Inheritance table is really easy to both update and query. This makes it ideal for rapid prototyping: just throw some extra columns on it and you are good to go! This is why STI is so popular, and it fits perfectly into the Rails philosophy of getting things up and running fast.

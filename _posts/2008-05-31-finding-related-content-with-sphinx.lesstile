@@ -2,7 +2,7 @@
 layout: post
 title:  "Finding related content with Sphinx"
 date:   2008-05-31 16:50:00 +00:00
-tags:   ["Code", "Ruby", "classifier", "sphinx"]
+tags:   ["classifier", "code", "ruby", "sphinx"]
 ---
 {% raw %}
 Previous efforts to "find related posts with the classifier gem":http://rhnh.net/2008/04/16/classifier-gem-rubbish-for-recommending-posts yielded no fruit, so I tried another approach using sphinx. Turned out to be a winner. 

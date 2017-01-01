@@ -2,7 +2,7 @@
 layout: post
 title:  "inject and collect with jQuery"
 date:   2008-12-28 17:16:03 +00:00
-tags:   ["Code", "Ruby", "inject", "javascript", "jquery"]
+tags:   ["code", "inject", "javascript", "jquery", "ruby"]
 ---
 {% raw %}
 You know, I would have thought someone had already made an enumerable plugin for "jQuery":http://jquery.com. Maybe someone has. Mine is better.

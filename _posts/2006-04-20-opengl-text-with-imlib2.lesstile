@@ -2,7 +2,7 @@
 layout: post
 title:  "OpenGL Text with Imlib2"
 date:   2006-04-20 23:43:00 +00:00
-tags:   ["Code", "Ruby", "imlib2", "opengl", "text"]
+tags:   ["code", "imlib2", "opengl", "ruby", "text"]
 ---
 {% raw %}
 Getting text into your openGL apps is simple with the use of the imlib2 library (developed by the <a href="http://www.enlightenment.org">enlightenment</a> team). If you have the good fortune of working on a debian system, the libraries are in apt:

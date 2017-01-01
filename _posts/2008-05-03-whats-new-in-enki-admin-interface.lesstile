@@ -2,7 +2,7 @@
 layout: post
 title:  "What's new in Enki - Admin Interface"
 date:   2008-05-03 12:48:00 +00:00
-tags:   ["Code", "enki"]
+tags:   ["code", "enki"]
 ---
 {% raw %}
 I've just finished up a fairly major over haul of the Enki admin area, finally throwing away the ugly SimpleLog stylings. Features include:

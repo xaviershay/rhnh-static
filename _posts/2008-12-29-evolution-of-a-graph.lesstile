@@ -2,7 +2,7 @@
 layout: post
 title:  "Evolution of a graph"
 date:   2008-12-29 13:41:10 +00:00
-tags:   ["Code", "Life", "data", "tufte"]
+tags:   ["code", "data", "life", "tufte"]
 ---
 {% raw %}
 Recently I have wanted to chart some cost data I collected on various foods. As a baseline for discussion, here is a very vanilla excel type graph, reminiscent of ones I am certain you have seen in powerpoint presentations:

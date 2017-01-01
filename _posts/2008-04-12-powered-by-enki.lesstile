@@ -2,7 +2,7 @@
 layout: post
 title:  "Powered by Enki"
 date:   2008-04-12 14:25:00 +00:00
-tags:   ["Code", "enki"]
+tags:   ["code", "enki"]
 ---
 {% raw %}
 Finally got this blog switched over to "Enki":http://www.enkiblog.com. Main feed has moved to feed burner. Please report any weirdness to the relevant authorities.

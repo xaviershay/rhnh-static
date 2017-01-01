@@ -2,7 +2,7 @@
 layout: post
 title:  "Singleton resource, pluralized controller fix for rails"
 date:   2009-01-26 04:01:00 +00:00
-tags:   ["Code", "Ruby", "rails", "resource", "rest", "routing", "singleton"]
+tags:   ["code", "rails", "resource", "rest", "routing", "ruby", "singleton"]
 ---
 {% raw %}
 @map.resource@ still looks for a pluralized controller. This has always bugged me. Here's a quick monkey patch to fix. Tested on rails 2.2.2.

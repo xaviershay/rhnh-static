@@ -2,7 +2,7 @@
 layout: post
 title:  "Rails XHTML Validation with LibXML/HTML Tidy"
 date:   2006-06-11 06:41:00 +00:00
-tags:   ["Code", "Ruby", "rails", "validation"]
+tags:   ["code", "rails", "ruby", "validation"]
 ---
 {% raw %}
 I improved upon the XHTML validation technique I showed yesterday to add nicer error messages, and also support for local testing via HTML Tidy. HTML Tidy isn't quite as good as W3C - for example it missed a label that was pointing to an invalid ID, but it runs hell fast. For W3C testing I'm now using libXML to parse the response to actually list the errors rather than just tell you they exist.

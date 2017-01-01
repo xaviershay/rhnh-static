@@ -2,7 +2,7 @@
 layout: post
 title:  "Nanoc3 and CoffeeScript"
 date:   2010-04-25 10:41:00 +00:00
-tags:   ["Code", "Ruby", "nanoc3"]
+tags:   ["code", "nanoc3", "ruby"]
 ---
 {% raw %}
 "Nanoc3":http://nanoc.stoneship.org/ is a pretty awesome static site generator. It works by running your content through "filters" to create the final static site. It comes with a lot of built in filters - Haml, Sass, rubypants, markdown, and more! Nothing for Javascript though. Which is sad because I really like CoffeeScript. It's ok! I wrote my own filter, shared here for your enjoyment.

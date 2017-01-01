@@ -2,7 +2,7 @@
 layout: post
 title:  "Understanding the Y Combinator"
 date:   2007-12-20 08:29:00 +00:00
-tags:   ["Code", "Ruby", "recursion"]
+tags:   ["code", "recursion", "ruby"]
 ---
 {% raw %}
 Many people have written about this, it still took me a long while to figure it out. It's a bit of a mindfuck. So here is me rehashing what other people have said in a way that makes sense to me.

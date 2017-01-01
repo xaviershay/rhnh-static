@@ -2,7 +2,7 @@
 layout: post
 title:  "Test setup broken in Rails 2.0.2"
 date:   2007-12-20 22:18:00 +00:00
-tags:   ["Code", "Ruby", "activemessaging", "rails", "testing"]
+tags:   ["activemessaging", "code", "rails", "ruby", "testing"]
 ---
 {% raw %}
 Some changes went into rails 2.0.2 that mean the @setup@ method in test subclasses won't get called. Here's how it went down:

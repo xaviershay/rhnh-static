@@ -2,7 +2,7 @@
 layout: post
 title:  "I'm number 8!"
 date:   2008-03-28 02:41:00 +00:00
-tags:   ["Life", "Ruby"]
+tags:   ["life", "ruby"]
 ---
 {% raw %}
 I had no idea "Working With Rails":http://workingwithrails.com ran a monthly hackfest. Basically, you contribute to rails, you get points, at the end of the month you can win stuff. To my surprise, I came in at "#8 last month":http://workingwithrails.com/hackfest/22-monthly-february-2-8 and got a free copy of "Make" magazine from O'Reilly.

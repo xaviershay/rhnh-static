@@ -2,7 +2,7 @@
 layout: post
 title:  "AtomFeedHelper produces invalid feeds"
 date:   2008-01-02 21:15:00 +00:00
-tags:   ["Code", "Ruby", "atom", "rails"]
+tags:   ["atom", "code", "rails", "ruby"]
 ---
 {% raw %}
 Summary: "@atom_feed@ is broken until changeset 8529":http://dev.rubyonrails.org/changeset/8529

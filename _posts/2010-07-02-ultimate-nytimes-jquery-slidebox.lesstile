@@ -2,7 +2,7 @@
 layout: post
 title:  "Ultimate NYTimes jQuery Slidebox"
 date:   2010-07-02 11:39:00 +00:00
-tags:   ["Code", "css", "javascript", "jquery"]
+tags:   ["code", "css", "javascript", "jquery"]
 ---
 {% raw %}
 The New York Times has a pretty fancy box that slides out when you hit the bottom of an article. It draws attention without being too distracting. Very nice. Here's how you can do it yourself with all the trendiest bells and whistles, CSS animation (with backup jQuery for crippled browsers), and google analytics tracking. See it in the wild over at my other blog "TwoShay":http://www.two-shay.com/articles/why-i-quit-a-six-figure-job, or "jump straight to the demo":http://xaviershay.github.com/nytimes-slider/ to grab the code.

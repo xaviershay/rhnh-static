@@ -2,7 +2,7 @@
 layout: post
 title:  "Acts_as_state_machine locking"
 date:   2009-08-04 17:40:14 +00:00
-tags:   ["Code", "Ruby", "activerecord", "acts_as_state_machine", "locking", "rails"]
+tags:   ["activerecord", "acts_as_state_machine", "code", "locking", "rails", "ruby"]
 ---
 {% raw %}
 consider the following!

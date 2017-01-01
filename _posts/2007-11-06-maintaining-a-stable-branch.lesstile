@@ -2,7 +2,7 @@
 layout: post
 title:  "Maintaining a stable branch"
 date:   2007-11-06 00:47:00 +00:00
-tags:   ["Code", "Ruby", "subversion", "vcs"]
+tags:   ["code", "ruby", "subversion", "vcs"]
 ---
 {% raw %}
 Part one of my VCS ninja skills program.

@@ -2,7 +2,7 @@
 layout: post
 title:  "Contextual Composition With Delegation"
 date:   2008-05-03 19:24:19 +00:00
-tags:   ["Code", "Ruby", "composition", "delegation", "extend"]
+tags:   ["code", "composition", "delegation", "extend", "ruby"]
 ---
 {% raw %}
 I've had some models getting rather large recently. This makes them hard to comprehend and makes the source difficult to browse. A lot of the time, a big chunk of functionality is fairly context specific - it is only relevant to one particular part of my application (reporting, data integration, etc...). "Thoughtbot presented one way to do this recently":http://giantrobots.thoughtbot.com/2008/5/1/skinny-controllers-skinny-models by adding methods to the model that return another model with the extra goodness.

@@ -2,7 +2,7 @@
 layout: post
 title:  "Build time graph with buildhawk"
 date:   2010-09-18 13:59:53 +00:00
-tags:   ["Code", "Ruby", "buildhawk", "rails"]
+tags:   ["buildhawk", "code", "rails", "ruby"]
 ---
 {% raw %}
 !http://farm5.static.flickr.com/4147/5000723561_6c5a18eef0_z.jpg!

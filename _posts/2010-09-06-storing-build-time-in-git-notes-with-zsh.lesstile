@@ -2,7 +2,7 @@
 layout: post
 title:  "Storing build time in git notes with zsh"
 date:   2010-09-06 04:30:00 +00:00
-tags:   ["Code", "git", "zsh"]
+tags:   ["code", "git", "zsh"]
 ---
 {% raw %}
 Playing around with git notes, having seen them on the "github blog":http://github.com/blog/707-git-notes-display. I needed to update to git 1.7.2 (homebrew has it). The following shell command stores the run time of your specs inside a note on the latest commit:

@@ -2,7 +2,7 @@
 layout: post
 title:  "Building Firefox Extensions"
 date:   2006-07-23 11:02:00 +00:00
-tags:   ["Code", "Rant", "Ruby", "firefox extensions"]
+tags:   ["code", "firefox extensions", "rant", "ruby"]
 ---
 {% raw %}
 This article will introduce the basics of "Ruby Rant":http://make.rubyforge.org by creating a Rantfile to build "Firefox":http://www.mozilla.com/firefox/ extensions. You don't actually need to know anything about extensions to follow along, but if you are interested may I recommend this "tutorial by roachfiend":http://roachfiend.com/archives/2004/12/08/how-to-create-firefox-extensions/. You will note that that article (and many others on the same topic) use a batch file to build their extensions. While this is quick to set up for simple development, a build file saves time and effort in the long run, and gives more flexibility.

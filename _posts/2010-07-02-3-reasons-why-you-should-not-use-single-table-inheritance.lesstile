@@ -2,7 +2,7 @@
 layout: post
 title:  "Three Reasons Why You Shouldn't Use Single Table Inheritance "
 date:   2010-07-02 01:05:00 +00:00
-tags:   ["Code", "activerecord", "dbiyf", "rails", "sti"]
+tags:   ["activerecord", "code", "dbiyf", "rails", "sti"]
 ---
 {% raw %}
 *It creates a cluttered data model.* Why don't we just have one table called @objects@ and store everything as STI? STI tables have a tendency to grow and expand as an application develops, and become intimidating and unweildy as it isn't clear which columns belong to which models.

@@ -2,7 +2,7 @@
 layout: post
 title:  "DOM Quirks"
 date:   2006-07-23 11:04:00 +00:00
-tags:   ["Code", "javascript"]
+tags:   ["code", "javascript"]
 ---
 {% raw %}
 Unobtrusive javascript is undoubtably the nicest way to add Javascript behaviours to a web page. It keeps the HTML clean and (hopefully) ensures it will degrade properly in older browsers. That said, the methods you generally use for this type of design (see "Unobtrusive Javascript":http://www.onlinetools.org/articles/unobtrusivejavascript/ for an excellent introduction) contain a number of quirks you should be aware, of which this article addresses a few. In particular, unexpected or non-obvious behaviour in @createElement@, @appendChild@, and @getElementsByTagName@.

@@ -2,7 +2,7 @@
 layout: post
 title:  "Class Table Inheritance and Eager Loading "
 date:   2010-08-15 05:30:00 +00:00
-tags:   ["Code", "Ruby", "activerecord", "cti", "dbiyf", "rails"]
+tags:   ["activerecord", "code", "cti", "dbiyf", "rails", "ruby"]
 ---
 {% raw %}
 Consider a typical class table inheritance table structure with @items@ as the base class and @dvds@ and @cars@ as two subclasses. In addition to what is strictly required, @items@ also has an @item_type@ parameter. This denormalization is usually a good idea, I will save the justification for another post so please take it for granted for now. 

@@ -2,7 +2,7 @@
 layout: post
 title:  "Debugging Deadlocks In Rails"
 date:   2010-07-01 01:30:00 +00:00
-tags:   ["Code", "Ruby", "dbiyf", "deadlock", "mysql", "rails"]
+tags:   ["code", "dbiyf", "deadlock", "mysql", "rails", "ruby"]
 ---
 {% raw %}
 Here is an 13 minute long screencast in which I show you how to go about tracking down a deadlock in a ruby on rails application. I make two assumptions:

@@ -2,7 +2,7 @@
 layout: post
 title:  "Hash trumps case"
 date:   2008-05-10 11:37:00 +00:00
-tags:   ["Code", "Data Structures", "Ruby", "case", "hash", "semantics"]
+tags:   ["case", "code", "data structures", "hash", "ruby", "semantics"]
 ---
 {% raw %}
 --- Ruby

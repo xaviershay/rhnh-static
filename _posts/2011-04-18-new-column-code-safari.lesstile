@@ -2,7 +2,7 @@
 layout: post
 title:  "New Column: Code Safari"
 date:   2011-04-18 00:48:42 +00:00
-tags:   ["Code", "Ruby"]
+tags:   ["code", "ruby"]
 ---
 {% raw %}
 I am writing a regular weekly column at the newly launched Sitepoint project "RubySource":http://rubysource.com. The column is named "Code Safari", where I explore the jungle of ruby libraries and gems and figure out how they work. It's an introductory series designed to not just explain how things operate, but show you the tools and techniques so that you can figure it out yourself.

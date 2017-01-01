@@ -2,7 +2,7 @@
 layout: post
 title:  "Paypal IPN fails date standards"
 date:   2008-03-17 06:24:00 +00:00
-tags:   ["Code", "Ruby", "ipn", "paypal", "time"]
+tags:   ["code", "ipn", "paypal", "ruby", "time"]
 ---
 {% raw %}
 Paypal Instant Payment Notification lets you know when you have received a paypal payment. Presumably, you then mark an order as paid or something. Do not use the current time as the @paid_at@ date - despite the 'instant' in the title it can be many days later. You should use the @payment_date@ provided by paypal. Your accountant will thank you.

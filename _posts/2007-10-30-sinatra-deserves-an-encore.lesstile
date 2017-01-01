@@ -2,7 +2,7 @@
 layout: post
 title:  "Sinatra deserves an encore"
 date:   2007-10-30 10:39:00 +00:00
-tags:   ["Code", "Ruby", "sinatra"]
+tags:   ["code", "ruby", "sinatra"]
 ---
 {% raw %}
 I'm putting together a small site for a dancing troupe I'm involved with. Index page, bio pages, that's about it. I want basic templating so I can keep my HTML dry. Initially I tried rolling my own solution with ERB and rake to generate HTML, but that was shit, so I found "Sinatra":http://sinatra.rubyforge.org and found that a much tastier. It's kind of like "camping":http://code.whytheluckystiff.net/camping/ but without all the weird meta-fu. Also, it has a sweet name and sweet copy:

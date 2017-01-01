@@ -2,7 +2,7 @@
 layout: post
 title:  "Lesstile - A yuletide present"
 date:   2007-12-27 06:19:00 +00:00
-tags:   ["Code", "Ruby", "lesstile"]
+tags:   ["code", "lesstile", "ruby"]
 ---
 {% raw %}
 Textile is great for formatting articles. But comments aren't articles, and I have always felt that textile was overkill. Do you really need nested headings and subscript in comments? No.

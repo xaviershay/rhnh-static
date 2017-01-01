@@ -2,7 +2,7 @@
 layout: post
 title:  "YAML in Ruby Tutorial"
 date:   2006-06-25 11:15:00 +00:00
-tags:   ["Code", "Ruby", "core extensions", "yaml"]
+tags:   ["code", "core extensions", "ruby", "yaml"]
 ---
 {% raw %}
 _UPDATE 2011-01-31: I have posted a newer tutorial which is probably going to be more useful to you than this one: "YAML Tutorial":/2011/01/31/yaml-tutorial_

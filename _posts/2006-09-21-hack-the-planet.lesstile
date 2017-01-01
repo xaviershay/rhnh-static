@@ -2,7 +2,7 @@
 layout: post
 title:  "Hack the Planet"
 date:   2006-09-21 02:10:00 +00:00
-tags:   ["Code", "Ethics", "Life", "Rant", "csharp"]
+tags:   ["code", "csharp", "ethics", "life", "rant"]
 ---
 {% raw %}
 <ol>

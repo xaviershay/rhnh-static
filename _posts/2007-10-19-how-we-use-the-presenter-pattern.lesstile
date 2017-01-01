@@ -2,7 +2,7 @@
 layout: post
 title:  "How we use the Presenter pattern"
 date:   2007-10-19 07:01:00 +00:00
-tags:   ["Code", "Ruby", "ideology", "presenter", "rails"]
+tags:   ["code", "ideology", "presenter", "rails", "ruby"]
 ---
 {% raw %}
 <em>FAKE EDIT: I wrote this article just after RailsConf but have just got around to publishing it. Jay has since "written a follow up":http://blog.jayfields.com/2007/10/rails-rise-fall-and-potential-rebirth.html which is worthwhile reading.</em>

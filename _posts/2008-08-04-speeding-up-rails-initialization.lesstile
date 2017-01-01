@@ -2,7 +2,7 @@
 layout: post
 title:  "Speeding up Rails Initialization"
 date:   2008-08-04 12:03:00 +00:00
-tags:   ["Code", "Ruby", "activescaffold", "rails"]
+tags:   ["activescaffold", "code", "rails", "ruby"]
 ---
 {% raw %}
 Chad Wooley just posted a tip to "get rails starting up faster":http://pivots.pivotallabs.com/users/chad/blog/articles/482-standup-8-1-2008. Which is real, except it doesn't work if you're using ActiveScaffold. This is due to a load ordering problem - ActiveScaffold monkey patches the @Resource@ class used by routes _after_ routes have been parsed the first time, and relies on the re-parsing triggered by the inflections change.

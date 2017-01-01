@@ -2,7 +2,7 @@
 layout: post
 title:  "Facets patch"
 date:   2007-11-05 23:21:00 +00:00
-tags:   ["Code", "Ruby", "core extensions", "facets", "hash"]
+tags:   ["code", "core extensions", "facets", "hash", "ruby"]
 ---
 {% raw %}
 --- bash

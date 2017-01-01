@@ -2,7 +2,7 @@
 layout: post
 title:  "Unique data in dm-sweatshop"
 date:   2008-11-14 18:47:00 +00:00
-tags:   ["Code", "Ruby", "datamapper", "dm-more", "dm-sweatshop", "fixtures", "testing"]
+tags:   ["code", "datamapper", "dm-more", "dm-sweatshop", "fixtures", "ruby", "testing"]
 ---
 {% raw %}
 @dm-sweatshop@ is how you set up test data for your datamapper apps. Standard practice is to generate random data that follows a pattern:

@@ -2,7 +2,7 @@
 layout: post
 title:  "Practical Hpricot: SVG"
 date:   2007-07-01 07:29:00 +00:00
-tags:   ["Code", "Ruby", "hpricot", "svg"]
+tags:   ["code", "hpricot", "ruby", "svg"]
 ---
 {% raw %}
 Inkscape does a pretty good job of creating plain SVG files, but they could be nicer. A particular file I was working on had many path elements, all with the same style attribute that I wanted to move into a parent tag (or external style or whatever). What better way to strip them out than Hpricot?

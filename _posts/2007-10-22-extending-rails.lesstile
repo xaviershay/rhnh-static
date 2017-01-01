@@ -2,7 +2,7 @@
 layout: post
 title:  "Extending Rails"
 date:   2007-10-22 07:31:00 +00:00
-tags:   ["Code", "Ruby", "rails"]
+tags:   ["code", "rails", "ruby"]
 ---
 {% raw %}
 Previously, I extended rails by monkey patching stuff in @lib/@. This was good because it kept @vendor/rails@ clean.

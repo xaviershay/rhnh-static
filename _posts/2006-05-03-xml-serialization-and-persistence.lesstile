@@ -2,7 +2,7 @@
 layout: post
 title:  "XML Serialization and Persistence"
 date:   2006-05-03 12:35:00 +00:00
-tags:   ["Code", "Ruby", "persistence", "serialization", "xml"]
+tags:   ["code", "persistence", "ruby", "serialization", "xml"]
 ---
 {% raw %}
 I've been using <code>cl/xmlserial</code> to save/load my levels. Unfortunately, it doesn't have a good mechanism for making variables transient - it just dumps every instance variable you've got. UNACCEPTABLE. So i patched it a bit. Now we can do something like this:

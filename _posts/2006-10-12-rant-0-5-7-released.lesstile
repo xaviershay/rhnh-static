@@ -2,7 +2,7 @@
 layout: post
 title:  "Rant 0.5.7 Released"
 date:   2006-10-12 10:54:00 +00:00
-tags:   ["Rant", "csharp"]
+tags:   ["csharp", "rant"]
 ---
 {% raw %}
 Recently I have had the need to do some C# work. Not wanting to stray too far from ruby, I used "Rant":http://make.rubyforge.org to build my project. Initially, Rant wasn't quite up to the task, so I rolled up my sleeves and did something about it. The culmination of my efforts comprise the primary component of today's 0.5.7 release, so check it out for some white hot C# build file action.

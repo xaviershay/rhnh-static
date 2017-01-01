@@ -2,7 +2,7 @@
 layout: post
 title:  "Laggy Donuts - Client Side Prediction"
 date:   2005-07-27 13:22:00 +00:00
-tags:   ["Code", "UI", "lag"]
+tags:   ["code", "lag", "ui"]
 ---
 {% raw %}
 Obviously, you have to synchronize your client data with the server. How do you do this when the client is entering data? A naive solution* might send the client data and refresh itself when a confirmation or update message is received from the server. This works great on local testing, but what happens when you are getting lag? The client will notice delays between them doing something and the UI reflecting the change - a Bad Thing. The UI must be responsive at all times. The way around this problem is client-side prediction. In most cases, you can assume that the user will enter â€œcorrectâ€ data. Think about it - how many times do you enter invalid data into a game? This means that in most cases, we can update the UI to reflect the change as soon!

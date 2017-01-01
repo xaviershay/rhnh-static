@@ -2,7 +2,7 @@
 layout: post
 title:  "Constraints assist understanding"
 date:   2010-08-06 07:30:00 +00:00
-tags:   ["Code", "Ruby", "dbiyf", "rails"]
+tags:   ["code", "dbiyf", "rails", "ruby"]
 ---
 {% raw %}
 The hardest thing for a new developer on a project to wrap his head around is not the code. For the most part, ruby code stays the same across projects. My controllers look like your controllers, my models look like your models. What defines an application is not the code, but the domain. The business concepts, and how they are translated into code, can take weeks or months to understand cleanly. Modelling your domain in a way that it is easily understood is an important principle to speed up this learning process.

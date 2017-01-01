@@ -2,7 +2,7 @@
 layout: post
 title:  "Concurrency with AASM, Isolation Levels"
 date:   2010-07-21 22:19:27 +00:00
-tags:   ["Code", "Ruby", "aasm", "activerecord", "dbiyf", "rails"]
+tags:   ["aasm", "activerecord", "code", "dbiyf", "rails", "ruby"]
 ---
 {% raw %}
 I've posted two guest articles over on the Engine Yard blog this week on database related topics:

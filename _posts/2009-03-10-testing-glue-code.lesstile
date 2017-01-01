@@ -2,7 +2,7 @@
 layout: post
 title:  "Testing Glue Code"
 date:   2009-03-10 08:33:15 +00:00
-tags:   ["Code", "Ruby", "db2s3", "testing"]
+tags:   ["code", "db2s3", "ruby", "testing"]
 ---
 {% raw %}
 "db2s3":http://github.com/xaviershay/db2s3 combines together 3 external dependencies - your database, the filesystem, and Amazon's S3 service. It has 1 conditional in the main code path (and it's not even an important one). The classic unit testing approach of "stub everything" provides little benefit.

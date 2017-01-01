@@ -2,7 +2,7 @@
 layout: post
 title:  "Snippets in SVN"
 date:   2007-02-13 09:51:00 +00:00
-tags:   ["Code"]
+tags:   ["code"]
 ---
 {% raw %}
 Added a "snippets section":http://rhnh.svnrepository.com/svn/public/ruby/snippets/ to my public subversion repository, to hold random ruby goodies that I happen to have found useful at some point or another. Maybe you too will find something enticing?

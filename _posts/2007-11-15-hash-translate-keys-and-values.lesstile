@@ -2,7 +2,7 @@
 layout: post
 title:  "Hash#translate_keys_and_values"
 date:   2007-11-15 05:55:00 +00:00
-tags:   ["Code", "Ruby", "core extensions", "hash"]
+tags:   ["code", "core extensions", "hash", "ruby"]
 ---
 {% raw %}
 --- ruby

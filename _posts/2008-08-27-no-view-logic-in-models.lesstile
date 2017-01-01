@@ -2,7 +2,7 @@
 layout: post
 title:  "You don't need view logic in models"
 date:   2008-08-27 13:19:04 +00:00
-tags:   ["Code", "Data Structures", "Ruby", "semantics"]
+tags:   ["code", "data structures", "ruby", "semantics"]
 ---
 {% raw %}
 "Jake Scruggs wrote about moving view logic into his models":http://jakescruggs.blogspot.com/2008/08/im-thinking-of-putting-view-logic-into.html

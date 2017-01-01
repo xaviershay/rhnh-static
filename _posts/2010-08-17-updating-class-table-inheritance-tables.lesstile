@@ -2,7 +2,7 @@
 layout: post
 title:  "Updating Class Table Inheritance Tables"
 date:   2010-08-17 16:41:42 +00:00
-tags:   ["Code", "Ruby", "activerecord", "cti", "dbiyf", "rails"]
+tags:   ["activerecord", "code", "cti", "dbiyf", "rails", "ruby"]
 ---
 {% raw %}
 My last post covered "querying class table inheritance":http://rhnh.net/2010/08/15/class-table-inheritance-and-eager-loading tables; this one presents a method for updating them. Having set up our ActiveRecord models using composition, we can use a standard rails method @accepts_nested_attributes_for@ to allow easy one-form updating of the relationship.

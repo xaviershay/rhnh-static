@@ -2,7 +2,7 @@
 layout: post
 title:  "Dropwizard logger for Ruby and WEBrick"
 date:   2014-08-17 22:30:19 +00:00
-tags:   ["Code", "dropwizard", "ruby", "webrick"]
+tags:   ["code", "dropwizard", "ruby", "webrick"]
 ---
 {% raw %}
 Wouldn't it be great if instead of webrick logs looking like:

@@ -2,7 +2,7 @@
 layout: post
 title:  "Comparing lambdas in ruby"
 date:   2008-11-03 08:54:00 +00:00
-tags:   ["Code", "Ruby", "benchmark", "lambda", "parsetree", "proc", "ruby2ruby"]
+tags:   ["benchmark", "code", "lambda", "parsetree", "proc", "ruby", "ruby2ruby"]
 ---
 {% raw %}
 @to_ruby@ is a really convenient way to compare the equality of two lambdas. It's a bit slow though. If we get our hands dirty (only a little!) with ParseTree, we can get a result 2 orders of magnitude quicker. I'd be interested to see if these benchmarks differ significantly on other versions of ruby.

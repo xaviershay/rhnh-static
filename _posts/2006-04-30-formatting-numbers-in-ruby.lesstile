@@ -2,7 +2,7 @@
 layout: post
 title:  "Formatting numbers in ruby"
 date:   2006-04-30 15:49:00 +00:00
-tags:   ["Code", "Ruby", "formatting", "numbers"]
+tags:   ["code", "formatting", "numbers", "ruby"]
 ---
 {% raw %}
 Just for my own reference, this is how you format numbers in Ruby:

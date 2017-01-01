@@ -2,7 +2,7 @@
 layout: post
 title:  "Ordering by a field in a join model with DataMapper"
 date:   2010-12-01 01:01:58 +00:00
-tags:   ["Code", "Ruby", "datamapper"]
+tags:   ["code", "datamapper", "ruby"]
 ---
 {% raw %}
 The public interface for datamapper 1.0.3 does not support ordering by a column in a joined model on a query. The core of datamapper does support this though, so we can use some hacks to make it work, as the following code demonstrates.

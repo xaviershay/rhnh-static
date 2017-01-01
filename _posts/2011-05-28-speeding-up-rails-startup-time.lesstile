@@ -2,7 +2,7 @@
 layout: post
 title:  "Speeding up Rails startup time"
 date:   2011-05-28 01:08:00 +00:00
-tags:   ["Code", "Ruby", "rails"]
+tags:   ["code", "rails", "ruby"]
 ---
 {% raw %}
 In which I provide easy instructions to try a new patch that drastically improves the start up time of Ruby applications, in the hope that with wide support it will be merged into the upcoming 1.9.3 release. Skip to the bottom for instructions, or keep reading for the narrative.

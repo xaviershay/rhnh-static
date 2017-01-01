@@ -2,7 +2,7 @@
 layout: post
 title:  "exception_notifiable and ruby 1.8.6 p110"
 date:   2007-12-07 06:20:00 +00:00
-tags:   ["Code", "Ruby", "exception_notifiable"]
+tags:   ["code", "exception_notifiable", "ruby"]
 ---
 {% raw %}
 ruby 1.8.6 p110 has recently come out in ports. If you're using the exception_notifiable plugin to let you know about errors, make sure you update it to at least r8191, otherwise it will break when you update ruby. And you won't know about it, because it can't email you.

@@ -2,7 +2,7 @@
 layout: post
 title:  "Formatting ruby hashes in VIM"
 date:   2007-12-13 12:19:00 +00:00
-tags:   ["Code", "Ruby", "vim"]
+tags:   ["code", "ruby", "vim"]
 ---
 {% raw %}
 I've been meaning to write this script for a while. If you're anal about your whitespace (like I), you'll often pretty up your ruby hashes to make them easy to read by adding a bit of whitespace to the keys before the =>. I wrote a ruby script to do this automatically!

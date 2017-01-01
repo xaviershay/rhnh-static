@@ -2,7 +2,7 @@
 layout: post
 title:  "Practical Hpricot: XML to INI"
 date:   2007-06-01 02:11:00 +00:00
-tags:   ["Code", "Ruby", "hpricot"]
+tags:   ["code", "hpricot", "ruby"]
 ---
 {% raw %}
 --- ruby

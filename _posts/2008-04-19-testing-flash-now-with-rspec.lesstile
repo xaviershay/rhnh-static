@@ -2,7 +2,7 @@
 layout: post
 title:  "Testing flash.now with RSpec"
 date:   2008-04-19 11:32:53 +00:00
-tags:   ["Code", "Ruby", "controllers", "flash", "rails", "rspec"]
+tags:   ["code", "controllers", "flash", "rails", "rspec", "ruby"]
 ---
 {% raw %}
 @flash.now@ has always been a pain to test. The the traditional rails approach is to use @assert_select@ and find it in your views. This clearly doesn't work if you want to test your controller in isolation.

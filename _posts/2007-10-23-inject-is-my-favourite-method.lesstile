@@ -2,7 +2,7 @@
 layout: post
 title:  "Enumerable#inject is my favourite method"
 date:   2007-10-23 07:46:00 +00:00
-tags:   ["Code", "Ruby", "array", "core extensions", "hash"]
+tags:   ["array", "code", "core extensions", "hash", "ruby"]
 ---
 {% raw %}
 <em>Combines the elements of enum by applying the block to an accumulator value (memo) and each element in turn. At each step, memo is set to the value returned by the block. - "RubyDoc":http://www.ruby-doc.org/core/classes/Enumerable.html#M003171</em>
