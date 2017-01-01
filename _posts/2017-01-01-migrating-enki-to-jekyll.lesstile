@@ -5,7 +5,9 @@ date: 2017-01-01
 layout: 'post'
 ---
 
-I just converted this blog from a dynamic "Enki":https://github.com/xaviershay/enki site to a static "Jekyll":https://jekyllrb.com/ one. First, I exported all of the posts to lesstile templates using a rake task.
+I just converted this blog from a dynamic "Enki":https://github.com/xaviershay/enki site to a static "Jekyll":https://jekyllrb.com/ one. I wanted to get rid of the comments, add SSL, and not have to upgrade Rails so often. I prefer composing locally also.
+
+First, I exported all of the posts to lesstile templates using a rake task.
 
 --- ruby
 task :export_posts => :environment do
