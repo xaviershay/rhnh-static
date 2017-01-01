@@ -12,7 +12,7 @@ permalink: "/:year/:month/:day/:title"
 jekyll-archives:
   enabled:
     - tags
-  layout: 'archive'
+  layout: 'tag'
   permalinks:
     year: '/:year/'
     month: '/:year/:month/'
