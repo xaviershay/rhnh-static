@@ -7,6 +7,7 @@ baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://rhnh.net" # the base hostname & protocol for your site, e.g. http://example.com
 
 timezone: "Etc/UTC"
+permalink: "/:year/:month/:day/:title"
 
 # Build settings
 markdown: kramdown
