@@ -7,7 +7,7 @@ baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://rhnh.net" # the base hostname & protocol for your site, e.g. http://example.com
 
 timezone: "Etc/UTC"
-permalink: "/:year/:month/:day/:title"
+permalink: "/:year/:month/:day/:title/"
 
 assets:
   digest: true
@@ -17,11 +17,7 @@ jekyll-archives:
     - tags
   layout: 'tag'
   permalinks:
-    year: '/:year/'
-    month: '/:year/:month/'
-    day: '/:year/:month/:day/'
     tag: '/:name/'
-    category: '/category/:name/'
 
 # Build settings
 markdown: kramdown
