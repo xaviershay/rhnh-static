@@ -19,6 +19,10 @@ jekyll-archives:
   permalinks:
     tag: '/:name/'
 
+kramdown:
+  input: GFM
+  syntax_highlighter: coderay
+
 # Build settings
 markdown: kramdown
 gems:
