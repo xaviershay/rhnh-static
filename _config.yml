@@ -9,11 +9,23 @@ url: "https://rhnh.net" # the base hostname & protocol for your site, e.g. http:
 timezone: "Etc/UTC"
 permalink: "/:year/:month/:day/:title"
 
+jekyll-archives:
+  enabled:
+    - tags
+  layout: 'archive'
+  permalinks:
+    year: '/:year/'
+    month: '/:year/:month/'
+    day: '/:year/:month/:day/'
+    tag: '/:name/'
+    category: '/category/:name/'
+
 # Build settings
 markdown: kramdown
 gems:
   - jekyll-feed
   - jekyll-assets
+  - jekyll-archives
 
 exclude:
   - Gemfile
