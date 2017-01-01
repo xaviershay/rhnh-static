@@ -1,0 +1,11 @@
+---
+layout: post
+title:  "Convert M4A to WAV in Ubuntu"
+date:   2007-07-23 07:24:00 +00:00
+tags:   ["Code", "m4a", "mplayer", "ubuntu", "wav"]
+---
+{% raw %}
+--- bash
+mplayer -ao pcm:file=targetfile.wav sourcefile.m4a
+---
+{% endraw %}

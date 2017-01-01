@@ -1,0 +1,11 @@
+---
+layout: post
+title:  "Tiny doc patch wins hearts"
+date:   2007-12-13 05:41:00 +00:00
+tags:   ["Code", "Ruby"]
+---
+{% raw %}
+Rails patch accepted after just 44 minutes: "r8379":http://dev.rubyonrails.org/changeset/8379
+
+A result of moving our app from preview 1-ish on to 2-stable this morning. Only other issues were a test that was expecting a ProtectedAttributeAssignmentError - now the attribute just doesn't get set (a good change), and some small changes where we were doing stupid things with view paths.
+{% endraw %}

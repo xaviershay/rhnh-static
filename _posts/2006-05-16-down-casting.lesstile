@@ -1,0 +1,28 @@
+---
+layout: post
+title:  "Down Casting"
+date:   2006-05-16 16:51:00 +00:00
+tags:   ["java", "syntax"]
+---
+{% raw %}
+John was musing on <a href="http://www.byteclub.net/blog/jnewbigin/20060515/automatic-type-conversion/">Automatic type conversion</a>, and so I started to muse also.
+
+I don't think explicit casting in this case is a Bad Thing. For a start, if you are passing a variable to a function that is not of a correct type, then this should require some sort of explanation. Down casting is not a best practice, so its use should always require justification. From a maintenence/debugging perspective, explicit casting is necessary because it acknowledges that a decision was made.
+
+So while automatic conversion is possible (using the suggested <code>auto</code>) syntax, I question whether this is of any value. If you are specifying 'auto', you may as well just cast it explicitly. It's the same amount of code, and much more self-documenting.
+
+The example John gives is clear, but trivial. Where in a real world case would you desire this behaviour?
+
+Thinking of cases where I have had problems with casting, Swing GUIs swing to mind. Generic listeners almost always require some kind of downcasting. Maybe allowing overloaded methods to specify child classes of the variables in the methods signature would be of benefit. Or generics/templates could probably give quite a neat solution.
+
+--- Java
+public class MyGUI implements ActionListener<JButton>
+{
+  public void actionPerformed(ActionEvent e)
+  {
+    JButton source = e.getSource() // No cast required
+  }
+}
+---
+
+{% endraw %}

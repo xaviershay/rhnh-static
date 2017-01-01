@@ -1,0 +1,13 @@
+---
+layout: post
+title:  "New Site"
+date:   2007-08-14 10:22:00 +00:00
+tags:   []
+---
+{% raw %}
+Hey look, RHNH is shiny and new! I've folded in blog.rhnh.net, articles and the old rhnh and put it all into a mephisto install. I will be migrating across most of my "byteclub blog":http://www.byteclub.net/blog/xavier in the fullness of time. There's still a few loose ends that I'm working on, but on the whole everything should be pretty OK.
+
+EDIT: Looks like commenting is broken ... not 100% sure why. I'm going to go and blame FastCGI coz I don't know anything about it.
+
+EDIT2: Ultra props to <a href="http://grantbissett.com">Grant</a> for setting me up with an account where I can run mongrel. If you're seeing this the DNS changes have propagated through and everything should be working A-OK.
+{% endraw %}

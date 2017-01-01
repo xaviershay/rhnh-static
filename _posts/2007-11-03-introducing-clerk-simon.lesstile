@@ -1,0 +1,16 @@
+---
+layout: post
+title:  "Introducing Clerk Simon"
+date:   2007-11-03 10:23:00 +00:00
+tags:   ["Code", "Ruby", "clerk simon", "email", "ldap"]
+---
+{% raw %}
+Someone sends you an email and you want to add them to your LDAP address book, but your email client doesn't support it *cough*thunderbird*cough*. If you think the next best way would be to just forward that email somewhere and have someone else take care of it, then allow me to introduce "Clerk Simon":http://code.rhnh.net/clerk_simon/README. He's quite attentive when it comes to such matters, and fully certified to boot. Full details at that link, check it out.
+
+--- bash
+bzr co http://code.rhnh.net/clerk_simon/
+cd clerk_simon
+cp config.sample.yml config.yml # Edit to taste
+bin/clerk_simon config.yml
+---
+{% endraw %}

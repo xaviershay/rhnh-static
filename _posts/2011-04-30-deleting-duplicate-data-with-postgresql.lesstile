@@ -1,0 +1,31 @@
+---
+layout: post
+title:  "Deleting duplicate data with PostgreSQL"
+date:   2011-04-30 03:05:45 +00:00
+tags:   ["Code", "dbiyf", "postgresql", "sql"]
+---
+{% raw %}
+Here is an update to a query I posted a while back for "detecting duplicate data":http://rhnh.net/2010/08/22/duplicate-data. It allows you to select all but one of the resulting duplicates, for easy deletion. It only works on PostgreSQL, but is pretty neat. It uses a window function!
+
+--- SQL
+DELETE FROM users 
+USING (
+  SELECT id, first_value(id) OVER (
+    PARTITION BY name ORDER BY created_at DESC
+  ) first_id
+  FROM users
+  WHERE name IN (
+    SELECT name 
+    FROM users 
+    GROUP BY name 
+    HAVING count(name) > 1
+  )
+) dups
+WHERE dups.id != dups.first_id AND users.id = dups.id;
+---
+
+The order by is optional, but handy if you need to select a particular row rather than just an arbitrary one. You need an extra sub-query because you can't have window functions in a where clause.
+
+For more tasty PostgreSQL tricks, check out my "Meet PostgreSQL screencast":http://peepcode.com/products/postgresql, a steal at only $12 *plug plug plug*.
+
+{% endraw %}

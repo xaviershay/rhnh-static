@@ -1,0 +1,20 @@
+---
+layout: post
+title:  "Don't use pagination on your blog"
+date:   2007-12-30 08:24:00 +00:00
+tags:   ["Code", "ideology"]
+---
+{% raw %}
+What problem are you trying to solve? In my case, I don't want the bottom of the page to be a dead end. Paging would appear to be a good solution - click next page, get more content. Alas, it has issues:
+
+ * When you post a new article, it changes the content of all your pages. Google doesn't like this - search traffic to your blog will suffer since people will click through expecting an older version of the page.
+ * Invalidates your entire cache when you post something new. Admittedly not a problem for most of us, but worth considering.
+
+Archives solve my problem - not wanting a dead end, while avoiding the two problems with pagination mentioned above. It is harder to get your window size right though (you don't want 2 or 200 articles per page).
+
+For bonus points, add something like the "Humanized Reader":http://www.humanized.com/weblog/2006/04/28/reading_humanized/. Javascript fetches the next article when you're near the bottom of the page, seamlessly adding it to the bottom of the page so the user can just keep on reading.
+
+I've just added archives to this site - an interim fix to tide me over until I do it right.
+
+Thanks to "Rick Olson":http://techno-weenie.net/ for telling me I didn't need paging.
+{% endraw %}

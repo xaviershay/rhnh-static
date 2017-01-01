@@ -1,0 +1,53 @@
+---
+layout: post
+title:  "Lesstile - A yuletide present"
+date:   2007-12-27 06:19:00 +00:00
+tags:   ["Code", "Ruby", "lesstile"]
+---
+{% raw %}
+Textile is great for formatting articles. But comments aren't articles, and I have always felt that textile was overkill. Do you really need nested headings and subscript in comments? No.
+
+Also! And more importantly, textile doesn't output valid XHTML. Consider the following textile code:
+
+--- none
+<b>
+Hello
+
+This is broken
+</b>
+---
+
+Converts to:
+
+--- html
+<p><b>
+Hello</p>
+<p>This is broken</b></p>
+---
+
+That sucks if your blog happens to be XHTML strict, because then your site is broken :( So I made an  alternative. I offer it as a present to you: "Lesstile":http://lesstile.rubyforge.org
+
+Try it out, it's pretty neat:
+--- none
+gem install lesstile
+---
+--- ruby
+require 'lesstile'
+
+Lesstile.format_as_xhtml <<-EOS
+Wow this is ace!
+
+--- Ruby
+def some_code
+  "yay code"
+end
+---
+EOS
+---
+
+It supports code blocks, and that's it. You can easily pass it through CodeRay to get syntax highlighting if you want - see the docs. In the future it may also support hyperlinking. That's all I suppose commenters on this blog need, maybe you will tell me otherwise. Try it out on this post.
+
+As a special extra treat, I added live preview to this blog, so you can see what your comment is going to look like as you write. It's just like the future!
+
+Please comment with code to say hi.
+{% endraw %}

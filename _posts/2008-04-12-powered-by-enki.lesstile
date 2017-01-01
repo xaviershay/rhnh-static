@@ -1,0 +1,15 @@
+---
+layout: post
+title:  "Powered by Enki"
+date:   2008-04-12 14:25:00 +00:00
+tags:   ["Code", "enki"]
+---
+{% raw %}
+Finally got this blog switched over to "Enki":http://www.enkiblog.com. Main feed has moved to feed burner. Please report any weirdness to the relevant authorities.
+
+For some extra content, here's what's happening in the Enki world:
+
+ * Moved to github (keeping gitorious as a mirror)
+ * "Tim":http://toolmantim.com has a functional "multiple authors fork":http://gitorious.org/projects/enki/repos/multiple-authors
+ * API is functional if you want to kick the tyres a bit, still needs some work though. Here is some code to "publish from VIM":http://github.com/xaviershay/enki-vim/tree/master
+{% endraw %}

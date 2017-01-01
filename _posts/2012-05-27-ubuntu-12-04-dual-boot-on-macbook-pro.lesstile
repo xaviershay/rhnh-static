@@ -1,0 +1,24 @@
+---
+layout: post
+title:  "Ubuntu 12.04 dual boot on Macbook Pro"
+date:   2012-05-27 17:00:33 +00:00
+tags:   ["code", "ubuntu"]
+---
+{% raw %}
+The "official instructions":https://help.ubuntu.com/community/MactelSupportTeam/AppleIntelInstallation are mostly right, but I still needed a bit of black magic to get everything working. Here are my supplementary instructions:
+
+# Install "rEFIt":http://refit.sourceforge.net/. Just works.
+# Use Disk Utility to shrink main disk partition to make space for Ubuntu (leave "free space" in the rest). Failed because my disk has errors.
+# Restart into single user mode. The internet tells you to hold down option+s as your computer boots. If you have rEFIt installed, this will take you to the rEFIt shell instead. Instead, let rEFIt boot, select OSX, then press F2. An option to boot to single-user mode will be presented.
+# @fsck -fy@, as directed by the prompt. Interesting excerpt from OSX @fsck@ manpage: "this should be used with great caution as this is a free license to continue after essentially unlimited trouble has been encountered." Don't worry about it, it's fine.
+# Reboot back into OSX, try Disk Utility again. Fails with "The partition cannot be resized. Try reducing the amount of change in the size of the partition." Protip: don't do that, it won't help. Instead follow the instructions at "this Superuser answer":http://superuser.com/a/291378/136500. It may take a few runs through to fix all the problems.
+# Reboot with the Ubuntu LiveCD (I used @ubuntu-12.04-desktop-i386.iso.torrent@). rEFIt will present it as a bootable option to you. Select "Try Ubuntu" (_not_ "install").
+# Select "Dash Home" icon (top left), find @gparted@ tool. Create 1Gb swap partition, 24Gb, ext4 partition.
+# Select the "Non-free firmware" icon that shows up in the icons top right and follow the prompts. Without this, your wireless won't work.
+# Select "Install Ubuntu" from desktop. Select custom install, change the ext4 partition to mount @/@, ensure the swap partition is labeled as such, and choose to install the boot loader to ext4 partition, _not_ the main disk. Follow the rest of the prompts.
+# After install, don't reboot, instead keep trying Ubuntu. Shutdown (_not_ reboot), then power on again. I tried to select linux, but it froze on the penguin grey screen and never got to linux. Following instructions from "this post":http://ubuntuforums.org/showpost.php?p=9971694&postcount=26 Hard power off, power on again and hold down option. Ubuntu shows up as "windows" [wtf], boot that, which loads up the grub prompt. Boot into the GUI then shut down again. Now Ubuntu will boot correctly from rEFIt.
+
+To make it feel more like home, switch alt and command keys using "this configuration":https://help.ubuntu.com/community/AppleKeyboard#Ubuntu_8.10_.28Intrepid_Ibex.29_through_12.04_.28Precise_Pangolin.29 and in the "Mouse and Trackpad" system settings enable two finger scroll and disable clicking with touchpad (otherwise you'll accidentally click all the time while typing).
+
+Last time I used Ubuntu was around version 6 days, which you can't even download anymore. It's a _lot_ slicker. The icons and fonts are actually quite nice. Colemak is a first class citizen, I could select it during install and use it on my login screen, which is awesome.
+{% endraw %}

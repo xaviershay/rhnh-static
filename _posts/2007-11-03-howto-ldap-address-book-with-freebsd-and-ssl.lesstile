@@ -1,0 +1,99 @@
+---
+layout: post
+title:  "LDAP Address Book with FreeBSD and SSL"
+date:   2007-11-03 06:28:00 +00:00
+tags:   ["Code", "freebsd", "ldap", "ssl"]
+---
+{% raw %}
+First you need to install and configure the OpenLDAP server. Clearly you won't want to use rhnh.net - just substitute in your own domain.
+
+--- bash
+sudo pkg_add -r openldap24-server
+sudo pkg_add -r openssl
+
+sudo cp /usr/local/openssl/openssl.cnf.sample /usr/local/openssl/openssl.cnf 
+# Generate a self signed certificate
+sudo openssl req -newkey rsa:1024 -x509 -nodes -out server.pem -keyout server.pem -days 3650
+sudo mkdir /usr/local/etc/ldap
+sudo mv server.pem /usr/local/etc/ldap
+
+# /etc/rc.conf
+slapd_enable="YES"
+slapd_flags='-h "ldaps://rhnh.net/"'
+
+# /usr/local/etc/openldap/ldap.conf
+# Add these same settings not just on the server but for each client
+BASE dc=rhnh, dc=net
+URI ldaps://rhnh.net/
+TLS_REQCERT allow
+
+# /usr/local/etc/openldap/slapd.conf:
+# Add
+include     /usr/local/etc/openldap/schema/cosine.schema
+include     /usr/local/etc/openldap/schema/inetorgperson.schema
+
+TLSCipherSuite HIGH:MEDIUM:-SSLv2
+TLSCACertificateFile /usr/local/etc/ldap/server.pem
+TLSCertificateFile /usr/local/etc/ldap/server.pem
+TLSCertificateKeyFile /usr/local/etc/ldap/server.pem
+
+require authc
+
+# Modify these properties from their defaults
+suffix          "dc=rhnh,dc=net"
+rootdn          "cn=xavier,dc=rhnh,dc=net"
+# Use slappasswd to generate your own password
+rootpw          {SSHA}Iogj+Awafoj9FP5IdLVy1DmFaASDw1P5 # secret
+---
+
+Start up the server to make sure everything is apples
+
+--- bash
+sudo /usr/local/etc/rc.d/slapd start
+openssl s_client -connect rhnh.net:636 -showcerts
+---
+
+Load up a schema to hold your address book entries, and here is also an example entry.
+
+--- bash
+# directory.ldif
+dn: dc=rhnh, dc=net
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+dc: rhnh
+o:  Robot Has No Heart
+
+dn: ou=people, dc=rhnh, dc=net
+objectClass: top
+objectClass: organizationalUnit
+ou: people
+
+# contact.ldif
+dn: cn=Xavier Shay, ou=people, dc=rhnh, dc=net
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Xavier Shay
+gn: Xavier
+sn: Shay
+mail: contact@rhnh.net
+ou: people
+mobile: 0400-123-456
+---
+--- bash
+ldapadd -D 'cn=xavier,dc=rhnh,dc=net' -f directory.ldif -W
+ldapsearch -D 'cn=xavier,dc=rhnh,dc=net' -w -x # Check everything worked
+---
+
+To configure Thunderbird to use your address book, go to @Edit - Preferences... - Composition - Edit Directories...@ and follow the bouncing ball. Thunderbird can't write to the directory, which is kind of a pain. Maybe you could use Evolution, which I think works. Maybe you could write an app that monitors a drop box and updates your directory for you. Maybe you could assume I've already done what I suggested and wait for me to release it in the very near future.
+
+Tested on FreeBSD 6.2-stable
+
+h3. References
+
+ * "Building an Address Book with OpenLDAP":http://www.onlamp.com/pub/a/onlamp/2003/03/27/ldap_ab.html
+ * "Installing Secure LDAP on Ubuntu using a self-signed certificate":http://islandlinux.org/howto/installing-secure-ldap-openldap-ssl-ubuntu-using-self-signed-certificate
+ * "OpenLDAP Administrator's Guide":http://www.openldap.org/doc/admin23/security.html
+{% endraw %}

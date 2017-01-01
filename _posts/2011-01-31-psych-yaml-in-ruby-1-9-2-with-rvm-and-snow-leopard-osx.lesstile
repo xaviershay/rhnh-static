@@ -1,0 +1,15 @@
+---
+layout: post
+title:  "Psych YAML in ruby 1.9.2 with RVM and Snow Leopard OSX"
+date:   2011-01-31 10:27:00 +00:00
+tags:   ["Code", "Ruby", "psych", "yaml"]
+---
+{% raw %}
+Note that you must have libyaml installed _before_ you compile ruby, so this probably means you'll need to recompile your current version.
+
+--- Bash
+sudo brew install libyaml
+rvm install ruby-1.9.2 --with-libyaml-dir=/usr/local
+ruby -rpsych -e 'puts Psych.load("win: true")'
+---
+{% endraw %}

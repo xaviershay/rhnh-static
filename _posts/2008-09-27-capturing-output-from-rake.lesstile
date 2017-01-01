@@ -1,0 +1,13 @@
+---
+layout: post
+title:  "Capturing output from rake"
+date:   2008-09-27 06:48:00 +00:00
+tags:   ["Code", "Ruby", "rake"]
+---
+{% raw %}
+Rake has an annoying habit of putting it's own diagnostic line on the first line of output. You can strip that out with tail.
+
+--- Bash
+rake my_report:xml | tail -n+2 > output.xml
+---
+{% endraw %}

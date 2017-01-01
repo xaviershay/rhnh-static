@@ -1,0 +1,131 @@
+---
+layout: post
+title:  "Selenium, webrat and the firefox beta"
+date:   2009-05-18 16:30:00 +00:00
+tags:   ["Code", "rails", "selenium", "webrat"]
+---
+{% raw %}
+*UPDATE: * Latest version of webrat (0.5.3, maybe earlier) includes a fixed version of selenium, so you shouldn't need this hack.
+
+I needed a few hacks to get selenium running with webrat.
+
+First, make sure you are running at least 0.4.4 of webrat. Don't make the same mistake I did and upgrade your gem version, but not the plugin installed in vendor/plugins.
+
+--- Bash
+gem install webrat
+gem install selenium-client
+gem install bmabey-database_cleaner --source=http://gems.github.com
+---
+
+There is a trick to get Firefox 3.5 beta working. The selenium server package with webrat 0.4.4 only supports FF 3.0.*. Follow these instructions, patching the jar that is packaged with webrat (vendor/selenium-server.jar) so that the extensions that selenium uses will be valid for the new FF.
+
+--- Bash
+cd vendor/ # In webrat dir
+jar xf selenium-server.jar \
+customProfileDirCUSTFFCHROME/extensions/readystate@openqa.org/install.rdf
+jar xf selenium-server.jar \
+customProfileDirCUSTFFCHROME/extensions/{538F0036-F358-4f84-A764-89FB437166B4}/install.rdf
+jar xf selenium-server.jar \
+customProfileDirCUSTFFCHROME/extensions/\{503A0CD4-EDC8-489b-853B-19E0BAA8F0A4\}/install.rdf 
+jar xf selenium-server.jar \
+customProfileDirCUSTFF/extensions/readystate\@openqa.org/install.rdf 
+jar xf selenium-server.jar \
+customProfileDirCUSTFF/extensions/\{538F0036-F358-4f84-A764-89FB437166B4\}/install.rdf
+
+replace "3.0.*" "3.*" -- `find . | grep rdf`
+
+jar uf selenium-server.jar \
+customProfileDirCUSTFFCHROME/extensions/readystate@openqa.org/install.rdf
+jar uf selenium-server.jar \
+customProfileDirCUSTFFCHROME/extensions/{538F0036-F358-4f84-A764-89FB437166B4}/install.rdf
+jar uf selenium-server.jar \
+customProfileDirCUSTFFCHROME/extensions/\{503A0CD4-EDC8-489b-853B-19E0BAA8F0A4\}/install.rdf 
+jar uf selenium-server.jar \
+customProfileDirCUSTFF/extensions/readystate\@openqa.org/install.rdf 
+jar uf selenium-server.jar \
+customProfileDirCUSTFF/extensions/\{538F0036-F358-4f84-A764-89FB437166B4\}/install.rdf
+---
+
+(hat tip to "space vatican":http://www.spacevatican.org/2008/9/27/selenium-and-firefox-3)
+
+I haven't been able to get Safari working yet.
+
+I want to run selenium tests besides normal webrat tests, so I created a new environment "acceptance" that I can run tests under. Modify your test helper file:
+
+--- Ruby
+# test/test_helper.rb
+ENV["RAILS_ENV"] ||= "test"
+raise "Can't run tests in #{ENV['RAILS_ENV']} environment" unless %w(test acceptance).include?(ENV["RAILS_ENV"])
+
+require 'webrat'
+require "test/env/#{ENV["RAILS_ENV"]}"
+
+# ...
+---
+--- Ruby
+# test/env/test.rb
+require 'webrat/rails'
+
+Webrat.configure do |config|
+  config.mode = :rails
+  config.open_error_files = false
+end
+---
+--- Ruby
+# test/env/acceptance.rb
+require 'webrat/selenium/silence_stream'
+require 'webrat/selenium'
+require 'test/selenium_helpers'
+require 'test/element_helpers'
+
+# Required because we aren't isolating tests inside a transaction
+require 'database_cleaner'
+DatabaseCleaner.strategy = :truncation
+
+Webrat.configure do |config|
+  config.mode = :selenium
+end
+
+class ActionController::IntegrationTest
+  self.use_transactional_fixtures = false # Necessary, otherwise selenium will never see any changes!
+
+  setup do |session|
+    session.host! "localhost:3001"
+  end
+
+  teardown do
+    DatabaseCleaner.clean
+  end
+end
+
+# Hack: webrat requires this, even though we're not using rspec
+module Spec
+  module Expectations
+    class ExpectationNotMetError < Exception
+    end
+  end
+end
+---
+--- Ruby
+# lib/tasks/test.rake
+namespace :test do
+  task :force_acceptance do
+    ENV["RAILS_ENV"] = 'acceptance'
+  end
+
+  Rake::TestTask.new(:acceptance => :force_acceptance) do |t|
+    t.test_files = FileList['test/acceptance/*_test.rb']
+    t.verbose = true
+  end
+end
+---
+
+Notes
+
+ * selenium and javascript helpers are from "pivotallabs pat":http://pivotallabs.com/users/patn/blog/articles/717-run-javascript-in-selenium-tests-easily, they're really handy for testing visibilty of DOM elements
+ * there's some magic in webrat to conditionally require @silence_stream@ based on something in active_support. I don't understand it quite enough, but requiring it explicitly was necessary to get things running for me
+ * webrat/selenium assumes some classes are loaded that only happens if you're using rspec. I'm not, so stubbed out the ExpectationNotMetError (it is only referred to in a rescue block).
+ * @rake test:acceptance@ runs the selenium tests. Running acceptance tests directly as a ruby script runs them using normal webrat - this is actually handy when writing tests because you get a quicker turnaround.
+ * to pause selenium mid test run (to see wtf is going on), just add @gets@ at the appropriate line in your test
+
+{% endraw %}

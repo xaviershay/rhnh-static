@@ -1,0 +1,22 @@
+---
+layout: post
+title:  "Eating with functions"
+date:   2007-05-11 21:20:00 +00:00
+tags:   ["Code", "Ruby", "functional"]
+---
+{% raw %}
+--- ruby
+# 3 Tasty treats, all the same!
+edibles.each do |edible|
+  edible.eat! if likes?(edible) || edible.is_healthy?
+end
+
+condition = lambda {|edible| likes?(edible) || edible.is_healthy?}
+edibles.select(&condition).each(&:eat!)
+
+edibles.select(disjoin(&method(:likes?), &:is_healthy?)).each(&:eat!)
+---
+
+Help: <a href="http://api.rubyonrails.org/classes/Symbol.html">&:eat!</a>, <a href="http://www.randomhacks.net/articles/2007/02/01/some-useful-closures-in-ruby">disjoin</a>
+
+{% endraw %}

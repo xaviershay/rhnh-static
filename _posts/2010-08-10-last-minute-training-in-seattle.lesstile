@@ -1,0 +1,9 @@
+---
+layout: post
+title:  "Last minute training in Seattle"
+date:   2010-08-10 02:00:00 +00:00
+tags:   ["Code", "Ruby", "dbiyf", "rails"]
+---
+{% raw %}
+If you or someone you know missed out on Saturday, I've scheduled a last minute database training for Seattle *tomorrow*. <a href='http://www.dbisyourfriend.com/events/20100811/registrations/new'>Register here</a>. Last chance before I head to Chicago for a "training on Friday":http://www.dbisyourfriend.com/events/20100813/registrations/new.
+{% endraw %}

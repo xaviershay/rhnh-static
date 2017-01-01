@@ -1,0 +1,27 @@
+---
+layout: post
+title:  "I don't want preferences"
+date:   2008-01-02 07:39:00 +00:00
+tags:   ["Code", "enki", "ideology"]
+---
+{% raw %}
+Or why I'm writing another blog engine for ruby
+
+I've been running this site on Mephisto for a number of months now. It is fantastic at what it does, but I've just recently realised it's not what I want.
+
+*I want to configure my blog by hacking code*
+
+I don't want preferences or theme support - I want to edit code. Mephisto isn't great for this - it uses non standard routing (everything goes through dispatch), it uses liquid templates. I feel like I have to learn Mephisto to hack it.
+SimpleLog is another rails option, but it sucks because it reads like a PHP app, and I don't want to be hacking that. It's built to be configured, not to be hacked.
+
+So here is my grand plan.
+
+An opinionated blog engine that does things my way. OpenID login, XHTML valid default template, RESTful stuff, code highlighting in comments, etc...
+To install, you branch my master git repo and customize away. You can just keep rebasing to get all the trunk updates. You can publish a 'theme' in the form of a patch against trunk. The code is going to be lean since I don't need to accommodate for 5, 10 or 15 articles per page, so it will be easy to comprehend.
+
+Basically, it's so you can write your own blog without having to worry about boring stuff like admin, defensio integration, and OpenID auth.
+
+I wonder what I'll call it.
+
+*UPDATE:* Look I made it - "Enki":http://www.enkiblog.com
+{% endraw %}

@@ -1,0 +1,59 @@
+---
+layout: post
+title:  "Formatting ruby hashes in VIM"
+date:   2007-12-13 12:19:00 +00:00
+tags:   ["Code", "Ruby", "vim"]
+---
+{% raw %}
+I've been meaning to write this script for a while. If you're anal about your whitespace (like I), you'll often pretty up your ruby hashes to make them easy to read by adding a bit of whitespace to the keys before the =>. I wrote a ruby script to do this automatically!
+
+--- ruby
+#!/usr/bin/env ruby
+
+# format_hash.rb
+#
+# Formats ruby hashes
+# a => 1
+# ab => 2
+# abc => 3
+#
+# becomes
+# a   => 1
+# ab  => 2
+# abc => 3
+#
+# http://rhnh.net
+
+lines = []
+while line = gets
+  lines &lt;&lt; line
+end
+
+indent = lines.first.index(/[^\s]/)
+
+# Massage into an array of [key, value]
+lines.collect! {|line| 
+  line.split('=>').collect {|line| 
+    line.gsub(/^\s*/, '').gsub(/\s*$/, '') 
+  }
+}
+
+max_key_length = lines.collect {|line| line[0].length}.max
+
+# Pad each key with whitespace to match length of longest key
+lines.collect! {|line|
+  line[0] = "%#{indent}s%-#{max_key_length}s" % ['', line[0]]
+  line.join(' => ')
+}
+
+print lines.join("\n")
+---
+
+Put that in your path, then in VIM you can run the following command to format the current selection:
+
+<macro:code>
+:'&lt;,'>!format_hash.rb
+# Or map F2 to do it for you...
+:vmap &lt;F2> !format_hash.rb&lt;CR>
+---
+{% endraw %}

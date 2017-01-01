@@ -1,0 +1,31 @@
+---
+layout: post
+title:  "Hash trumps case"
+date:   2008-05-10 11:37:00 +00:00
+tags:   ["Code", "Data Structures", "Ruby", "case", "hash", "semantics"]
+---
+{% raw %}
+--- Ruby
+# Two equivalent functions
+def rgb(color)
+  case color
+    when :red   then 'ff0000'
+    when :green then '00ff00'
+    when :blue  then '0000ff'
+    else             '000000' # Default to black
+  end
+end
+
+def rgb2(color)
+  {
+    :red   => 'ff0000',
+    :green => '00ff00',
+    :blue  => '0000ff'
+  }[color] || '000000'
+end
+---
+
+Even though these functions are equivalent, the second carries more semantic weight - it maps a symbol directly to a color. The @case@ sample makes no such guarantees since you can execute any arbitrary code in the @then@ block. In addition, a hash is easier to work with - you can easily iterate over the keys, extract to another method if you need reuse, or query it for other properties (for example, 3 colors are available). It is also easier to read - both aesthetically and because it contains fewer tokens. In almost all circumstances I will prefer a hash over a case statement.
+
+*Relationships in data are easier to comprehend and manipulate than relationships in code.*
+{% endraw %}

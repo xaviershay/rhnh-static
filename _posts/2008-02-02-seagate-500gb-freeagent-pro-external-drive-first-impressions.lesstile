@@ -1,0 +1,29 @@
+---
+layout: post
+title:  "Seagate 500Gb FreeAgent Pro external drive - first impressions"
+date:   2008-02-02 07:24:00 +00:00
+tags:   ["Life", "backup", "review"]
+---
+{% raw %}
+It has a stupid name. The title is the first and last time I will refer to it as anything other than a "Seagate 500Gb external drive". What is not stupid is the packaging. It's clear, concise, fun, and most importantly makes me feel like Seagate actually cares about the people who use its products. Observe the following shots of the static packaging and the instruction booklet:
+
+<a href="http://www.flickr.com/photos/18919286@N08/2235621041/" title="Packaging by Xavier Shay, on Flickr"><img src="http://farm3.static.flickr.com/2171/2235621041_754b605d2a_m.jpg" width="240" height="218" alt="Packaging" /></a>
+
+<a href="http://www.flickr.com/photos/18919286@N08/2236410986/" title="Instructions #1 by Xavier Shay, on Flickr"><img src="http://farm3.static.flickr.com/2224/2236410986_b40c4851fa.jpg" width="500" height="166" alt="Instructions #1" /></a>
+
+<a href="http://www.flickr.com/photos/18919286@N08/2235620975/" title="Instructions #2 by Xavier Shay, on Flickr"><img src="http://farm3.static.flickr.com/2210/2235620975_b37849eb27.jpg" width="500" height="167" alt="Instructions #2" /></a>
+
+Text on the last frame says: _"Note: Times may vary depending on how excited you are about using your new FreeAgent Pro data mover."_ Delicious.
+
+I had to format it as FAT32 because as far as I can tell OSX doesn't support writing to NTFS volumes. This makes me sad. I presume linux can write to Mac's filesystem, but AFAIK windows can't, which unfortunately I need to support because that's what all my family use :( No fault of the drive here, just another windows gripe. Although linux has had NTFS write support stable for a while now, I wouldn't mind Mac catching up.
+
+It is much quieter than I expected. It's under full load right now - I'm rsyncing to it.
+
+5 year warranty, so I guess they have confidence in the product.
+
+Initial impression is positive, ask me again when I actually have to restore from it.
+
+*Unrelated footnote:* Technically I'm back from my holiday, but I'm snowed under with dancing commitments for now so coding updates (and enki updates) will still be sporadic.
+
+*UPDATE* Just reformatted for Time Machine, YAGNIed the work-with-family requirement.
+{% endraw %}

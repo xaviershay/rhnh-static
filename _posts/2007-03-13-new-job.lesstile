@@ -1,0 +1,13 @@
+---
+layout: post
+title:  "New job"
+date:   2007-03-13 06:47:00 +00:00
+tags:   ["Life", "career", "redbubble"]
+---
+{% raw %}
+The plan was to stay on holiday until I ran out of money. Things changed when I got asked to apply for a job that looked really awesome.
+
+As of Monday, I will be employed as a full time Ruby on Rails developer for <a href="http://www.redbubble.com.au">RedBubble</a>. I'm really excited about this. They are a small company - around 10 people - with 4 existing, very talented developers. I went out socialising with them all after my second interview last Thursday and everyone seems really cool. Their processes are top notch and their tools are excellent (Rails on Mac - hooray!). The company seems to realise what it needs to motivate their developers - to give you some examples, they've had Koz (from the rails core team) in to help improve their stuff, and they're sending their head developer over to railsconf.
+
+Speaking of awesome people - Martin Fowler came along to the last Melbourne Ruby User's Group omg omg omg * hero worship *.
+{% endraw %}

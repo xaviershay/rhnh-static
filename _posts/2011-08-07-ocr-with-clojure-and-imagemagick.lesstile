@@ -1,0 +1,221 @@
+---
+layout: post
+title:  "OCR with Clojure and ImageMagick"
+date:   2011-08-07 06:46:20 +00:00
+tags:   ["clojure", "code", "ocr"]
+---
+{% raw %}
+Let's write some Clojure to recognize hand-written digits. It will be fun. But first, some notes.
+
+*NOTE THE FIRST:* If you actually want proper OCR with Clojure that is actually useful, perhaps try "this blog post on using OpenCV and Tesseract.":http://antoniogarrote.wordpress.com/2011/01/30/ocr-with-clojure-tesseract-and-opencv/ If you want to have some fun from first principles, come with me.
+
+*NOTE THE SECOND:* This post was heavily inspired by Chapter 2 in "Machine Learning in Action":http://www.manning.com/pharrington/, which details the K nearest neighbour algorithm and pointed me to the dataset. If you dig this post, you should buy that book.
+
+OK let's go! Here's what we're going to do:
+
+* Take a snapshot of your handwriting.
+* Use ImageMagick to post-process it.
+* Convert the snapshot to a text format matching our training data.
+* Download and parse a training set of data.
+* Identify the digit written in the snapshot using the training data.
+
+It's going to be great.
+
+h2. Take a snapshot
+
+Draw a single numeric digit on a piece of paper. Take a photo of it and get it on your computer. I used Photo Booth and the built-in camera on my Mac. Tight crop the picture around the number, so it looks something like:
+
+!https://img.skitch.com/20110807-nndqigyck9u3bf8gxx14m9dhgj.jpg!
+
+Don't worry if it's a bit grainy or blurry, our classifier is going to be pretty smart.
+
+h2. Use ImageMagick to post-process it
+
+The ImageMagick command line utility @convert@ is one of those magic tools that once you learn you can never imagine how you did without it. It can do anything you need to an image. _Anything_. For instance, resize our image to 32x32 pixels and convert it into black and white. 
+
+--- Clojure
+(ns ocr.main
+  (:use [clojure.contrib.shell-out    :only (sh)]))
+
+(defn convert-image
+  [in out]
+  (sh "convert" in "-colorspace" "gray" "+dither" "-colors" "2"
+      "-normalize" "-resize" "32x32!" out))
+---
+
+It took me a while to figure out this incantation. The "user manual for quantize":http://www.imagemagick.org/Usage/quantize/#monochrome is probably the best reference you'll find. Note that the exclamation mark in "32x32!" will stretch the dimensions of the image to be square. This is desirable since most people write too skinny, and maybe some write too fat, but we need the digits to be square otherwise everything will look like a "1". Converting the above "5" will look like this:
+
+!https://img.skitch.com/20110807-f5qrdt34ccsj2d137rq94fwajn.jpg!
+
+I am shelling out from Clojure to transform the file. There are two other options: JMagick, which uses the C API directly using JNI, and im4java which still shells out but gives you a nice interface over the top of it. I couldn't get the first one working (it looks like a pretty dead project, no updates for a few years), and the latter wouldn't give me anything helpful in this case.
+
+h2. Convert the image into a text format
+
+The @convert@ program automatically formats the output file based on the file extension, you can easily convert between any graphic format you choose. For instance, convert JPG to PNG:
+
+--- Bash
+convert myfile.jpg myfile.png
+---
+
+As well as graphic formats though, it also supports the @txt@ format, which looks like this:
+
+---
+# ImageMagick pixel enumeration: 32,32,255,rgb
+0,0: (255,255,255)  #FFFFFF  white
+1,0: (  0,  0,  0)  #000000  black
+# etc...
+---
+
+That's handy, because it can be easily translated into a bitmap with "1" representing black and "0" representing white. The "5" from above will look like this:
+
+---
+10000000000000000000000000000000
+00000000000000000000000000000000
+00000000000000000000000000000000
+00000000000000000000001111111111
+00000000000000111111111111111111
+00000000000011111111111111111111
+00000000000011111111111111111110
+00000000000111111111100000000000
+00000000000111100000000000000000
+00000000001111100000000000000000
+00000000001111000000000000000000
+00000000011110000000000000000000
+00000000111110000000000000000000
+00000000111110000000000000000000
+00000000111110000000000000000000
+00000000111111111000000000000000
+00000000111111111000000000000000
+00000000001111111100000000000000
+00000000000111111110000000000000
+00000000000001111111000000000000
+00000000000000111111000000000000
+00000000000000011111000000000000
+00000000000000001111000000000000
+00000000000000000111100000000000
+00000000000000000111100000000000
+00000000000000011111000000000000
+00011111111111111111000000000000
+00011111111111111110000000000000
+00011111111111111100000000000000
+00000111111111111000000000000000
+00000000001110000000000000000000
+00000000000000000000000000000000
+---
+
+I used the @duck-streams@ library found in @clojure.contrib@ to read and write the file from disk, and applied some light processing to get the data into the required format. I also used a temporary file on disk to store the data --- I'm pretty sure there would be a way to get @convert@ to write to STDOUT then process that in memory, but I didn't figure it out. It's handy for debugging to have the file there anyways.
+
+--- Clojure
+(ns ocr.main
+  (:use [clojure.contrib.shell-out    :only (sh)]))
+  (:use [clojure.contrib.duck-streams :only (read-lines write-lines)]))
+
+(defn read-text-image-line [line]
+  (if (= "white" (last (split line #"[,:\s]+"))) "0" "1"))
+
+(defn load-text-image
+  [filename]
+  (let [lines (vec (drop 1 (read-lines filename)))
+        converted (map read-text-image-line lines) ]
+    (map #(apply str %) (partition 32 converted))))
+
+(defn convert-image
+  [in out]
+  (sh "convert" in "-colorspace" "gray" "+dither" "-colors" "2"
+      "-normalize" "-resize" "32x32!" out)
+  (write-lines out (load-text-image out)))
+
+(def temp-outfile "/tmp/clj-converted.txt")
+---
+
+One more function is needed to be able to load that file up again into memory. This one doesn't need to use @read-lines@, since the desired format for the classification below is actually just a vector of ones and zeros, so @slurp@ is a quick alternative which is in the core libraries.
+
+--- Clojure
+(defn load-char-file [file]
+  (let [filename (.getName file)
+        tokens   (split filename #"[_\.]")
+        label    (first tokens)
+        contents (parse-char-row (slurp file))]
+    [label contents]))
+---
+
+h2. Fetch some training data
+
+The "University of California Irving":http://archive.ics.uci.edu/ml/ provides some sweet datasets if you're getting into machine learning. In particular, the "Optical Recognition of Handwritten Digits Data Set":http://archive.ics.uci.edu/ml/datasets/Optical+Recognition+of+Handwritten+Digits contains nearly 2000 labeled digits provided in the 32x32 text format the snapshot is now in. All digits are in one file, with a few header rows that can be dropped and ignored.
+
+--- Bash
+wget http://archive.ics.uci.edu/ml/machine-learning-databases/optdigits/optdigits-orig.tra.Z
+gunzip optdigits-orig.tra.Z
+---
+
+--- Clojure
+(defn parse-char-row [row]
+  (map #(Integer/parseInt %) (filter #(or (= % "1") (= % "0")) (split row #""))))
+
+(defn parse-char-data [element]
+  (let [label (trim (last element))
+        rows  (take 32 element)]
+    [label (vec (flatten (map parse-char-row rows)))]))
+
+(defn load-training-data
+  [filename]
+  (let [lines (drop 21 (read-lines filename))
+        elements (partition 33 lines)]
+    (map parse-char-data elements)
+  ))
+
+(def training-set (load-training-data "optdigits-orig.tra"))
+---
+
+This code returns an array of all the training data, each element being an array itself with the first element a label ("0", "1", "2", etc...) and the second element a vector of all the data (new lines ignored, they're not important).
+
+Note that I'm using @vec@ throughout. This is to force lazy sequences to be evaluated, which is a required performance optimization for this program otherwise it won't finish calculating.
+
+h2. Classify our digit
+
+This is the exciting part! I won't go into the algorithm here (buy the Machine Learning book!), but it's called K Nearest Neighbour and it's not particularly fancy but works surprisingly well. If you read "my last blog post":http://rhnh.net/2011/08/02/exploring-data-with-clojure-incanter-and-leiningen, you'll note I've dropped the @Incanter@ library. It was too much mucking about and didn't provide any value for this project. Reading datasets is pretty easy with Clojure anyways.
+
+--- Clojure
+(defn minus-vector [& args]
+  (map #(apply - %) (apply map vector args)))
+
+(defn sum-of-squares [coll]
+  (reduce (fn [a v] (+ a (* v v))) coll))
+
+(defn calculate-distances [in]
+  (fn [row]
+    (let [vector-diff (minus-vector (last in) (last row))
+          label       (first row)
+          distance    (sqrt (sum-of-squares vector-diff))]
+    [label distance])))
+
+(defn classify [in]
+  (let [k                  10
+        diffs              (map (calculate-distances in) training-set)
+        nearest-neighbours (frequencies (map first (take k (sort-by last diffs))))
+        classification     (first (last (sort-by second nearest-neighbours)))]
+    classification))
+---
+
+Now to tie it all together with a main function that converts all the snapshots you pass in as arguments.
+
+--- Clojure
+(defn classify-image [filename]
+  (convert-image filename temp-outfile)
+  (classify (load-char-file (java.io.File. temp-outfile))))
+
+(defn -main [& args]
+  (doseq [filename args]
+    (println "I think that is the number" (classify-image filename))))
+---
+
+That's the lot. Use it like so:
+
+--- Bash
+> lein run myDigits/5_0.jpg
+I think that is the number 5
+---
+
+Hooray! Here is the "full script as a gist":https://gist.github.com/1130134. Let me know if you do anything fun with it.
+
+{% endraw %}

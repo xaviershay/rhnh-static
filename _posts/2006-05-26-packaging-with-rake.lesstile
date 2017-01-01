@@ -1,0 +1,63 @@
+---
+layout: post
+title:  "Packaging with Rake"
+date:   2006-05-26 13:04:00 +00:00
+tags:   ["Ruby", "rake", "rubyscript2exe", "zip"]
+---
+{% raw %}
+Automated the packaging process for winchester this morning use rake, the ruby build system. A few hurdles to jump, but I can now package up a release on either linux or windows with one line.
+
+First trick was to determine the output executable of rubyscript2exe, since I couldn't find a way to configure it, and also the desired extension for the platform:
+
+--- Ruby
+if RUBY_PLATFORM =~ /linux/
+  insuffix = '_linux'
+  outsuffix = ''
+elsif RUBY_PLATFORM =~ /mswin32/
+  insuffix = '.exe'
+  outsuffix = '.exe'
+else
+  puts 'Unsupported platform!'
+  exit
+end
+---
+
+I decided to get fancy and automagically determine the release suffix based on the current directory (trunk, dev-r1). This can be overriden by an environment variable. I'd like to add some special processing here so trunk builds also get the subversion revision number attached to them.
+
+--- Ruby
+class String
+  def tail key
+    i = self.reverse.index(key)
+    return nil if i == nil
+    return self[-1 * i, self.length - i]
+  end
+end
+release_suffix = ENV["RELEASE_SUFFIX"] ? ENV["RELEASE_SUFFIX"] : '-' + Dir.getwd.tail('/')
+---
+
+And finally I used the ruby-zip package to create a zip file, in the process adding a convenient 'add_dir' method to ZipFile to recurse a directory and add the contents.
+
+--- Ruby
+require 'zip/zip'
+module Zip
+  class ZipFile
+    def add_dir entry, src
+      self.mkdir(entry)
+      Dir.foreach(src) do |fn|
+        if fn[0] != '.'[0]
+          if File.directory?(src + fn)
+            self.add_dir(entry + '/' + fn, src + fn + '/')
+          else
+            self.add(entry + '/' + fn, src + fn)
+          end
+        end
+      end
+    end
+  end
+end
+Zip::ZipFile.open('build/' + app_name + release_suffix + '.zip', Zip::ZipFile::CREATE) do |zf|
+  zf.add(app_name + outsuffix, 'build/tmp/' + app_name + outsuffix)
+  zf.add_dir('res', 'build/tmp/res/')
+end
+---
+{% endraw %}

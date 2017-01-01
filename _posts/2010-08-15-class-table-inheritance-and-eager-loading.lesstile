@@ -1,0 +1,102 @@
+---
+layout: post
+title:  "Class Table Inheritance and Eager Loading "
+date:   2010-08-15 05:30:00 +00:00
+tags:   ["Code", "Ruby", "activerecord", "cti", "dbiyf", "rails"]
+---
+{% raw %}
+Consider a typical class table inheritance table structure with @items@ as the base class and @dvds@ and @cars@ as two subclasses. In addition to what is strictly required, @items@ also has an @item_type@ parameter. This denormalization is usually a good idea, I will save the justification for another post so please take it for granted for now. 
+
+The easiest way to map this relationship with Rails and ActiveRecord is to use composition, rather than trying to hook into the class loading code. Something akin to:
+
+--- Ruby
+class Item < ActiveRecord::Base
+  SUBCLASSES = [:dvd, :car]
+  SUBCLASSES.each do |class_name|
+    has_one class_name
+  end
+
+  def description
+    send(item_type).description
+  end
+end
+
+class Dvd < ActiveRecord::Base
+  belongs_to :item
+
+  validates_presence_of :title, :running_time
+  validates_numericality_of :running_time
+
+  def description
+    title
+  end
+end
+
+class Car < ActiveRecord::Base
+  belongs_to :item
+
+  validates_presence_of :make, :registration
+
+  def description
+    make
+  end
+end
+---
+
+A naive way to fetch all the items might look like this:
+
+--- Ruby
+Item.all(:include => Item::SUBCLASSES)
+---
+
+This will issue one initial query, then one for each subclass. (Since Rails 2.1, eager loading is done like this rather than joining.) This is inefficient, since at the point we preload the associations we already know which subclass tables we should be querying. There is no need to query all of them. A better way is to hook into the Rails eager loading ourselves to ensure that only the tables required are loaded:
+
+--- Ruby
+Item.all(opts).tap do |items|
+  preload_associations(items, items.map(&:item_type).uniq)
+end
+---
+
+Wrapping that up in a class method on items is neat because we can then use it as a kicker at the end of named scopes or associations - @person.items.preloaded@, for instance.
+
+Here are some tests demonstrating this:
+--- Ruby
+require 'test/test_helper'
+
+class PersonTest < ActiveRecord::TestCase
+  setup do
+    item = Item.create!(:item_type => 'dvd')
+    dvd  = Dvd.create!(:item => item, :title => 'Food Inc.')
+  end
+
+  test 'naive eager load' do
+    items = []
+    assert_queries(3) { items = Item.all(:include => Item::SUBCLASSES) }
+    assert_equal 1, items.size
+    assert_queries(0) { items.map(&:description) }
+  end
+
+  test 'smart eager load' do
+    items = []
+    assert_queries(2) { items = Item.preloaded }
+    assert_equal 1, items.size
+    assert_queries(0) { items.map(&:description) }
+  end
+end
+
+# Monkey patch stolen from activerecord/test/cases/helper.rb
+ActiveRecord::Base.connection.class.class_eval do
+  IGNORED_SQL = [/^PRAGMA/, /^SELECT currval/, /^SELECT CAST/, /^SELECT @@IDENTITY/, /^SELECT @@ROWCOUNT/, /^SAVEPOINT/, /^ROLLBACK TO SAVEPOINT/, /^RELEASE SAVEPOINT/, /SHOW FIELDS/]
+
+  def execute_with_query_record(sql, name = nil, &block)
+    $queries_executed ||= []
+    $queries_executed << sql unless IGNORED_SQL.any? { |r| sql =~ r }
+    execute_without_query_record(sql, name, &block)
+  end
+
+  alias_method_chain :execute, :query_record
+end
+---
+
+_I talk about this sort of thing in my "Your Database Is Your Friend" training sessions. They are happening throughout the US and UK in the coming months. One is likely coming to a city near you. Head on over to "www.dbisyourfriend.com":http://www.dbisyourfriend.com for more information and free screencasts !http://www.dbisyourfriend.com/favicon.ico!_
+{% endraw %}

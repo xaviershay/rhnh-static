@@ -1,0 +1,73 @@
+---
+layout: post
+title:  "Speeding Up Rails Rake"
+date:   2010-09-07 03:30:00 +00:00
+tags:   ["Code", "Ruby", "rails", "rake"]
+---
+{% raw %}
+On a brand new rails project (this article is rails 3, but the same principle applies to rails 2), @rake --tasks@ takes about a second to run. This is just the time it takes to load all the tasks, as a result any task you define will take at least this amount of time to run, even if it is has nothing to do with rails. Tab completion is slow. That makes me sad.
+
+The issue is that since rails and gems can provide rake tasks for your project, the entire rails environment has to be loaded just to figure out which tasks are available. If you are familiar with the tasks available, you can hack around things to wring some extra speed out of your rake.
+
+*WARNING: Hacks abound beyond this point. Proceed at own risk.*
+
+Below is my edited Rakefile. Narrative continues in the comments below.
+
+--- Ruby
+# Rakefile
+def load_rails_environment
+  require File.expand_path('../config/application', __FILE__)
+  require 'rake'
+  Speedtest::Application.load_tasks
+end
+
+# By default, do not load the Rails environment. This allows for faster
+# loading of all the rake files, so that getting the task list, or kicking
+# off a spec run (which loads the environment by itself anyways) is much
+# quicker.
+if ENV['LOAD_RAILS'] == '1'
+  # Bypass these hacks that prevent the Rails environment loading, so that the
+  # original descriptions and tasks can be seen, or to see other rake tasks provided
+  # by gems.
+  load_rails_environment
+else
+  # Create a stub task for all Rails provided tasks that will load the Rails
+  # environment, which in will append the real definition of the task to
+  # the end of the stub task, so it will be run directly afterwards.
+  #
+  # Refresh this list with:
+  # LOAD_RAILS=1 rake -T | ruby -ne 'puts $_.split(/\s+/)[1]' | tail -n+2 | xargs
+  %w(
+    about db:create db:drop db:fixtures:load db:migrate db:migrate:status 
+    db:rollback db:schema:dump db:schema:load db:seed db:setup 
+    db:structure:dump db:version doc:app log:clear middleware notes 
+    notes:custom rails:template rails:update routes secret stats test 
+    test:recent test:uncommitted time:zones:all tmp:clear tmp:create
+  ).each do |task_name|
+    task task_name do
+      load_rails_environment
+      # Explicitly invoke the rails environment task so that all configuration
+      # gets loaded before the actual task (appended on to this one) runs.
+      Rake::Task['environment'].invoke
+    end
+  end
+
+  # Create an empty task that will show up in rake -T, instructing how to
+  # get a list of all the actual tasks. This isn't necessary but is a courtesy
+  # to your future self.
+  desc "!!! Default rails tasks are hidden, run with LOAD_RAILS=1 to reveal."
+  task :rails
+end
+
+# Load all tasks defined in lib/tasks/*.rake
+Dir[File.expand_path("../lib/tasks/", __FILE__) + '/*.rake'].each do |file|
+  load file
+end
+---
+
+Now @rake --tasks@ executes near instantaneously, and tasks will generally kick off faster (including @rake spec@). Much nicer!
+
+This technique has the added benefit of hiding all the built in tasks. Depending on your experience this may not be a win, but since I already know the rails ones by heart, I'm usually only interested in the tasks specific to the project.
+
+I don't pretend this is a pretty or permanent solution, but I share it here because it has made my life better in recent times.
+{% endraw %}

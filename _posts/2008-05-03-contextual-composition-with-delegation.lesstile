@@ -1,0 +1,71 @@
+---
+layout: post
+title:  "Contextual Composition With Delegation"
+date:   2008-05-03 19:24:19 +00:00
+tags:   ["Code", "Ruby", "composition", "delegation", "extend"]
+---
+{% raw %}
+I've had some models getting rather large recently. This makes them hard to comprehend and makes the source difficult to browse. A lot of the time, a big chunk of functionality is fairly context specific - it is only relevant to one particular part of my application (reporting, data integration, etc...). "Thoughtbot presented one way to do this recently":http://giantrobots.thoughtbot.com/2008/5/1/skinny-controllers-skinny-models by adding methods to the model that return another model with the extra goodness.
+
+That's not bad, but it still pollutes the class with methods that most users won't care about. We can just decorate the class with extra methods at the time (context) that we need them. My first go at doing this used the @extend@ method: 
+
+--- ruby
+class PurchaseOrder
+  attr_reader :id
+end
+
+module Reports::PurchaseOrderMethods
+  def description
+    "A Purchase Order"
+  end
+end
+
+class ReportMakerWithExtend
+  def self.report_for(po)
+    po.extend(Reports::PurchaseOrderMethods)
+    "#{po.id}: #{po.description}"
+  end
+end
+---
+
+This has a few edge case problems though. 
+
+ # It can potentially override methods in our base class. Imagine if PurchaseOrder#description was defined as private, our module would override this defenition resulting in probably breakage.
+ # It is inelegant to test - @extend@ will override any existing stubs, so you need to stub it out. This is unintuitive and may have unintended consequences, for instance if the class is also using @extend@ in a manner that doesn't interfere with your stubs.
+
+--- ruby
+# Testing extended PurchaseOrder is inelegant
+describe 'ReportMakerWithExtend#report_for' do
+  it 'returns a line containing both ID and description' do
+    po = stub(
+      :id          => 1
+      :description => "hello",
+      :extend      => nil # :(
+    )
+    ReportMaker.report_for(po).should == "1: hello"
+  end
+end
+---
+
+Ruby provides another method to achieve what we want in the form of @SimpleDelegator@. Basically, it passes on any methods not defined on itself to the object specified in the constructor. This way we can wrap another object without fear of interferring with its internals nor our stubs.
+
+--- ruby
+require 'delegate'
+
+class Reports::PurchaseOrder < SimpleDelegator
+  def description
+    "A Purchase Order"
+  end
+end
+
+class ReportMaker
+  def self.report_for(po)
+    po = Reports::PurchaseOrder.new(po)
+    "#{po.id}: #{po.description}"
+  end
+end
+---
+
+Much nicer. Of course, we would have specs for @Reports::PurchaseOrder@ in addition to @PurchaseOrder@ - this split allows us to keep our tests focussed and easy to read. Using delegation to split up your models allows you to separate code into areas where it is most relevant - helping keep both your models and your tests easy to read and maintain.
+
+{% endraw %}

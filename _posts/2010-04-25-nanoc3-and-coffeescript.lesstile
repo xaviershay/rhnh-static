@@ -1,0 +1,55 @@
+---
+layout: post
+title:  "Nanoc3 and CoffeeScript"
+date:   2010-04-25 10:41:00 +00:00
+tags:   ["Code", "Ruby", "nanoc3"]
+---
+{% raw %}
+"Nanoc3":http://nanoc.stoneship.org/ is a pretty awesome static site generator. It works by running your content through "filters" to create the final static site. It comes with a lot of built in filters - Haml, Sass, rubypants, markdown, and more! Nothing for Javascript though. Which is sad because I really like CoffeeScript. It's ok! I wrote my own filter, shared here for your enjoyment.
+
+Bang this in your @lib@ folder:
+--- Ruby
+require 'open3'
+require 'win32/open3' if RUBY_PLATFORM.match /win32/
+
+class CoffeeFilter < Nanoc3::Filter
+  identifier :coffee
+
+  def run(content, params = {})
+    output = ''
+    error = ''
+    command = 'coffee -s -p -l'
+    Open3.popen3(command) do |stdin, stdout, stderr|
+      stdin.puts content
+      stdin.close
+      output = stdout.read.strip
+      error = stderr.read.strip
+      [stdout, stderr].each { |io| io.close }
+    end
+
+    if error.length > 0
+      raise("Compilation error:\n#{error}")
+    else
+      output
+    end
+  end
+end
+---
+
+To use it, a compilation rule like the following is pretty neat:
+--- Ruby
+# Compile both coffee and js, co-mingled in the same directory
+compile '/js/*' do
+  case item[:extension]
+    when 'coffee'
+      filter :coffee
+    when 'js'
+      # Nothing
+  end
+end
+---
+
+Don't forget to add 'coffee' to the list of text extensions in your @config.yaml@!
+
+Protip: You can use the above pattern to filter content through any command line program. Figlet anyone?
+{% endraw %}

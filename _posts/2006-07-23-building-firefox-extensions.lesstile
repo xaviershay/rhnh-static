@@ -1,0 +1,178 @@
+---
+layout: post
+title:  "Building Firefox Extensions"
+date:   2006-07-23 11:02:00 +00:00
+tags:   ["Code", "Rant", "Ruby", "firefox extensions"]
+---
+{% raw %}
+This article will introduce the basics of "Ruby Rant":http://make.rubyforge.org by creating a Rantfile to build "Firefox":http://www.mozilla.com/firefox/ extensions. You don't actually need to know anything about extensions to follow along, but if you are interested may I recommend this "tutorial by roachfiend":http://roachfiend.com/archives/2004/12/08/how-to-create-firefox-extensions/. You will note that that article (and many others on the same topic) use a batch file to build their extensions. While this is quick to set up for simple development, a build file saves time and effort in the long run, and gives more flexibility.
+
+I assume you at least know what Rant is - a replacement for Rake - and have it installed and working. Please visit their website for more information on this topic. This is also not a build file tutorial - you should know what a task and a dependency are.
+
+h3. Table of Contents
+
+# "Extension Basics":#basics
+# "Rant":#rant
+# "Making the JAR":#jar
+# "Cleaning":#cleaning
+# "Making the XPI":#xpi
+# "Final Touches":#final
+# "The Completed Rakefile":#completed
+
+h3(#basics). Extension Basics
+
+The first step is to decide on directory structure for your project. Firefox extensions are comprised of two main portions - the install instructions, and the actual content of the extension. A Firefox extension (an XPI file) is really just a zip file with a different extension. You can open it up using your favourite archive manager and see the following structure:
+
+--- none
+myextension.xpi/
+  install.js
+  install.rdf
+  chrome/
+    myextension.jar/
+      ... myextension content ...
+---
+
+Likewise, the JAR file is also a zip file with an alternate extension. We can see that there are two major portions of the extension that need building, the JAR and the XPI (which contains the JAR). As such, we will use a source structure that looks like this ("download the source code":source):
+
+--- none
+myextension/
+  Rantfile
+  src/
+    install/
+    jar/
+---
+
+Clearly, the install folder will only contain our @install.js@ and @install.rdf@ files, and the jar folder will contain the contents of our jar. 
+
+h3(#rant). Rant
+
+Enough introduction, let's get started with Rant. Rant is a replacement for Rake. I won't go into detail here, but one of the advantages for our purposes is portable zip creation without the need for external libraries. Rant is similar to Rake in that you define all your build tasks in a file in your root directory - the Rantfile. We will create 3 tasks - package, clean, and clobber. The first obviously packages up our extension into a zip file and gives it a @.xpi@ extension. "clean" removes temporary files used to package the extension, and "clobber" removes all generated artefacts (basically the same as clean but also removes the XPI file).
+
+h3(#jar). Making the JAR
+
+Baby steps steps though - first of all we want to create the JAR file for our extension. We can do this using the Archive::Zip generator provided by Rant:
+
+--- ruby
+import "archive/zip"
+require "archive_rootdir_fix"
+
+gen Archive::Zip, "build/helloworld", 
+                  :files     => sys["src/jar/**/*"],
+                  :rootdir   => "src/jar",
+                  :extension => ".jar"
+---
+
+This generator creates a task called "build/helloworld.jar" that creates exactly that archive, containing all the files from @src/jar@. "@**/*@" tells rant to recursively add all files. The @rootdir@ parameter is necessary so that the generator knows where to start adding files. Without it, the created JAR will have the "@src/jar@" folders inside it, which is undesirable.
+
+I draw your attention to the @archive_rootdir_fix@ file that is being required. Support for the @rootdir@ parameter is currently not in Rant. I've submitted a patch, but until it is accepted, you need this particular file. It is included in the "example source code":source for you convenience.
+
+The generated task name is quite cumbersome, but it is quite trivial to create an alias to it using a blank task with a sole dependency. But what happens when we change our extension name or build directory? We also have to recode our alias task. Thankfully, the generator returns an object with information about the generated task, so that we can use it later in our Rantfile:
+--- ruby
+import "archive/zip"
+
+jar_t = gen Archive::Zip, "build/helloworld", 
+                  :files     => sys["src/jar/**/*"],
+                  :rootdir   => "src/jar",
+                  :extension => ".jar"
+
+task :build_jar => jar_t.path
+---
+
+h3(#cleaning). Cleaning
+
+Before we proceed, let us quickly set up our clean and clobber tasks, as they are required for the next section. Rant makes this trivially easy, so I'm just going to show you some code and move on.
+
+--- ruby
+import "clean"
+
+gen Clean, :clean
+var[:clean] << "build"
+
+gen Clean, :clobber
+var[:clobber] << "build"
+var[:clobber] << "bin"
+---
+
+h3(#xpi). Making the XPI
+
+As you can imagine, the next step - packaging up the XPI file - is more of the same. A small amount of trickery is required to get the JAR file into the chrome directory - we actually move files around and prepare the XPI file in the build directory, so that our zip task only has to zip the single directory. You can do this using methods of the @sys@ object. Since it uses standard shell commands it is fairly self explanatory, as you'll see in the following example. See that we can keep using the @jar_t@ object through out build file.
+
+--- ruby
+xpitask = gen Archive::Zip, "bin/helloworld",
+                            :version   => "1.0.0",
+                            :files     => sys["build/**/*"],
+                            :rootdir   => "build",
+                            :extension => ".xpi"
+task :build_xpi => xpitask.path           
+
+task :prepare => [:build_jar] do |t|
+  sys.mkdir_p "build/chrome"
+  sys.mv jar_t.path, "build/chrome/helloworld.jar"
+  sys.cp sys["src/install/**/*"], "build"
+end
+
+task :package => [:prepare, :build_xpi]
+---
+
+Note that we've added a version parameter to the zip task - this  automatically appends a version string to our output file. 
+
+h3(#final). Final Touches
+
+Now we just need to add the finishing touches to our build file. For maintainability, we will extract common names (such as the "helloworld" title and the "build" directory) into variables, so that changing them once will change them throughout the entire buildfile. You can use normal ruby variables for this, but it is preferable to use the "var" construct since it means you have the option of using them in @Command@ generators later on (maybe I will cover it in another tutorial). It is more verbose, however, so you may choose not to use it in your own projects.
+
+Finally, we move our public tasks to the top of file for readability and give them descriptions so they are displayed when executing "@rant -T@". And there you have it folks, an automated build script for firefox extensions. Please "download the source code":source to peruse at your leisure.
+
+h3(#completed). The Completed Rantfile
+
+--- ruby
+# Rantfile for building Firefox Extension
+# Xavier Shay (xshay@rhnh.net), July 2006
+
+import "archive/zip"
+require "archive_rootdir_fix"
+import "clean"
+
+# Configuration
+var :title   => "helloworld"
+var :version => "1.0.0"
+var :build_dir => "build"
+var :bin_dir => "bin"
+var :src_dir => "src"
+
+# Primary tasks
+desc "Package up the XPI file for release"
+task :package => [:prepare, :build_xpi]
+
+desc "Cleanup temporary files"
+gen Clean, :clean
+var[:clean] << "build"
+
+desc "Cleanup all generated artifacts"
+gen Clean, :clobber
+var[:clobber] << "build"
+var[:clobber] << "bin"
+
+# Support tasks
+jar_t = gen Archive::Zip, "#{var :build_dir}/#{var :title}", 
+                  :files     => sys["#{var :src_dir}/jar/**/*"],
+                  :rootdir   => "#{var :src_dir}/jar",
+                  :extension => ".jar"
+task :build_jar => jar_t.path
+
+xpi_t = gen Archive::Zip, "#{var :bin_dir}/#{var :title}",
+                  :version   => "#{var :version}",
+                  :files     => sys["#{var :build_dir}/**/*"],
+                  :rootdir   => "#{var :build_dir}",
+                  :extension => ".xpi"
+task :build_xpi => xpi_t.path           
+
+task :prepare => [:clean, :build_jar] do |t|
+  sys.mkdir_p "#{var :build_dir}/chrome"
+  sys.mv jar_t.path, "#{var :build_dir}/chrome/#{var :title}.jar"
+  sys.cp sys["#{var :src_dir}/install/**/*"], "#{var :build_dir}"
+end
+---
+
+[source]http://rhnh.net/files/building-firefox-extensions.zip
+
+{% endraw %}

@@ -1,0 +1,135 @@
+---
+layout: post
+title:  "Exploring data with Clojure, Incanter, and Leiningen"
+date:   2011-08-02 08:45:00 +00:00
+tags:   ["clojure", "code", "incanter"]
+---
+{% raw %}
+I'm working through "Machine Learning in Action":http://www.manning.com/pharrington/ at the moment, and it's done in Python. I don't really know Python, but I'd prefer to learn Clojure, so I'm redoing the code samples.
+
+This blog posts show how to read a CSV file, manipulate it, then graph it. Turns out Clojure is pretty good for this, in combination with the Incanter library (think R for the JVM). It took me a while to get an environment set up since I'm unfamiliar with basically everything.
+
+h2. Install Clojure
+
+I already had it installed so can't remember if there were any crazy steps to get it working. Hopefully this is all you need:
+
+---
+sudo brew install clojure
+---
+
+h2. Install Leiningen
+
+Leiningen is a build tool which does many things, but most importantly for me is it manages the classpath. I was jumping through all sorts of hoops trying to get Incanter running without it.
+
+"There are easy to follow instructions in the README":https://github.com/technomancy/leiningen
+
+*UPDATE: * As suggested in the comments, you can probably just `brew install lein` here and that will get you Leiningen and Clojure in one command.
+
+h2. Create a new project
+
+---
+lein new hooray-data && cd hooray-data
+---
+
+Add Incanter as a dependency to the @project.clj@ file, and also a main target:
+
+--- Clojure
+(defproject clj "1.0.0-SNAPSHOT"
+  :description "FIXME: write"
+  :dependencies [[org.clojure/clojure "1.2.0"]
+                 [org.clojure/clojure-contrib "1.2.0"]
+                 [incanter "1.2.3-SNAPSHOT"]]
+  :main hooray_data.core)
+---
+
+Add some Incanter code to @src/hooray_data/core.clj@
+
+--- Clojure
+(ns hooray_data.core
+  (:gen-class)
+  (:use (incanter core stats charts io datasets)))
+
+(defn -main [& args]
+  (view (histogram (sample-normal 1000)))
+---
+
+Then fire it up:
+
+---
+lein deps
+lein run
+---
+
+If everything runs to plan you'll see a pretty graph.
+
+h2. Code
+
+First, a simple categorized scatter plot. @read-dataset@ works with both URLs and files, which is pretty handy.
+
+--- Clojure
+(ns hooray_data.core
+  (:use (incanter core stats charts io)))
+
+; Sample data set provided by Incanter
+(def plotData (read-dataset 
+            "https://raw.github.com/liebke/incanter/master/data/iris.dat" 
+            :delim \space 
+            :header true))
+
+(def plot (scatter-plot
+            (sel plotData :cols 0)
+            (sel plotData :cols 1)
+            :x-label "Sepal Length"
+            :y-label "Sepal Width"
+            :group-by (sel plotData :cols 4)))
+
+(defn -main [& args]
+  (view plot))
+---
+
+Second, the same data but normalized. The graph will look the same, but the underlying data is now ready for some more math.
+
+--- Clojure
+(ns hooray_data.core
+  (:use (incanter core stats charts io)))
+
+; Sample data set provided by Incanter
+(def data (read-dataset 
+            "https://raw.github.com/liebke/incanter/master/data/iris.dat" 
+            :delim \space 
+            :header true))
+
+(defn extract [f]
+  (fn [data]
+     (map #(apply f (sel data :cols %)) (range 0 (ncol data)))))
+
+(defn fill [n row] (map (fn [x] row) (range 0 n)))
+
+(defn matrix-row-operation [operand row matrix] 
+  (operand matrix 
+    (fill (nrow matrix) row)))
+
+; Probably could be much nicer using `reduce`
+(defn normalize [matrix]
+  (let [shifted (matrix-row-operation minus ((extract min) matrix) matrix)]
+   (matrix-row-operation div ((extract max) shifted) shifted)))
+
+(def normalized-data
+  (normalize (to-matrix (sel data :cols [0 1]))))
+
+(def normalized-plot (scatter-plot
+            (sel normalized-data :cols 0)
+            (sel normalized-data :cols 1)
+            :x-label "Sepal Length"
+            :y-label "Sepal Width"
+            :group-by (sel data :cols 4)))
+
+(defn -main [& args]
+  (view normalized-plot))
+---
+
+I was kind of hoping the @normalize@ function would have already been written for me in a standard library, but I couldn't find it.
+
+I'll report back if anything else of interest comes up as I'm working through the book.
+
+{% endraw %}

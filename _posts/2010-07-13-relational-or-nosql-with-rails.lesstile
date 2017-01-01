@@ -1,0 +1,67 @@
+---
+layout: post
+title:  "Relational Or NoSQL With Rails?"
+date:   2010-07-13 02:16:09 +00:00
+tags:   ["Code", "Ruby", "dbiyf", "mongodb", "nosql", "rails"]
+---
+{% raw %}
+With all the excitement in the Rails world about "NoSQL" databases like "MongoDB":http://www.mongodb.org/, "CouchDB":http://couchdb.apache.org/, "Cassandra":http://cassandra.apache.org/ and "Redis":http://code.google.com/p/redis/, I am often asked why am I running a course on relational databases?
+
+The ""database is your friend":http://www.dbisyourfriend.com/" ethos is not about relational databases; it's about finding the sweet spot compromise between the tools you have available to you. Typically the database has been underused in Rails applications--to the detriment of both quality and velocity--and my goal is to provide tools and understanding to ameliorate this neglect, no matter whether you are using Oracle or Redis.
+
+The differences between relational and NoSQL databases have been documented extensively. To quickly summarize the stereotypes: relational gives you solid transactions and joins, NoSQL is fast and scales. In addition, the document oriented NoSQL databases (NoSQL is a bit of a catch-all: there's a big difference between key/value stores and document databases) enable you to store "rich" documents, a powerful modelling tool. 
+
+That's a naive summary, but gives you a general idea of the ideologies. To make a fair comparison between the two you need to understand both camps. If you don't know what a relational database can do for you in terms of transactional support or data integrity, you will not know what your are losing when choosing NoSQL. Conversely, if you are not familiar with document modelling techniques and why denormalization isn't so scary, you are going to underrate NoSQL technologies and handicap yourself with a relational database.
+
+For example, representing a many-to-many relationship in a relational database might look something like:
+
+---
+Posts(id, title, body)
+PostTags(post_id, tag_id)
+Tags(id, name)
+---
+
+This is a standard normalization, and relational databases are tuned to deal with this scenario using joins and foreign keys. In a document database, the typical way to represent this is:
+
+--- Javascript
+{
+  title: 'My Post',
+  body: 'This post has a body',
+  tags: ['ruby', 'rails']
+}
+---
+
+Notice the denormalization of tags so that there is no longer a table for it, creating a very nice conceptual model--everything to do with a post is included in the one object. The developer only superficially familiar with document modelling will quickly find criticisms, however. To choose just one, how do you get a list of all tags? This specific problem has been addressed by the document crowd, but not in a way that relational developers are used to thinking: map/reduce.
+
+--- Javascript
+db.runCommand({
+  mapreduce: 'posts',
+  map: function() { 
+    for (index in this.tags) {
+        emit(this.tags[index], 1);
+    }
+  },
+  reduce: function(key, values) { return; },
+  out: "tags"
+})
+---
+
+This function can be run periodically to create a tags collection from the posts collection. It's not quite real-time, but will be close enough for most uses. (Of course if you do want real-time, there are other techniques you can use.) Yes, the query is more complicated than just selecting out of Tags, but inserting and updating an individual post (the main use case) is simpler. 
+
+I'm not arguing one side or another here. This is just one simplistic example to illustrate my point that if you don't know how to use document database specific features such as map/reduce, or how to model your data in such a way as to take advantage of them, you won't be able to adequately evaluate those databases. Similarly, if you don't know how to use pessimistic locking or referential integrity in a relational database, you will not see how much time and effort it could be saving you over trying to implement such robustness in a NoSQL database that wasn't designed for it.
+
+It is imperative that no matter which technology you ultimately choose for your application (or even if you mix the two!), that you understand both sides thoroughly so that you can accurately weigh up the costs and benefits of each.
+
+h3. The pitch
+
+This is why I'm excited to announce a *brand new training session on MongoDB*. For the upcoming US tour, this session will be only be offered _once_ exclusively at the "Lone Star Ruby Conference":http://www.lonestarrubyconf.com/. The "original relational training":http://www.dbisyourfriend.com/ is the day before the conference (at the same venue), to create a two day database training bonanza: relational on Wednesday 25th August, MongoDB on Thursday 26th.
+
+We'll be adding MongoDB to an existing site--Spacebook, the social network for astronauts!--to not only learn MongoDB in isolation, but practically how to integrate it into your existing infrastructure. The day starts with the basics: What it is, what it isn't, how to use it, how to integrate with Rails, and we'll build and investigate some of the typical MongoDB use cases like analytics tracking. As we become comfortable, we will move into some more advanced querying and data modelling techniques that MongoDB excels at to ensure we are getting the most out of the technology, and discuss when such techniques are appropriate.
+
+Since I am offering the MongoDB training in association with the Lone Star Ruby Conference, you will have to register for the conference to attend. At only an extra $175 above the conference ticket, _half price_ of the normal cost, the Lone Star Ruby Conference MongoDB session is the cheapest this training will ever be offered, not to mention all the win of the rest of the conference! Aside from the training, it has a killer two-day line up of talks which are going to be awesome. I'm especially excited about the two keynotes by Tom Preson-Werner and Blake Mizerany, and there's some good database related talks to get along to: Adam Keys is giving the low down on the new ActiveModel in rails 3, Jesse Wolgamott is comparing different NoSQL technologies, and Bernerd Schaefer will be talking about what "Mongoid":http://mongoid.org/ (the ORM we'll be using with Spacebook) is doing to stay at the head of the pack. I'll certainly be hanging around.
+
+"Register for the relational training":http://www.dbisyourfriend.com/events/20100825/registrations/new separately. There's a $50 early bird discount for the next week (in addition to the half price Mongo training), but if you miss that and are attending both sessions "get in touch":mailto:xavier@dbisyourfriend.com and I'll extend the offer for you. This is probably going to send me broke, but I really just want to get this information out there. Cheaper, higher quality software makes our industry better for everyone.
+
+_"Your Database Is Your Friend" training sessions are happening throughout the US and UK in the coming months. One is likely coming to a city near you. For more information and free screencasts, head on over to "www.dbisyourfriend.com":http://www.dbisyourfriend.com !http://www.dbisyourfriend.com/favicon.ico!_
+
+{% endraw %}

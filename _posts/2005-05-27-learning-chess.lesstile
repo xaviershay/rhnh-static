@@ -1,0 +1,13 @@
+---
+layout: post
+title:  "Learning Chess"
+date:   2005-05-27 13:35:00 +00:00
+tags:   ["Life", "board games", "chess"]
+---
+{% raw %}
+Tonight's discovery was chess. If you're like me you know how the pieces move, even some opening moves. You've probably decimated your little sister with a 4 move checkmate - twice in a row - and felt disturbingly proud of yourself. I urge you to read (or at least browse a portion - it's a full book) the following:
+
+"A Field Guide to Chess Tactics":http://www.bu.edu/dbin/law/chess/index.php
+
+The best part is that there are literally hundreds of small chess problems to illustrate the concepts discussed. If you treat these as challenges to solve before reading the well written solutions and explanations, you'll find a great number of hours simply disappear.
+{% endraw %}

@@ -1,0 +1,188 @@
+---
+layout: post
+title:  "Screencast: moving to Heroku"
+date:   2012-05-28 00:23:52 +00:00
+tags:   ["code", "heroku", "rails", "ruby"]
+---
+{% raw %}
+A treat from the archives! I found a screen recording with commentary of me moving this crusty old blog from a VPS on to Heroku from about a year ago. It's still pretty relevant, not just technology wise but also how I work (except I wasn't using tmux then).
+
+This is one take with no rehersal, preparation or editing, so you get my development and thought process raw. All two and a half hours of it.  That has positives and negatives. I don't know how interesting this is to others, but putting it out there in case. Make sure you watch them in a viewer that can speed up the video.
+
+An interesting observation I noted was that I tend to have two tasks going in parallel most of the time to context switch between when I'm blocked on one waiting for a gem install or the like.
+
+I have divided it into four parts, each around 40 minutes long and 350mb in size.
+
+* "Part 1":https://s3.amazonaws.com/large-file-hosting/rhnh-heroku-part-1.mov gets the specs running, green, fixes deprecations, moves from 1.8 to 1.9.
+* "Part 2":https://s3.amazonaws.com/large-file-hosting/rhnh-heroku-part-2.mov moves from MySQL to Postgres, replaces sphinx with full text search.
+* "Part 3":https://s3.amazonaws.com/large-file-hosting/rhnh-heroku-part-3.mov continues the sphinx to postgres transition, implementing related posts
+* "Part 4":https://s3.amazonaws.com/large-file-hosting/rhnh-heroku-part-4.mov deploys the finished product to heroku, copies data across, and gets exception notification working.
+
+Rough indexes are provided below.
+
+h3. Part 1
+
+**0:00** Introduction
+**0:50** rake, bundle
+**1:42** Search for MySQL to PG conversion, maybe taps gem?
+**3:22** bundle finishes
+**3:42** couldn't parse YAML file, switch to 1.8.7 for now
+**4:10** Add .rvmrc
+**4:39** bundle again for 1.8.7
+**4:50** Search for Heroku cedar stack docs (back when it was new), reading
+**6:30** Gherkin fails to build
+**8:50** Can't find solution, update gherkin to latest
+**9:10** Find YAML fix while waiting for gherkin to update
+**10:08** Cancel gherkin update, switch to 1.9.2 and apply YAML fix
+**10:20** AWS S3 gem not 1.9 compatible, but not needed anymore so delete
+**11:10** Remove db2s3 gem also
+**11:20** nil.[] error, non-obvious
+**11:50** Missing test db config
+**12:20** Tests are running, failures
+**12:50** Debug missing partial error, start local server to click around and it works here
+**14:15** Back to fixing specs
+**14:25** Removed functionality but not specs, clearly haven't been running specs regularly. Poor form.
+**15:45** Target specs passing
+**16:13** Fix a deprecation warning along the way
+**16:40** Commit fixes for 1.9.2
+**17:50** While waiting for specs, check for sphinx code
+**18:05** author_ip can't be null, why is that still there?
+**18:50** make it nullable, don't want to delete old data right now
+**19:40** Search for MySQL syntax
+**21:06** Oh actually author_ip does get set, specs actually are broken
+**22:07** Add blank values to spec, fixes spec.
+**22:39** Add blank values in again, would be nice to extract duplicate code
+**23:35** Start fixing tagging
+**24:30** Why no backtraces? Argh color scheme hiding them, must have reset recently
+**25:50** This changed recently? Look at git log
+**26:46** Looks like a dodgy merge, fixed. That'll learn me for not running specs
+**28:15** Tackle view specs, *long* time since I've used these.
+**29:06** Be easier if I had factories, look for them.
+**29:23** Find them under cucumber
+**30:11** Extract valid_comment_attributes to spec_helper.rb
+**32:15** Fix broken undo logic
+**33:00** Extracting common factory logic
+**33:08** hmm, can you super from a method defined inside a spec?
+**33:30** yeah, apparently
+**35:28** working, check in
+**36:00** Fixing view specs
+**36:30** Remove approved_comments_count, don't do spam checking anymore
+**37:15** Actually it is still there. Need to fix mocks.
+**39:15** Fix deprecations while waiting for specs.
+**39:30** Missing template
+**40:15** Need to use render :template
+**40:40** Check in, fixed view specs.
+**41:05** Running specs, looking all green. Fix RAILS_ENV to Rails.env
+**41:45** All green!
+
+h3. Part 2
+
+**0:30** Removing sphinx
+**2:20** Add pg gem
+**4:00** Create databases
+**4:45** Ah it's postgres, not pg in database.yml
+**5:15** derp, postgresql
+**6:00** What are defensio migrations still doing hanging around?
+**6:45** Move database migrations around to not collide
+**7:45** taps
+**8:40** run tests against PG in background
+**9:30** don't have open id columns in prod, it was removed in latest enki
+**11:25** ffffuuuuuu migrations and schema.rb
+**12:40** taps install failed on rhnh.net, why installing sqlite?
+**14:00** Argh can't parse yaml
+**14:45** Abort taps remotely, bring mysqldump locally
+**16:00** Try taps locally
+**17:20** 404 :(
+**17:50** it's away!
+**18:10** Invalid encoding UTF-8, dammit.
+**18:30** New plan, there's a different gem that does this.
+**19:00** What is it? I did it in a screencast, I should know this.
+**19:40** Found it! mysql2psql
+**20:20** taps, you're cut
+**21:00** Setup mysql2psql.yml config
+**22:20** Works. That was much easier.
+**23:20** delayed_job, why is that here? Try removing it.
+**23:50** Used to use it for spam checking, but not anymore.
+**24:10** Time to replace search, how to do this?
+**25:00** Index tag list?
+**26:00** Hmm need full text search as well.
+**26:15** Step one: normal search, on title and body
+**27:00** Spec it, extract faux-factory for posts
+**29:00** Failing spec, implement
+**30:00** Search for PG full text search syntax
+**31:30** Passing, add in title search also
+**32:40** Passing with title as well
+**33:10** Adding tag cache to posts for easy searching
+**36:10** Argh migrations are screwed.
+**36:40** Move migrations back to where they were
+**39:09** Amend migration move like it never happened
+**38:45** Add data migration to tag_cache migration
+**39:30** WTF already have a tag cache. Where did it come from?
+**39:40** Delete everything I just did.
+**41:40** Check in web interface, works.
+
+h3. Part 3
+
+**00:20** related posts using full text search
+**02:55** sort by rank, reading docs
+**03:50** difference between ts_rank and ts_rank_cd?
+**4:30** Too hard, just pick one and see what happens
+**5:15** Syntax error in ts_query
+**5:45** plainto_tsquery
+**6:40** working, need to use @or@ rather than @and@
+**10:30** Ah, using plainto, fix that.
+**11:04** Order by rank
+**12:20** syntax error, need to interpolate keywords
+**13:45** Search for how to escape SQL string in Activerecord
+**14:15** Find interpolate_sql, looks promising
+**14:50** Actually no, find sanitize_sql_array
+**15:20** Just try it, works. Click around to verify.
+**16:45** Add spec
+**21:20** Passing specs, commit
+**21:45** Why isn't tagging working?
+**23:30** Ah, probably case insensitive. Need to use ILIKE.
+**24:00** Write a test for it
+**26:00** Have a failing test
+**26:30** Argh it's inside acts_as_taggable_on_steroids plugin
+**27:20** Override the method directly in model, just for now
+**28:30** Commit that
+**29:00** Remove searchable_tags
+**32:00** Fix tags with spaces
+**34:00** Exclude popular tags from search (fix the wrong thing)
+**35:40** Back to fixing tags with spaces
+**37:20** Looking at rankings, good enough for now
+**38:00** Move sphinx namespace into rhnh
+
+h3. Part 4
+
+**00:30** Checking docs for new Cedar stack
+**1:30** Search for how to import data
+**2:20** pg_dump of data
+**2:50** Move dump to public Dropbox so heroku can access it
+**3:40** Push code to heroku
+**4:50** Taking a while, hmm repo is big
+**5:50** Clone a copy to tmp, check if it's still big.
+**6:00** Yeah, eh not a big deal, it's been a while a number of years.
+**7:00** heroku push done, run heroku ps. Crashed :(
+**7:30** AWS? I deleted you >:[
+**8:00** Argh I pushed master, not my branch
+**9:30** heroku ps, crashed again
+**10:30** Unclear, probably exception notifier, remove it
+**11:30** add thin gem while waiting
+**12:30** Running, expect not to work because database not set up
+**13:05** Create procfile
+**13:35** Import pg backup
+**15:20** Working, click around, make sure it's working
+**16:20** Check whether atom feed is working
+**17:30** Check exception notifications
+**19:00** Either new comments, or something is wrong.
+**19:20** Yep new comments, need to reimport data. Do that later.
+**20:00** Back to exception notification. Used to be an add-on.
+**21:20** Don't want hoptoad or get exceptional, maybe sendgrind with exception notifier?
+**22:00** Searching for examples.
+**22:20** Found stack overflow answer, looks promising.
+**24:20** Bring back exception notifier with sendgrind.
+**26:00** logs show sent mail, arrives in email
+**26:15** Next steps, DNS settings, extra database dump.
+
+{% endraw %}

@@ -1,0 +1,106 @@
+---
+layout: post
+title:  "DOM Quirks"
+date:   2006-07-23 11:04:00 +00:00
+tags:   ["Code", "javascript"]
+---
+{% raw %}
+Unobtrusive javascript is undoubtably the nicest way to add Javascript behaviours to a web page. It keeps the HTML clean and (hopefully) ensures it will degrade properly in older browsers. That said, the methods you generally use for this type of design (see "Unobtrusive Javascript":http://www.onlinetools.org/articles/unobtrusivejavascript/ for an excellent introduction) contain a number of quirks you should be aware, of which this article addresses a few. In particular, unexpected or non-obvious behaviour in @createElement@, @appendChild@, and @getElementsByTagName@.
+
+h3. Table of Contents
+
+# "Creating Elements":#creating
+# "Appending Elements":#appending
+# "Finding Elements":#finding
+# "Conclusion":#conclusion
+
+h3(#creating). Creating Elements
+
+The @createElement@ function allows the dynamic creation of HTML elements. It takes one parameter: the type of element to create. It is used in conjunction with @setAttribute@ to modify the attributes of a new element. Elements created in this way will not actually be displayed in the document until added with @appendChild@, @insertBefore@ or @replaceChild@. The following code creates an image (but does not display it):
+--- javascript
+element = document.createElement("img");
+element.setAttribute("src", "img1.jpg");
+---
+
+While support for this is good in the major browsers, there is a small quirk in IE that can cause some pain when creating forms. To quote "MSDN":http://msdn.microsoft.com/workshop/author/dhtml/reference/methods/createelement.asp:
+
+bq. Attributes can be included with the sTag  as long as the entire string is valid HTML. You should do this if you wish to include the NAME attribute at run time on objects created with the createElement method.
+
+What this means is that in IE, you can do the following (which is equivalent to the above snippet of code):
+--- javascript
+str = '<img src="img1.jpg" />';
+element = document.createElement(str);
+---
+While IE supports the first method shown for most attributes, if you want to set the "name" attribute of an element you *must* use the second method. This is a problem since Mozilla will throw an exception on the latter. Thankfully, we can use exception handling for an easy workaround:
+--- javascript
+try {
+  str = "<input name='aradiobutton' type='radio' />"
+  element = document.createElement(str);
+} catch (e) {
+  element = document.createElement("input");
+  element.setAttribute("name", "aradiobutton");
+  element.setAttribute("type", "radio");
+}
+---
+
+h3(#appending). Appending Elements
+
+Using @appendChild@ (or @replaceChild@) is the "correct" way to add content to a DOM, rather than the more popular @innerHTML@ property. 
+
+When using this function to add rows to a table, you should add the rows to a @tbody@ or equivalent tag inside the table, not the @table@ tag itself. Mozilla and Opera will pick up the new rows if you add them directly to the table tag, whereas IE will not.
+
+h3(#finding). Finding Elements
+
+You can get a collection of all tags of a specific type using the @getElementsByTagName@ function. Not only is this handy for standard unobtrusive javascript behaviours, you can also use it to do cool things like automatically process all elements in a form.
+
+--- javascript
+function showData(form) {
+  inputs = form.getElementsByTagName("input");
+  buffer = "";
+  for (i = 0; i < inputs.length; i++)
+    buffer += inputs[i].name + "=" + inputs[i].value + "\n";
+
+  alert(buffer);
+}
+---
+
+Although it may appear to act like an array, it is very important to remember that the returned object is actually an @HTMLCollection@. It does not support any array-like functions (concat, splice, etc...) bar those presented above. This is because the @HTMLCollection@ is a live representation of the page's HTML, and such functions would interfere.
+
+--- javascript
+// Assume an empty document
+images = document.getElementsByTagName("img");  
+// images.length = 0
+addImgElementToDocument(); // function implemented elsewhere 
+// images.length = 1;
+---
+
+This can be an annoyance when we know that the HTML structure will not be changing, and is easily worked around:
+
+--- javascript
+function collectionToArray(col) {
+  a = new Array();
+  for (i = 0; i < col.length; i++)
+    a[a.length] = col[i];
+  return a;
+}
+
+function showData(form) {
+  elems = form.getElementsByTagName("input");
+  inputs = collectionToArray(elems);
+  elems =  form.getElementsByTagName("select");
+  inputs = inputs.concat(collectionToArray(elems));
+  buffer = "";
+  for (i = 0; i < inputs.length; i++)
+    buffer += inputs[i].name + "=" + inputs[i].value + "\n";
+	
+  alert(buffer);
+}
+---
+
+It would be nice if the @collectionToArray@ function above could be added to @HTMLCollection@'s prototype, however for some reason it is read-only.
+
+h3(#conclusion). Conclusion
+
+These quirks may be minor and their solutions trivial, but it helps to be aware of them when coding any sort of unobtrusive javascript as it can reduce the amount of time you spend debugging seemingly illogical behaviour.
+
+{% endraw %}

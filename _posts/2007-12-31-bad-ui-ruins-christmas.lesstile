@@ -1,0 +1,17 @@
+---
+layout: post
+title:  "Bad UI ruins Christmas"
+date:   2007-12-31 08:36:00 +00:00
+tags:   ["Life", "UI", "ideology"]
+---
+{% raw %}
+On my Mum's digital camera, when you look at a movie, you get a still from the movie and two options: delete this frame, delete all frames. Delete all frames does not delete all frames of the movie. It deletes everything on the camera. We lost all our Christmas photos, and also a photo of "my cake":http://rhnh.net/2007/12/29/youth-receives-cookbook-for-christmas-makes-dessert which is kind of depressing.
+
+Don't use ambiguous or unclear terminology in your UI. "Frame" in my mind refers to a frame of a movie, but the camera used it to refer to a photo - this is likely a case of a system term seeping through to the user interface (or bad translation - it's a Japanese camera I think).
+
+My brother was impressed by the feature: "Hey cool, you can delete individual frames from your movie".
+
+Rephrase important decisions in the confirmation, and provide important information. "Are you sure you want to delete all frames?" is useless. Try "This will irrevocably delete all 324 photos and movies on your camera. Are you sure you want to continue?". And always provide 'undo'. It's not that hard to have a 'trash' area, only permanently delete the files when you really need the space.
+
+If anyone has any spare Christmas shots they're not using, please link them up. Mum's pretty distraught.
+{% endraw %}

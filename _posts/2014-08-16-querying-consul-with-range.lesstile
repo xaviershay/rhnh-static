@@ -1,0 +1,51 @@
+---
+layout: post
+title:  "Querying consul with range"
+date:   2014-08-16 23:32:00 +00:00
+tags:   ["Code", "consul", "range"]
+---
+{% raw %}
+_Disclaimer: this has not been tried in a production environment. It is a weekend hack._
+
+"Consul":http://www.consul.io/ is a highly available, datacenter aware, service discovery mechanism. "Range":http://godoc.org/github.com/xaviershay/grange is a query language for selecting information out of arbitrary, self-referential metadata. I combined the two!
+
+Start by firing up a two node consul cluster, per the "getting started guide":http://www.consul.io/intro/getting-started/join.html. On the master node, grab the "@consul@ branch of grange-server":https://github.com/xaviershay/grange-server/pull/4 and run it with the following config:
+
+---
+[rangeserver]
+loglevel=DEBUG
+consul=true
+---
+
+(It could run against any consul agent, but it's easier to demo on the master node.)
+
+Querying range, we already see a consul cluster, @cluster@. This is a default service containing the consul servers.
+
+---
+> export RANGE_HOST=172.20.20.10
+> erg "allclusters()"
+consul
+> erg "%consul"
+agent-one
+---
+
+Add a new service to the agents, and it shows up in range!
+
+---
+n2> curl -v -X PUT --data '{"name": "web", "port": 80}' http://localhost:8500/v1/agent/service/register
+
+> erg "allclusters()"
+consul,web
+> erg "%web"
+agent-two
+
+n1> curl -v -X PUT --data '{"name": "web", "port": 80}' http://localhost:8500/v1/agent/service/register
+
+> erg "%web"
+agent-one,agent-two
+---
+
+Though eventually consistent, range is a big improvement over the consul HTTP API for quick ad-hoc queries against your production layout, particularly when combined with other metadata. How many nodes are running redis? What services are running on a particular rack?
+
+This is just a proof of concept for now, but I'm excited about the potential. To be useable it needs to be tested against production sized clusters, better handling of error conditions, and some code review (in particular around handling cluster state changes).
+{% endraw %}

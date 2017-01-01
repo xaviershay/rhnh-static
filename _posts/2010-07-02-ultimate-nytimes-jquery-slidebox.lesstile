@@ -1,0 +1,181 @@
+---
+layout: post
+title:  "Ultimate NYTimes jQuery Slidebox"
+date:   2010-07-02 11:39:00 +00:00
+tags:   ["Code", "css", "javascript", "jquery"]
+---
+{% raw %}
+The New York Times has a pretty fancy box that slides out when you hit the bottom of an article. It draws attention without being too distracting. Very nice. Here's how you can do it yourself with all the trendiest bells and whistles, CSS animation (with backup jQuery for crippled browsers), and google analytics tracking. See it in the wild over at my other blog "TwoShay":http://www.two-shay.com/articles/why-i-quit-a-six-figure-job, or "jump straight to the demo":http://xaviershay.github.com/nytimes-slider/ to grab the code.
+
+To start with, some basic skeleton code. I'm using new HTML5 selectors, you can just use divs if you're not that cool.
+
+--- HTML
+<section id='slidebox'>
+  <a name='close'></a>
+  <h1>Related Reading</h1>
+  <div class='related'>
+    <h2>Sense and Sensibility</h2>
+    <p class='desc'>
+      Another book by Jane Austen you will enjoy
+      <a href='#' rel='related' class='more'>Read Â»</a> 
+    </p>
+  </div>
+</section>
+---
+--- CSS
+/* Just the important styles - see the demo source for a fuller account */
+#slidebox {
+  position:fixed;
+  width:400px;
+  right: -430px;
+  bottom:20px;
+
+  -webkit-transition: right 100ms linear;
+}
+
+#slidebox.open { 
+  right: 0px; 
+  -webkit-transition: right 300ms linear;
+}
+---
+
+This sets up an absolutely positioned box, hidden off to the right of screen. Adding a class of @open@ to the box using jQuery will trigger a 300ms CSS animation to slide the box in, nice and smooth. The correct time to do this is when the user scrolls to the last bit of content on the page. What this content is will be dependent on your site, but whatever it is flag it with an id of @#last@. The following javascript is all we need:
+
+
+--- javascript
+(function ($) {
+  /* Add a function to jQuery to slidebox any elements */
+  jQuery.fn.slidebox = function() {
+    var slidebox = this;
+    var originalPosition = slidebox.css('right');
+    var boxAnimations = {
+      open:  function() { slidebox.addClass('open'); },
+      close: function() { slidebox.removeClass('open'); },
+    }
+
+    $(window).scroll(function() {
+      var distanceTop = $('#last').offset().top - $(window).height();
+
+      if ($(window).scrollTop() > distanceTop) {
+        boxAnimations.open();
+      } else {
+        boxAnimations.close();
+      }
+    });
+  }
+
+  $(function() { /* onload */
+    $('#slidebox').slidebox();
+  });
+});
+---
+
+That's it! Everything from here on is gravy. 
+
+To deal with browsers that don't support CSS animations yet, provide a fallback that uses jQuery animation using "Modernizr":http://www.modernizr.com/ to detect the browser's capabilities:
+
+--- javascript
+/* replacing the boxAnimations definition above */
+var boxAnimations;
+if (Modernizr.cssanimations) {
+  boxAnimations = {
+    open:  function() { slidebox.addClass('open'); },
+    close: function() { slidebox.removeClass('open'); },
+  }
+} else {
+  boxAnimations = {
+    open: function() {
+      slidebox.animate({
+        'right': '0px'
+      }, 300);
+    },
+    close: function() {
+      slidebox.stop(true).animate({
+        'right': originalPosition
+      }, 100);
+    }
+  }
+}
+---
+
+A close button is polite, allowing the user to dismiss the slidebox if they are not interested:
+
+--- javascript
+slidebox.find('.close').click(function() {
+  $(this).parent().remove();
+});
+---
+
+And finally, no point adding all this shiny without knowing whether people are using it! Google analytics allows us to track custom javascript events, which is a perfect tool for gaining an insight into how the slidebox is performing. It's easy to use: simply push a @_trackEvent@ method call to the @_gaq@ variable (defined in the analytics snippet you copy and paste into your layout) and google takes care of the rest. Observe the full javascript code, with tracking added:
+
+--- Javascript
+(function ($) {
+  jQuery.fn.slidebox = function() {
+    var slidebox = this;
+    var originalPosition = slidebox.css('right');
+    var open = false;
+
+    /* GA tracking */
+    var track = function(label) {
+      return _gaq.push(['_trackEvent', 'Slidebox', label]);
+    }
+
+    var boxAnimations;
+    if (Modernizr.cssanimations) {
+      boxAnimations = {
+        open:  function() { slidebox.addClass('open'); },
+        close: function() { slidebox.removeClass('open'); },
+      }
+    } else {
+      boxAnimations = {
+        open: function() {
+          slidebox.animate({
+            'right': '0px'
+          }, 300);
+        },
+        close: function() {
+          slidebox.stop(true).animate({
+            'right': originalPosition
+          }, 100);
+        }
+      }
+    }
+
+    $(window).scroll(function() {
+      var distanceTop = $('#last').offset().top - $(window).height();
+
+      if ($(window).scrollTop() > distanceTop) {
+        /* Extra protection necessary so we don't send multiple open events to GA */
+        if (!open) {
+          open = true;
+          boxAnimations.open();
+          track("Open");
+        }
+      } else {
+        open = false;
+        boxAnimations.close();
+      }
+    });
+
+    slidebox.find('.close').click(function() {
+      $(this).parent().remove();
+      track("Close");
+    });
+    slidebox.find('.related a').click(function() {
+      track("Read More");
+    });
+  }
+
+  $(function() {
+    $('#slidebox').slidebox();
+  });
+})(jQuery);
+
+/* Google analytics code provides this variable */
+var _gaq = _gaq || [];
+---
+
+Tasty. For the entire code and complete styles, see the "demo page":http://xaviershay.github.com/nytimes-slider/. 
+
+_Kudos to "http://tympanus.net":http://tympanus.net/codrops/2010/04/13/end-of-page-slide-out-box/ for getting the ball rolling._
+{% endraw %}

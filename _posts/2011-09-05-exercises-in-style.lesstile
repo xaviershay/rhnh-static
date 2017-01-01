@@ -1,0 +1,264 @@
+---
+layout: post
+title:  "Exercises in style"
+date:   2011-09-05 01:48:00 +00:00
+tags:   ["code", "ruby"]
+---
+{% raw %}
+Let us make a stack machine! It can add numbers! This may be a winding journey. Have some time and an @irb@ up your sleeve. Maybe it is more of a meditation than a blog post? Onwards!
+
+--- Ruby
+def push_op(value)
+  lambda {|x| [value, x + [value]] }
+end
+
+def add_op
+  lambda {|x| [x[-1] + x[-2], x[0..-3]] }
+end
+
+[
+  push_op(1),
+  push_op(2),
+  add_op
+].inject([nil, []]) {|(result, state), op|
+  op[state]
+}
+---
+
+Get it? Pushes 1, pushes 2, then the @add_op@ pops them off the stack and makes 3. Not a lot of metadata in those lambdas though, and we can't combine them in interesting way.
+
+--- Ruby
+class Operation < Struct.new(:block)
+  def +(other)
+    CompositeOperation.new(self, other)
+  end
+
+  def run(state)
+    @block.call(state)
+  end
+end
+
+class CompositeOperation < Operation
+  def initialize(a, b)
+    @a = a
+    @b = b
+    super(lambda {|x| @b.block[@a.block[x][1]] })
+  end
+
+  def desc
+    @a.desc + "\n" + @b.desc
+  end
+end
+
+class PushOperation < Operation
+  def initialize(value)
+    @value = value
+    super(lambda {|x| [value, x + [value]] })
+  end
+
+  def desc
+    "push #{@value}"
+  end
+end
+
+class AddOperation < Operation
+  def initialize
+    super(lambda {|x| [x[-1] + x[-2], x[0..-3]] })
+  end
+
+  def desc
+    "add top two digits on stack"
+  end
+end
+---
+
+A lot more setup, but now we also get a description of operations!
+
+--- Ruby
+def tagged_push_op(value)
+  PushOperation.new(value)
+end
+
+def tagged_add_op
+  AddOperation.new
+end
+
+ops =
+  tagged_push_op(1) +
+  tagged_push_op(2) +
+  tagged_add_op
+
+puts ops.desc
+puts ops.run(start_state).inspect
+---
+
+Ok you get that. What else can we do?
+
+_"every monad [.] embodies a particular computational strategy. A 'motto of computation,' if you will."_ -- "Mental Guy":http://moonbase.rydia.net/mental/writings/programming/monads-in-ruby/02array
+
+hmmm. What does it mean?
+
+--- Ruby
+class VerboseStackEvaluator < Struct.new(:stack)
+  attr_accessor :result, :stack
+
+  def pass(op)
+    puts op.desc
+    results = op.call(stack)
+    self.class.new(results[1]).tap do |x|
+      x.result = results[0]
+    end
+  end
+
+  def self.identity
+    new([])
+  end
+end
+
+e = evaluator.identity.
+  pass(tagged_push_op(1)).
+  pass(tagged_push_op(2)).
+  pass(tagged_add_op)
+
+p [e.result, e.stack]
+---
+
+Oh so now we have one structure (the @pass@ stuff) that we can run through different evaluators. Let us make a recursive one!
+
+--- Ruby
+class RecursiveLazyStackEvaluator < Struct.new(:stack)
+  def pass(op)
+    self.class.new(lambda {
+      op.call(stack)
+    })
+  end
+
+  def self.identity
+    new(lambda { [nil, []] })
+  end
+
+  def result; evaled[0]; end
+  def stack;  evaled[1]; end
+
+  private
+
+  def evaled
+    @evaled ||= @stack.call
+  end
+end
+---
+
+Do you see it is now lazy. Rather than evaluate each operation when @pass@ is called, it saves them up until a result is requested. Look out! Haskell in your Ruby! Recursion might blow out our stack though. Let us isomorphically (I just learned this word) translate it to use iteration!
+
+--- Ruby
+class LazyStackEvaluator
+  attr_accessor :steps
+
+  def initialize(stack, steps = [])
+    @stack  = stack
+    @steps  = steps
+  end
+
+  def pass(op)
+    self.class.new(@stack, steps + [op])
+  end
+
+  def self.identity
+    new([])
+  end
+
+  def result; evaled[0]; end
+  def stack;  evaled[1]; end
+
+  protected
+
+  def evaled
+    @evaled ||= steps.inject([nil, @stack]) {|(r, s), op|
+      op.call(s)
+    }
+  end
+end
+---
+
+Not too shabby. Let's try something more useful. Given we only have one operation that pops the stack (add), and it only pops two numbers, if we have more than two numbers in a row they start becoming redundant. Let us optimize!
+
+--- Ruby
+class OptimizingEvaluator < LazyStackEvaluator
+  def evaled
+    @evaled ||= begin
+      accumulator = []
+      new_steps   = []
+      steps.each do |step|
+        accumulator << step
+        if !step.is_a?(PushOperation)
+          new_steps += accumulator
+          accumulator = []
+        elsif accumulator.length > 2
+          accumulator = accumulator[1..-1]
+        end
+      end
+      new_steps += accumulator
+      new_steps.inject([nil, @stack]) {|(r, s), op|
+        op.call(s)
+      }
+    end
+  end
+end
+
+e = evaluator.identity.
+  pass(tagged_push_op(1)). # This won't get run!
+  pass(tagged_push_op(1)).
+  pass(tagged_push_op(2)).
+  pass(tagged_add_op)
+
+p [e.result, e.stack]
+---
+
+Ok one more. This one is pretty useless for this problem, but perhaps it will inspire thought. Let us multithread!
+
+--- Ruby
+class ThreadingEvaluator < LazyStackEvaluator
+  def evaled
+    @evaled ||= begin
+      accumulator = []
+      workers     = []
+      steps.each do |step|
+        accumulator << step
+        if step.is_a?(AddOperation)
+          workers << spawn_thread(accumulator)
+          accumulator = []
+        end
+      end
+      workers << spawn_thread(accumulator) unless accumulator.empty?
+      workers.each(&:join)
+
+      workers.last[:result]
+    end
+  end
+
+  def spawn_thread(accumulator)
+    Thread.new do
+      sleep rand / 3
+      Thread.current[:result] = begin
+        e = accumulator.inject(VerboseStackEvaluator.identity) {|e, s| e.pass(s) }
+        [e.result, e.stack]
+      end
+    end
+  end
+end
+
+e = evaluator.identity.
+  pass(tagged_push_op(1)).
+  pass(tagged_push_op(1)).
+  pass(tagged_push_op(2)).
+  pass(tagged_add_op).
+  pass(tagged_push_op(3)).
+  pass(tagged_push_op(4)).
+  pass(tagged_add_op)
+
+p [e.result, e.stack]
+---
+
+Ok that is all. Here is an exercise for you: how would you allow the threading and optimizing evaluators to be combined?
+
+{% endraw %}

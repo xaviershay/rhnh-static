@@ -1,0 +1,9 @@
+---
+layout: post
+title:  "I'm a rails contributor"
+date:   2007-10-01 10:05:00 +00:00
+tags:   ["Code", "Life", "rails"]
+---
+{% raw %}
+Allow me to gloat for a moment. Please turn your attention to "changeset 7692":http://dev.rubyonrails.org/changeset/7692 you'll notice my name in the credits. So it's not much, but there's a certain amount of geek cred there.
+{% endraw %}

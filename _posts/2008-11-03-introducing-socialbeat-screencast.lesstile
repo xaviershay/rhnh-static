@@ -1,0 +1,20 @@
+---
+layout: post
+title:  "Introducing SocialBeat (screencast)"
+date:   2008-11-03 20:02:00 +00:00
+tags:   ["Code", "Ruby", "opengl", "socialbeat"]
+---
+{% raw %}
+Here is a screencast of "socialbeat":http://github.com/xaviershay/socialbeat/tree/master in which you will note:
+
+ # I don't appear drunk
+ # I don't reveal intra-company communications
+ # I show off the full gamut of socialbeat's awesomeness in under 3 minutes
+
+In these ways you may find it superior to other screencasts you may have seen on the matter.
+
+<object width="400" height="300">	<param name="allowfullscreen" value="true" />	<param name="allowscriptaccess" value="always" />	<param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=2139958&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" />	<embed src="http://vimeo.com/moogaloop.swf?clip_id=2139958&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="400" height="300"></embed></object><br /><a href="http://vimeo.com/2139958?pg=embed&amp;sec=2139958">Introducing SocialBeat</a>
+
+If you are behind the times - socialbeat is some code that lets you live code OpenGL visualizations to MIDI tracks.
+
+{% endraw %}

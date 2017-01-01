@@ -1,0 +1,89 @@
+---
+layout: post
+title:  "Speeding up Rails startup time"
+date:   2011-05-28 01:08:00 +00:00
+tags:   ["Code", "Ruby", "rails"]
+---
+{% raw %}
+In which I provide easy instructions to try a new patch that drastically improves the start up time of Ruby applications, in the hope that with wide support it will be merged into the upcoming 1.9.3 release. Skip to the bottom for instructions, or keep reading for the narrative.
+
+*UPDATE:* If you have trouble installing, grab a recent copy of rvm: rvm get head.
+
+h2. Background
+
+Recent releases of MRI Ruby have introduced some fairly major performance regressions when requiring files:
+
+!https://img.skitch.com/20110528-xigici83u5texbpnwnwntfrkuq.jpg!
+
+For reference, our medium-sized Rails application requires around 2200 files &emdash; off the right-hand side of this graph. This is problematic. On 1.9.2 it takes 20s to start up, on 1.9.3 it takes 46s. Both are far too long.
+
+There are a few reasons for this, but the core of the problem is the basic algorithm which looks something like this:
+
+--- Ruby
+def require(file)
+  $loaded.each do |x|
+    return false if x == file
+  end
+  load(file)
+  $loaded << file
+end
+---
+
+
+That loop is no good, and gets worse the more files you have required. I have written a patch for 1.9.3 which changes this algorithm to:
+
+--- Ruby
+def require(file)
+  return false if $loaded[file] 
+  load(file)
+  $loaded[file] = true
+end
+---
+
+That gives you a performance curve that looks like this:
+
+!https://img.skitch.com/20110528-gtsgba1twaiwkd3frewen54ts.jpg!
+
+Much nicer.
+
+That's just a synthetic benchmark, but it works in the real world too. My "main Rails application":http://theconversation.edu.au now loads in a mite over 10s, down from 20s it was taking on 1.9.2. A blank Rails app loads in 1.1s, which is even faster than 1.8.7. 
+
+!https://img.skitch.com/20110528-cu9nux6619fxruh5rq6ppywp7p.jpg!
+
+h2. Getting the fix
+
+Here is how you can try out my patch right now in just ten minutes using RVM.
+
+--- Bash
+# First get a baseline measurement
+cd /your/rails/app
+time script/rails runner "puts 1"
+
+# Install a patched ruby
+curl https://gist.github.com/raw/996418/e2b346fbadeed458506fc69ca213ad96d1d08c3e/require-performance-fix-r31758.patch > /tmp/require-performance-fix.patch
+rvm install ruby-head --patch /tmp/require-performance-fix.patch -n patched
+# ... get a cup of tea, this took about 8 minutes on my MBP
+
+# Get a new measurement
+cd /your/rails/app
+rvm use ruby-head-patched
+gem install bundler --no-rdoc --no-ri
+bundle
+time script/rails runner "puts 1"
+---
+
+h2. How you can help
+
+I need a lot more eyeballs on this patch before it can be considered for merging into trunk. I would really appreciate any of the following:
+
+* Try it out on your app and report timings in the comments.
+* "Code review the patch on this GitHub pull request":https://github.com/ruby/ruby/pull/25 (it's C code, but don't let that scare you off).
+* Try it on Windows.
+* Report any bugs you find.
+
+h2. Next steps
+
+I imagine there will be a bit more work to get this into Ruby 1.9.3, but after that this is just the first step of many to try and speed up the time Rails takes to start up. Bundler and RubyGems still spend a lot of time doing ... something, which I want to investigate. I also want to port these changes over to JRuby which has similar issues (Rubinius isn't quite as fast out of the gate, but does not degrade exponentially so would not benefit from this patch).
+
+Thank you for your time.
+{% endraw %}

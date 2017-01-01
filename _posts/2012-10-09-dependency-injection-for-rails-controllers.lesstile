@@ -1,0 +1,244 @@
+---
+layout: post
+title:  "Dependency Injection for Rails Controllers"
+date:   2012-10-09 15:08:00 +00:00
+tags:   ["dependency injection", "rails", "ruby"]
+---
+{% raw %}
+What if controllers looked like this:
+
+--- Ruby
+module Controller
+  class Registration
+    def update(response, now_flash, update_form)
+      form = update_form
+
+      if form.save
+        response.respond_with SuccessfulUpdateResponse, form
+      else
+        now_flash[:message] = "Could not save registration."
+        response.render action: 'edit', ivars: {registration: form}
+      end
+    end
+
+    SuccessfulUpdateResponse = Struct.new(:form) do
+      def html(response, flash, current_event)
+        flash[:message] = "Updated details for %s" % form.name
+        response.redirect_to :registrations, current_event
+      end
+
+      def js(response)
+        response.render json: form
+      end
+    end
+  end
+end
+---
+
+It is a plain ruby object that receives all needed dependencies via method arguments. (Requires Some Magic, explained below.) This is a style of dependency injection inspired by "Raptor":https://github.com/garybernhardt/raptor, "Dropwizard":http://dropwizard.codahale.com/ and "Guice":https://code.google.com/p/google-guice/. It allows you to cleanly separate authorization, object fetching, control flow, and other typical controller responsibilities, and as a result is much easier to organise and test than the traditional style.
+
+--- Ruby
+require 'unit_helper'
+
+require 'injector'
+require 'controller/registration'
+
+describe Controller::Registration do
+  success_response = Controller::Registration::SuccessfulUpdateResponse
+
+  let(:form)      { fire_double("Form::UpdateRegistration") }
+  let(:response)  { fire_double("ControllerSource::Response") }
+  let(:event)     { fire_double("Event") }
+  let(:flash)     { {} }
+  let(:now_flash) { {} }
+  let(:injector)  { Injector.new([OpenStruct.new(
+    response:      response.as_null_object,
+    current_event: event.as_null_object,
+    update_form:   form.as_null_object,
+    flash:         flash,
+    now_flash:     now_flash
+  )]) }
+
+  describe '#update' do
+    it 'saves form and responds with successful update' do
+      form.should_receive(:save).and_return(true)
+      response
+        .should_receive(:respond_with)
+        .with(success_response, form)
+
+      injector.dispatch described_class.new.method(:update)
+    end
+
+    it 'render edit page when save fails' do
+      form.should_receive(:save).and_return(false)
+      response
+        .should_receive(:render)
+        .with(action: 'edit', ivars: {registration: form})
+
+      injector.dispatch described_class.new.method(:update)
+
+      now_flash[:message].length.should > 0
+    end
+  end
+
+  describe success_response do
+    describe '#html' do
+      it 'redirects to registration' do
+        response.should_receive(:redirect_to).with(:registrations, event)
+
+        injector.dispatch success_response.new(form).method(:html)
+      end
+
+      it 'includes name in flash message' do
+        form.stub(:name).and_return("Don")
+
+        injector.dispatch success_response.new(form).method(:html)
+
+        flash[:message].should include(form.name)
+      end
+    end
+  end
+end
+---
+
+Before filters and authorization can be extracted out into a separate source, and will be applied when they are named in a method. For instance, if you specify @current_event@ as a method argument in @Controller::Registration#update@, you will receive @Controller::RegistrationSource#current_event@. Authorization is interesting: requesting @authorized_organiser@ when not authorized will cause and @UnauthorizedException@, which you can handle in your base @ApplicationController@ (note: the above example omits authorization).
+
+--- Ruby
+module Controller
+  class RegistrationSource
+    def current_event(params)
+      Event.find(params[:event_id])
+    end
+
+    def current_registration(params, current_event)
+      current_event.registrations.find(params[:id])
+    end
+
+    def current_organiser(session)
+      Organiser.find_by_id(session[:organiser_id])
+    end
+
+    def authorized_organiser(current_event, current_organiser)
+      unless current_organiser && current_organiser.can_edit?(current_event)
+        raise UnauthorizedException
+      end
+    end
+
+    def update_form(params, current_registration)
+      Form::UpdateRegistration.build(
+        current_registration,
+        params[:registration]
+      )
+    end
+  end
+end
+---
+
+h2. Magic wiring
+
+An @Injector@ is responsible for introspecting method arguments and finding an appropriate object from its sources to inject. In the controller case two sources are required: one for standard controller dependencies (params, flash, etc), and one for application specific logic (the @RegistrationSource@ seen above).
+
+--- Ruby
+class RegistrationsController < ApplicationController
+  def update
+    injector = Injector.new([
+      ControllerSource.new(self),
+      Controller::RegistrationSource.new
+    ])
+    injector.dispatch Controller::Registration.new.method(:update)
+  end
+end
+---
+
+The injector itself is fairly straightforward. The tricky part is the recursive @dispatch@, which enables sources to themselves request dependency injection, allowing the type of decomposition seen in @registration_source@ where @authorized_organiser@ depends on the definition of @current_organiser@ in the same class.
+
+@UnknownInjectable@ is a cute trick for testing: you don't need to specify every dependency requested by the method, only the ones that are being used by the code path being executed. In non-test code it probably makes sense to raise an exception earlier.
+
+--- Ruby
+class Injector
+  attr_reader :sources
+
+  def initialize(sources)
+    @sources = sources + [self]
+  end
+
+  def dispatch(method, overrides = {})
+    args = method.parameters.map {|_, name|
+      source = sources.detect {|source| source.respond_to?(name) }
+      if source
+        dispatch(source.method(name), overrides)
+      else
+        UnknownInjectable.new(name)
+      end
+    }
+    method.call(*args)
+  end
+
+  def injector
+    self
+  end
+
+  class UnknownInjectable < BasicObject
+    def initialize(name)
+      @name = name
+    end
+
+    def method_missing(*args)
+      ::Kernel.raise "Tried to call method on an uninjected param: #{@name}"
+    end
+  end
+end
+---
+
+Finally for completeness, an implementation of @ControllerSource@:
+
+--- Ruby
+class ControllerSource
+  Response = Struct.new(:controller, :injector) do
+    def redirect_to(path, *args)
+      controller.redirect_to(controller.send("#{path}_path", *args))
+    end
+
+    def render(*args)
+      ivars = {}
+      if args.last.is_a?(Hash) && args.last.has_key?(:ivars)
+        ivars = args.last.delete(:ivars)
+      end
+
+      ivars.each do |name, val|
+        controller.instance_variable_set("@#{name}", val)
+      end
+
+      controller.render *args
+    end
+
+    def respond_with(klass, *args)
+      obj = klass.new(*args)
+      format = controller.request.format.symbol
+      if obj.respond_to?(format)
+        injector.dispatch obj.method(format)
+      end
+    end
+  end
+
+  def initialize(controller)
+    @controller = controller
+  end
+
+  def params;    @controller.params; end
+  def session;   @controller.session; end
+  def flash;     @controller.flash; end
+  def now_flash; @controller.flash.now; end
+
+  def response(injector)
+    Response.new(@controller, injector)
+  end
+end
+---
+
+Initial impressions are that it does feel like more magic until you get in the groove, after which it is no more so than normal Rails. I remember my epiphany when writing Guice code--"oh you just name a thing and you get it!"--after which the ride became a lot smoother. I _really_ like the better testability of controllers, since that has always been a pain point of mine. I'm going to experiment some more on larger chunks of code, try and nail down the naming conventions some more.
+
+**Disclaimer:** I haven't use this ideal in any substantial form, beyond one controller action from a project I have lying around. It remains to be seen whether it is a _good_ idea or not.
+
+"All code as a gist.":https://gist.github.com/3856696
+{% endraw %}

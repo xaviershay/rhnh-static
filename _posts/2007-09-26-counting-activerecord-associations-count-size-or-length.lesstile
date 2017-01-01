@@ -1,0 +1,93 @@
+---
+layout: post
+title:  "Counting ActiveRecord associations: count, size or length?"
+date:   2007-09-26 23:16:00 +00:00
+tags:   ["Code", "Ruby", "activerecord", "rails"]
+---
+{% raw %}
+Short answer: @size@. Here's why.
+
+@length@ will fall through to the underlying array, which will force a load of the association
+
+--- ruby
+>> user.posts.length
+  Post Load (0.620579)   SELECT * FROM posts WHERE (posts.user_id = 1321) 
+=> 162
+---
+
+This is bad. You loaded 162 objects into memory, just to count them. The DB can do this for us! That's what @count@ does.
+
+--- ruby
+>> user.posts.count
+  SQL (0.060506)   SELECT count(*) AS count_all FROM posts WHERE (posts.user_id = 1321) 
+=> 162
+---
+
+Now we're on to something. The problem is, @count@ will _always_ issue a count to the DB, which is kind of redundant if you've already loaded the association. That's were @size@ comes in. It's got smarts. Observe!
+
+--- ruby
+>> User.find(1321).posts.size
+  User Load (0.003610)   SELECT * FROM users WHERE (users.id = 1321) 
+  SQL (0.000544)   SELECT count(*) AS count_all FROM posts WHERE (posts.user_id = 1321) 
+=> 162
+>> User.find(1321, :include => :posts).posts.size 
+  User Load Including Associations (0.124950)   SELECT ...
+=> 162
+---
+
+Notice it uses count, but if the association is already loaded (i.e. we already know how many objects there are), it uses length, for optimum DB usage.
+
+But know that's not all. There's always more. If you also store the number of posts on the user object, as is common for performance reasons, @size@ will use that also. Just make sure the column is named _association__count (i.e. posts_count).
+
+--- ruby
+>> User.columns.collect(&:name).include?("posts_count")
+=> true
+>> User.find(1321).posts.size
+  User Load (0.003869)   SELECT * FROM users WHERE (users.id = 1321) 
+=> 162
+---
+
+h3. The bad news
+
+So now you're all excited, I better tell you why this is only fantastic until you start using has_many :through.
+
+Now, the situation is slightly different between 1.2.x (r4605) and edge (r7639), so I'll start with stable. Now, they may look the same but a normal has_many association and one with the :through option are actually implememted by two entirely separate classes under the hood. And it so happens that the has_many :through version kind of, well, doesn't have quite the same smarts. It loads up the association just as length does (then falls through to @Array#size@). -Edge is sharp enough to use a @count@, but still doesn't know about any caches you may be using. This was commited in r7237, so it's pretty easy to patch in to stable. Or you can use this extension (on either branch - here is the "trac ticket":http://dev.rubyonrails.org/ticket/9734):- This patch was added to edge in "7692":http://dev.rubyonrails.org/changeset/7692
+
+--- ruby
+module CoreExtensions::HasManyThroughAssociation
+  def size
+    return @owner.send(:read_attribute, cached_counter_attribute_name) if has_cached_counter?
+    return @target.size if loaded?
+    return count
+  end
+
+  def has_cached_counter?
+    @owner.attribute_present?(cached_counter_attribute_name)
+  end
+
+  def cached_counter_attribute_name
+    "#{@reflection.name}_count"
+  end
+end
+
+ActiveRecord::Associations::HasManyThroughAssociation.send(:include, CoreExtensions::HasManyThroughAssociation)
+---
+
+h3. How it doesn't work
+
+--- ruby
+user.posts.find(:all, :conditions => ["reply_count > ?", 50]).size
+---
+
+@size@ normally works because assocations use a proxy - when I call @user.posts@ it won't actually load any posts until I call a method that requires them. So user.posts.size can work without ever loading the posts because they aren't required for the operation. The above code won't work well because find does not use a proxy - it will straight away load the requested posts from the DB, without @size@ getting a chance to send a COUNT instead. You may be better off moving this finder logic into an association so that @size@ will work as expected. This also has the benefit that if you decide to add a counter cache later on you won't have to change any code to use it.
+
+--- ruby
+has_many :popular_posts, :class_name => "Post", :foreign_key => "post_id", :conditions => ["reply_count > ?", 50]
+---
+
+So use @size@ when counting associations unless you have a good reason not to. Most importantly thought, ensure you're watching your development log so to be aware what SQL your app is generating.
+
+UPDATE: Added link to "my patch on trac":http://dev.rubyonrails.org/ticket/9734
+
+UPDATE 2: ... which is now closed, see "r7692":http://dev.rubyonrails.org/changeset/7692
+{% endraw %}

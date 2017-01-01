@@ -1,0 +1,76 @@
+---
+layout: post
+title:  "Automatically pushing git repositories to Bitbucket"
+date:   2012-05-26 18:54:03 +00:00
+tags:   ["bitbucket", "code", "git", "ruby"]
+---
+{% raw %}
+"Bitbucket":http://bitbucket.org gives you unlimited private repositories. It's the perfect place to archive all my crap to. Here is a script to create remotes for all repositories in a folder and push them up. I had 38 of them.
+
+--- Ruby
+$usr    = "xaviershay"
+$remote = "bitbucket"
+
+def main
+  directories_in_cwd.each do |entry|
+    existing_remotes = remotes_for(entry)
+
+    action_performed = if existing_remotes
+      if already_added?(existing_remotes)
+        "EXISTING"
+      else
+        create_remote_repository(entry)
+        push_local_repository_to_remote(entry)
+        "ADD"
+      end
+    else
+      "SKIP"
+    end
+
+    puts action_performed + " #{entry}"
+  end
+end
+
+def directories_in_cwd
+  Dir.entries(".").select {|entry|
+    File.directory?(entry) && !%w(. ..).include?(entry)
+  }
+end
+
+def remotes_for(entry)
+  gitconfig = "#{entry}/.git/config"
+  return unless File.exists?(gitconfig)
+  existing_remotes = `cat #{gitconfig} | grep "url ="`.split("\n")
+end
+
+def already_added?(existing)
+  existing.any? {|x| x.include?($remote) }
+end
+
+def create_remote_repository(entry)
+  run %{curl -s -i --netrc -X POST -d "name=#{entry}" } +
+          %{-d "is_private=True" -d "scm=git" } +
+          %{https://api.bitbucket.org/1.0/repositories/}
+end
+
+def push_local_repository_to_remote(entry)
+  Dir.chdir(entry) do
+    run "git remote add #{$remote} git@bitbucket.org:#{$usr}/#{entry}.git"
+    run "git push #{$remote} master"
+  end
+end
+
+def run(cmd)
+  `#{cmd}`
+end
+
+main
+---
+
+So you aren't prompted for username and password every time, you should create a `.netrc` file.
+
+--- bash
+> cat ~/.netrc
+machine api.bitbucket.org login xaviershay password notmyrealpassword
+---
+{% endraw %}

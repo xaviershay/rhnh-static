@@ -1,0 +1,23 @@
+---
+layout: post
+title:  "Code for Christmas"
+date:   2008-12-01 19:16:42 +00:00
+tags:   ["Code", "Life", "Ruby", "code4xmas"]
+---
+{% raw %}
+Developers don't have enough time.
+
+We're all too busy working our day job, or looking after our better half, to give our pet projects the attention they deserve.
+
+That makes time the most valuable thing we can give. This year for Christmas, why not give a fellow developer some?
+
+Ticking off an amazon wishlist never really resonated with me, so this year here is what we are all doing instead:
+
+ # Find someone's pet open source project - I'd start at github
+ # Contribute! It doesn't have to be much - a spec or two, some documentation, or even just a "hey it works on my box". Fork, commit, pull request.
+ # Wish them a Merry Christmas!
+
+That shouldn't take you more than an hour. It's a total win all around - you get to hone your chops, they get some love on their project, and the open source ecosphere is improved. If you're feeling generous, or don't have any friends, there's "no shortage of projects":http://github.com/repositories that I'm sure would welcome some support.
+
+My wishlist is any of the "ruby midi projects":http://groups.google.com/group/ruby-midi/web/projects out there.
+{% endraw %}

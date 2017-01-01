@@ -1,0 +1,9 @@
+---
+layout: post
+title:  "Byteclub reader"
+date:   2007-06-07 11:50:00 +00:00
+tags:   ["byteclub"]
+---
+{% raw %}
+Finally got around to setting up a <a href="http://reader.rhnh.net/byteclub/">planet for byteclub</a>. Only "Robert's Comments" was removed because it had heaps of spam comments (Robert: Let me know when this problem is rectified). Also, this is not currently synced in any way, so no new people will show up.
+{% endraw %}

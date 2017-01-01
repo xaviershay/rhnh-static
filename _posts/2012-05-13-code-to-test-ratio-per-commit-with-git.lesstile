@@ -1,0 +1,38 @@
+---
+layout: post
+title:  "Code to test ratio per commit with git"
+date:   2012-05-13 18:16:40 +00:00
+tags:   ["code", "git"]
+---
+{% raw %}
+I came across a post titled "visualizing commits with bubble charts":http://jawspeak.com/2011/07/16/improving-developers-enthusiasm-for-unit-tests-using-bubble-charts/
+
+That seems pretty neat. I don't have the visualization yet, but I put together a script to pull the required data from a git repository:
+
+--- bash
+#!/bin/bash
+# usage: gitstats HEAD~5..
+
+revs=`git log --format="%H" $1`
+
+for rev in $revs; do
+  author=`git log --format="%an" -n 1 $rev`
+  date=`git log --format="%at" -n 1 $rev`
+
+  git show --stat $rev |
+    sed '$d' |
+    egrep "(lib|spec)" |
+    awk -v author="$author" -v rev="$rev" -v date="$date" '{
+      split($1,a,"/"); sum[a[1]] += $3
+    } END {
+      if (sum["lib"]) print rev "," date "," author "," (sum["spec"] + sum["lib"]) "," (sum["spec"]/sum["lib"])
+    } '
+done
+---
+
+Would be nice not to shell out to git log three times, if anyone has any suggestions. This gives you one line per commit with the ref, timestamp, author, lines changed, code:test ratio, for example:
+
+---
+e10db7972b236c9b5e3eddc13e879f120cc4a82f,1333223104,Xavier Shay,42,1.33333
+---
+{% endraw %}

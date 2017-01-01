@@ -1,0 +1,212 @@
+---
+layout: post
+title:  "Form Objects in Rails"
+date:   2012-12-03 00:53:59 +00:00
+tags:   ["code", "forms", "rails", "ruby"]
+---
+{% raw %}
+For a while now I have been using form objects instead of nested attributes for complex forms, and the experience has been pleasant. A form object is an object designed explicitly to back a given form. It handles validation, defaults, casting, and translation of attributes to the persistence layer. A basic example:
+
+--- Ruby
+class Form::NewRegistration
+  include ActiveModel::Validations
+
+  def self.scalar_attributes
+    [:name, :age]
+  end
+
+  attr_accessor *scalar_attributes
+  attr_reader :event
+
+  validates_presence_of :name
+
+  def initialize(event, params = {})
+    self.class.scalar_attributes.each do |attr|
+      self.send("%s=" % attr, params[attr]) if params.has_key?(attr)
+    end
+  end
+
+  def create
+    return unless valid?
+
+    registration = Registration.create!(
+      event: event,
+      data_json: {
+        name: name,
+        age:  age.to_i,
+      }.to_json
+    )
+
+    registration
+  end
+
+  # ActiveModel support
+  def self.name; "Registration"; end
+  def persisted?; false; end
+  def to_key; nil; end
+end
+---
+
+Note how this allows an easy mapping from form fields to a serialized JSON blob.
+
+I have found this more explicit and flexible than tying forms directly to nested attributes. It allows more fine tuned control of the form behaviour, is easier to reason about and test, and enables you to refactor your data model with minimal other changes. (In fact, if you are planning on refactoring your data model, adding in a form object as a "shim" to protect other parts of the system from change before you refactor is usually desirable.) It even works well with nested attributes, using the form object to build up the required nested hash in the @#create@ method.
+
+h3. Relationships
+
+A benefit of this approach, albeit still a little clunky, is having accessors map one to one with form fields even for one to many associations. My approach takes advantages of Ruby's flexible object model to define accessors on the fly. For example, say a registration has multiple custom answer fields, as defined on the event, I would call the following method on initialisation:
+
+--- Ruby
+def add_answer_accessors!
+  event.questions.each do |q|
+    attr = :"answer_#{q.id}"
+    instance_eval <<-RUBY
+      def #{attr};     answers[#{q.id}]; end
+      def #{attr}=(x); answers[#{q.id}] = x; end
+    RUBY
+  end
+end
+---
+
+With the exception of the above code (which isn't too bad), this greatly simplifies typical code for handling one to many relationships: it avoids @fields_for@, @index@, and is easier to set up sane defaults for.
+
+h3. Casting
+
+I use a small supporting module to handle casting of attributes to certain types.
+
+--- Ruby
+module TypedWriter
+  def typed_writer(type, attribute)
+    class_eval <<-EOS
+      def #{attribute}=(x)
+        @#{attribute} = type_cast(x, :#{type})
+      end
+    EOS
+  end
+
+  def type_cast(x, type)
+    case type
+    when :integer
+      x.to_s.length > 0 ? x.to_i : nil
+    when :boolean
+      x.to_s.length > 0 ? x == true || x == "true" : nil
+    when :boolean_with_nil
+      if x.to_s == 'on' || x.nil?
+        nil
+      else
+        x.to_s.length > 0 ? x == true || x == "true" : nil
+      end
+    when :int_array
+      [*x].map(&:to_i).select {|x| x > 0 }
+    else
+      raise "Unknown type #{type}"
+    end
+  end
+
+  def self.included(klass)
+    # Make methods available both as class and instance methods.
+    klass.extend(self)
+  end
+end
+---
+
+It is used like so:
+
+--- Ruby
+class Form::NewRegistration
+  # ...
+
+  include TypedWriter
+
+  typed_writer :age, :integer
+end
+---
+
+h3. Testing
+
+I don't load Rails for my form tests, so an explicit require of active model is necessary. I do this in my form code since I like explicitly requiring third-party dependencies everywhere they are used.
+
+--- Ruby
+require 'unit_helper'
+
+require 'form/new_registration'
+
+describe Form::NewRegistration do
+  include RSpec::Fire
+
+  let(:event) { fire_double('Event') }
+
+  subject { described_class.new(event) }
+
+  def valid_attributes
+    {
+      name: 'don',
+      age:  25
+    }
+  end
+
+  def form(extra = {})
+    described_class.new(event, valid_attributes.merge(extra))
+  end
+
+  describe 'validations' do
+    it 'is valid for default attributes' do
+      form.should be_valid
+    end
+
+    it { form(name: '').should have_error_on(:name) }
+  end
+
+  describe 'type-casting' do
+    let(:f) { form } # Memoize the form
+
+    # This pattern is overkill in this example, but useful when you have many
+    # typed attributes.
+    let(:typecasts) {{
+      int: {
+        nil  => nil,
+        ""   => nil,
+        23   => 23,
+        "23" => 23,
+      }
+    }}
+
+    it 'casts age to an int' do
+      typecasts[:int].each do |value, expected|
+        f.age = value
+        f.age.should == expected
+      end
+    end
+  end
+
+  describe '#create' do
+    it 'returns false when not valid' do
+      subject.create.should_not be
+    end
+
+    it 'creates a new registration' do
+      f = form
+      dao = fire_replaced_class_double("Registration")
+      dao.should_receive(:create).with {|x|
+        x[:event].should == event
+
+        data = JSON.parse(x[:data_json])
+
+        data['name'].should == valid_attributes[:name]
+        data['age'].should == valid_attributes[:age]
+      }
+      f.create.should new_rego
+    end
+  end
+
+  it { should_not be_persisted }
+end
+---
+
+h3. Code Sharing
+
+I tend to have a parent object @Form::Registration@, with subclasses for @Form::{New,Update,View}Registration@. A common mixin would also work. For testing, I use a shared spec that is run by the specs for each of the three subclasses.
+
+h3. Conclusion
+
+There are other solutions to this problem (such as "separating validations completely":http://devcaffeine.com/2012/06/20/isolating-validations-in-activemodel/) which I haven't tried yet, and I haven't used this approach on a team yet. It has worked well for my solo projects though, and I'm just about confident enough to recommend it for production use.
+{% endraw %}

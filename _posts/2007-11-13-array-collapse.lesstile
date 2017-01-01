@@ -1,0 +1,49 @@
+---
+layout: post
+title:  "Array#collapse"
+date:   2007-11-13 06:10:00 +00:00
+tags:   ["Code", "Ruby", "array", "core extensions"]
+---
+{% raw %}
+--- ruby
+module CoreExtensions
+  module Array
+    def collapse
+      self.inject([]) do |a, v|
+        if existing = a.find {|o| o.eql?(v)}
+          yield(existing, v)
+        else
+          a << v
+        end
+        a
+      end
+    end
+  end
+end
+
+Array.send(:include, CoreExtensions::Array)
+---
+
+Kind of handy for reporting, where you need to collapse line items into a summary. This example may make it clear:
+
+--- ruby
+class Item < Struct.new(:code, :quantity)
+  def eql?(b)
+    code == b.code
+  end
+
+  alias_method :==, :eql?
+
+  def hash
+    code.hash
+  end
+
+  def to_s
+    "#{code} - #{quantity}"
+  end
+end  
+
+summary = [Item.new("a", 1), Item.new("a", 2), Item.new("b", 5)].collapse {|a, b| a.quantity += b.quantity}
+summary.collect(&:to_s) # => ["a - 3", "b - 5"]
+---
+{% endraw %}

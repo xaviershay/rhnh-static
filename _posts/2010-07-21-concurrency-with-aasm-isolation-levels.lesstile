@@ -1,0 +1,17 @@
+---
+layout: post
+title:  "Concurrency with AASM, Isolation Levels"
+date:   2010-07-21 22:19:27 +00:00
+tags:   ["Code", "Ruby", "aasm", "activerecord", "dbiyf", "rails"]
+---
+{% raw %}
+I've posted two guest articles over on the Engine Yard blog this week on database related topics:
+
+* "A Gentle Introduction To Isolation Levels":http://www.engineyard.com/blog/2010/a-gentle-introduction-to-isolation-levels/
+* "Concurrency and the AASM Gem":http://www.engineyard.com/blog/2010/concurrency-and-the-aasm-gem/
+
+They're in the same vein as what I've been posting here, so worth a read if you've been digging it.
+The US tour kicks off this Saturday in San Francisco, and there's still a couple of spots available. You can still register over at "www.dbisyourfriend.com":http://www.dbisyourfriend.com
+
+_"Your Database Is Your Friend" training sessions are happening throughout the US and UK in the coming months. One is likely coming to a city near you. For more information and free screencasts, head on over to "www.dbisyourfriend.com":http://www.dbisyourfriend.com !http://www.dbisyourfriend.com/favicon.ico!_
+{% endraw %}

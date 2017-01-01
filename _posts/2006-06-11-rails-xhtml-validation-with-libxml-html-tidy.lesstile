@@ -1,0 +1,63 @@
+---
+layout: post
+title:  "Rails XHTML Validation with LibXML/HTML Tidy"
+date:   2006-06-11 06:41:00 +00:00
+tags:   ["Code", "Ruby", "rails", "validation"]
+---
+{% raw %}
+I improved upon the XHTML validation technique I showed yesterday to add nicer error messages, and also support for local testing via HTML Tidy. HTML Tidy isn't quite as good as W3C - for example it missed a label that was pointing to an invalid ID, but it runs hell fast. For W3C testing I'm now using libXML to parse the response to actually list the errors rather than just tell you they exist.
+
+And it's all customizable by setting the MARKUP_VALIDATOR environment variables. Options are: w3c, tidy, tidy_no_warnings. Tidy is the default.
+
+--- ruby
+def assert_valid_markup(markup=@response.body)
+  ENV['MARKUP_VALIDATOR'] ||= 'tidy'
+  case ENV['MARKUP_VALIDATOR']
+  when 'w3c'
+    # Thanks http://scottraymond.net/articles/2005/09/20/rails-xhtml-validation
+    require 'net/http'
+    response = Net::HTTP.start('validator.w3.org') do |w3c|
+      query = 'fragment=' + CGI.escape(markup) + '&output=xml'
+      w3c.post2('/check', query)
+    end
+    if response['x-w3c-validator-status'] != 'Valid'
+      error_str = "XHTML Validation Failed:\n"
+      parser = XML::Parser.new
+      parser.string = response.body
+      doc = parser.parse
+
+      doc.find("//result/messages/msg").each do |msg|
+        error_str += "  Line %i: %s\n" % [msg["line"], msg]
+      end
+
+      flunk error_str
+    end
+
+  when 'tidy', 'tidy_no_warnings'
+    require 'tidy'
+    errors = []
+    Tidy.open(:input_xml => true) do |tidy|
+      tidy.clean(markup)
+      errors.concat(tidy.errors)
+    end
+    Tidy.open(:show_warnings=> (ENV['MARKUP_VALIDATOR'] != 'tidy_no_warnings')) do |tidy|
+      tidy.clean(markup)
+      errors.concat(tidy.errors)
+    end
+    if errors.length > 0
+      error_str = ''
+      errors.each do |e|
+        error_str += e.gsub(/\n/, "\n  ")
+      end
+      error_str = "XHTML Validation Failed:\n  #{error_str}"
+      
+      assert_block(error_str) { false }
+    end    
+  end
+end
+---
+
+Getting Tidy to work was an ordeal, the ruby documentation is rather lacking. It also behaves in weird ways - the call to <code>errors</code> returns a one element array, with all the errors bundled together in the one string.
+
+LibXML was a little tricky - there's no obvious way to parse an XML document in memory. You'd think <code>XML::Document.new(xml)</code> would do the trick, since there's a <code>XML::Document.file(filename)</code> method, but that actually uses the entire XML document as the version string. Not so handy. Turns out you need to create an XML::Parser object instead, as I've done above. The docs don't mention this (anywhere obvious, that is), I found a thread in the LibXML mailing list.
+{% endraw %}

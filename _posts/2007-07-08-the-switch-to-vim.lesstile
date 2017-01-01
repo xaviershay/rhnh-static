@@ -1,0 +1,9 @@
+---
+layout: post
+title:  "The Switch to VIM"
+date:   2007-07-08 07:26:00 +00:00
+tags:   ["Code", "colemak", "vim"]
+---
+{% raw %}
+I'm been meaning to try out Vim for a while, especially since I now use two different platforms/editors for development (mac/textmate at work, linux/jedit at home). Finally got some time to try it out this weekend, and initial reports are positive! The thing that strikes me the most is how quickly you can navigate/select things without using the mouse. Vim's navigation shortcuts are like CTRL-(LEFT|RIGHT) on crack. Regex search forward and back, move by multiple lines, seek to next/prev char. I haven't internalized this navigation yet and already I'm loving it. Give me some experience and I'll become an absolute machine. It's a bit weird because I'm using colemak, so the "stick to the home row" mantra doesn't really apply, but overall it's still quite bearable. I need to figure out how to replicate the Apple-T shortcut in textmate (quick swith to file) and I think I'll be sold. I'll use it at work for the week and see how things go. For reference, I found the <a href="http://www.vi-improved.org/tutorial.php">tutorial on the vi-improved site</a> to be quite helpful.
+{% endraw %}

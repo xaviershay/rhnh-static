@@ -1,0 +1,17 @@
+---
+layout: post
+title:  "Video games are the new evil"
+date:   2006-04-29 20:06:00 +00:00
+tags:   ["Life"]
+---
+{% raw %}
+"The free access which many young people have to romances, novels, and plays has poisoned the mind and corrupted the morals of many a promising youth; and prevented others from improving their minds in useful knowledge. Parents take care to feed their children with wholesome diet; and yet how unconcerned about the provision for the mind, whether they are furnished with salutary food, or with trash, chaff, or poison?"
+- Reverend Enos Hitchcock, Memoirs of the Bloomsgrove Family, 1790
+<a href="http://www.wired.com/wired/archive/14.04/war.html">More...</a>
+
+First it was books, then music, then dancing, then movies, now video games. I wonder what I'll be campaigning against when I'm old and grey?
+
+Today's game development tip: Don't worry about your design. Just do it. I spend way too much time worrying about the best way to implement a full GUI stack for my menu system, when I really just need a couple of buttons. Ruby (or any scripting language) makes this easy since it's so easy to juggle things around in your code. This is usually pointed out as a danger of dynamic languages, but so far I am finding it much much more productive than my previous efforts with typed languages. I guess time will tell...
+
+And another free one: Don't write physics or maths code when you're sleep deprived. Just work on something else.
+{% endraw %}

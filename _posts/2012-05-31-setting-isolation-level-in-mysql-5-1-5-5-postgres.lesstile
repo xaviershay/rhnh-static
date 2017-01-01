@@ -1,0 +1,43 @@
+---
+layout: post
+title:  "Setting isolation level in MySQL 5.1, 5.5, Postgres"
+date:   2012-05-31 04:29:05 +00:00
+tags:   ["code", "dbiyf", "mysql", "postgresql"]
+---
+{% raw %}
+From the I-want-my-evening-back department, differences in behaviour when
+setting isolation levels between MySQL 5.1, 5.5, and postgres. Documenting here
+for my poor future self.
+
+In postgres and MySQL 5.1, the following is the correct ordering:
+
+--- Ruby
+ActiveRecord::Base.transaction do
+  ActiveRecord::Base.connection.execute(
+    "SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE"
+  )
+
+  # ...
+end
+---
+
+On MySQL 5.5 with @mysql2@ gem, no error will be raised, but the isolation
+level will not be set correctly. If you run the same commands in a mysql shell,
+you see an error informing that the isolation level cannot be set after the
+transaction has started.
+
+Ok well, let's move it outside then:
+
+--- Ruby
+ActiveRecord::Base.connection.execute(
+  "SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE"
+)
+ActiveRecord::Base.transaction do
+  # ...
+end
+---
+
+That works on 5.5, but fails on postgres.
+
+!http://desmond.imageshack.us/Himg89/scaled.php?server=89&filename=ffffffuuuuuu.jpg&res=landing!
+{% endraw %}

@@ -1,0 +1,14 @@
+---
+layout: post
+title:  "This is stupid: Hash#select vs reject"
+date:   2007-07-26 07:17:00 +00:00
+tags:   ["Code", "Ruby", "hash"]
+---
+{% raw %}
+A little consistency would be nice...
+
+--- ruby
+{1=>1, 2=>2, 3=>3}.reject {|key, value| key != 1 } # => {1=>1}
+{1=>1, 2=>2, 3=>3}.select {|key, value| key == 1 } # => [[1, 1]]
+---
+{% endraw %}

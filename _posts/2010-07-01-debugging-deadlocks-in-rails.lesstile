@@ -1,0 +1,19 @@
+---
+layout: post
+title:  "Debugging Deadlocks In Rails"
+date:   2010-07-01 01:30:00 +00:00
+tags:   ["Code", "Ruby", "dbiyf", "deadlock", "mysql", "rails"]
+---
+{% raw %}
+Here is an 13 minute long screencast in which I show you how to go about tracking down a deadlock in a ruby on rails application. I make two assumptions:
+
+ # You are using MySQL
+ # You know the difference between "shared and exclusive locks":http://dev.mysql.com/doc/refman/5.0/en/innodb-lock-modes.html (in short: a shared lock allows other transactions to read the row, an exclusive blocks out everyone)
+
+<object width="600" height="375"><param name="allowfullscreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=12941188&amp;server=vimeo.com&amp;show_title=0&amp;show_byline=0&amp;show_portrait=0&amp;color=00ADEF&amp;fullscreen=1" /><embed src="http://vimeo.com/moogaloop.swf?clip_id=12941188&amp;server=vimeo.com&amp;show_title=0&amp;show_byline=0&amp;show_portrait=0&amp;color=00ADEF&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="600" height="375"></embed></object>
+(If embedding doesn't work or the text is too small to read, you can "grab a high resolution version direct from Vimeo":http://vimeo.com/12941188)
+
+This is only one specific example of a deadlock, in reality there are many ways this can occur. The process for tracking them down is always the same though. If you get stuck, read through the innodb documentation again. Something normally jumps out. If you are not sure what ruby code is generating what SQL, the "query trace plugin":http://github.com/ntalbott/query_trace is excellent. It gives you a stack trace for every single SQL statement ActiveRecord generates.
+
+_This is a small taste of the type of thing I cover in my DB is your friend training course. July through September I am running full day sessions in the US and UK. Chances are I'm coming to your city. Check it out at "http://www.dbisyourfriend.com":http://www.dbisyourfriend.com/ !http://www.dbisyourfriend.com/favicon.ico!_
+{% endraw %}

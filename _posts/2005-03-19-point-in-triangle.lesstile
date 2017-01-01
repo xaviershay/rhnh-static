@@ -1,0 +1,11 @@
+---
+layout: post
+title:  "Point in triangle"
+date:   2005-03-19 13:08:00 +00:00
+tags:   ["Code", "algorithm"]
+---
+{% raw %}
+"New way":http://www.blackpawn.com/texts/pointinpoly/default.html
+
+I'm a happy man. The elusive collision response is closer to my grasp.
+{% endraw %}

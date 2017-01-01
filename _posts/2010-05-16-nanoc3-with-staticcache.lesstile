@@ -1,0 +1,58 @@
+---
+layout: post
+title:  "Nanoc3 with Rack::StaticCache"
+date:   2010-05-16 04:00:00 +00:00
+tags:   ["Code", "Ruby", "nanoc3"]
+---
+{% raw %}
+There is a neat piece of middleware introduced in rack-contrib 0.9.3 called @Rack::StaticCache@. It allows you to version your static assets (images, css) so that you can set infinite expires headers on them. All you need is a version number trailing your file name, and it is routed through to the underlying file. Whenever you change the file, you change the version.
+
+---
+/img/lolcat-1.jpg -> /img/lolcat.jpg
+/img/lolcat-2.jpg -> /img/lolcat.jpg
+---
+
+The URLs go to the same place, but since they are different you can cache them indefinitely and change all the referencing URLs in your code when you change the asset. That's annoying if you're trying to do it by hand, but that's why we have code eh. I wrote a "nanoc3":http://nanoc.stoneship.org/ after filter that parses the HTML using nokogiri, and replaces any reference to any image or stylesheet with a reference versioned using the last modified timestamp of that asset. It automatically updates! This is particularly neat because you can link in images in markdown without ever worrying about versioning.
+
+--- Ruby
+# lib/static_cache_filter.rb
+require 'nokogiri'
+
+class StaticCacheFilter < Nanoc3::Filter
+  identifier :static_cache
+
+  def run(content, params = {})
+    doc = Nokogiri::HTML::Document.parse(content)
+    add_version = lambda {|attr| lambda {|x|
+      src = x[attr]
+      item = @items.detect {|y| y.identifier == "#{src.gsub(/\..+$/, '')}/" }
+      if item
+        version = item.mtime.to_i
+        tokens = src.split('.')
+        src = tokens[0] + "-#{version}." + tokens[1..-1].join('.')
+        x[attr] = src
+      end
+    }}
+    doc.css('img'                 ).each(&add_version['src'])
+    doc.css('link[rel=stylesheet]').each(&add_version['href'])
+    doc.to_html
+  end
+end
+---
+
+--- Ruby
+# Rules
+compile '/' do
+  filter :haml
+  layout 'home'
+  filter :static_cache
+end
+---
+
+--- Ruby
+# config.ru
+use Rack::StaticCache, :urls => ['/img','/css'], :root => "public"
+run Rack::Directory.new("public")
+---
+
+{% endraw %}

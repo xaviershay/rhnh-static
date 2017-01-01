@@ -1,0 +1,11 @@
+---
+layout: post
+title:  "SwinBrain Article Suggestion"
+date:   2007-06-18 11:39:00 +00:00
+tags:   ["byteclub"]
+---
+{% raw %}
+I'd like to see <a href="http://mercury.it.swin.edu.au/swinbrain/index.php/Game_Physics">Game Physics</a> at least mention using <a href="http://en.wikipedia.org/wiki/Verlet_integration">Verlet integration</a> as opposed to Euler or RK. I have personally found it much easier to use, especially when you get to dealing with collisions. It's much easier to keep your system stable. They also use it in industry, so I think it's a worthwhile addition (well, at least Hitman - there's a gamasutra article about it somewhere).
+
+You see, I don't have an account to add this stuff myself...
+{% endraw %}

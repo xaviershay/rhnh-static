@@ -1,0 +1,25 @@
+---
+layout: post
+title:  "Speeding up Rails Initialization"
+date:   2008-08-04 12:03:00 +00:00
+tags:   ["Code", "Ruby", "activescaffold", "rails"]
+---
+{% raw %}
+Chad Wooley just posted a tip to "get rails starting up faster":http://pivots.pivotallabs.com/users/chad/blog/articles/482-standup-8-1-2008. Which is real, except it doesn't work if you're using ActiveScaffold. This is due to a load ordering problem - ActiveScaffold monkey patches the @Resource@ class used by routes _after_ routes have been parsed the first time, and relies on the re-parsing triggered by the inflections change.
+
+To fix this, you can explicitly require the monkey patch just before you draw your routes (it doesn't depend on anything else in ActiveScaffold).
+
+--- Ruby
+# config/routes.rb
+ActionController::Routing::Routes.draw do |map|
+  # Explicitly require this, otherwise it won't get loaded before we parse our resources time
+  require 'vendor/plugins/active_scaffold/lib/extensions/resources.rb'
+
+  # Your routes go here...
+end
+---
+
+Yes it's a hack on top of hack, but I get my console 30% quicker, so I'm running with it.
+
+Tested on 2.0.2
+{% endraw %}

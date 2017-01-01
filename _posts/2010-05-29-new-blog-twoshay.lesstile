@@ -1,0 +1,11 @@
+---
+layout: post
+title:  "New blog - TwoShay"
+date:   2010-05-29 07:37:03 +00:00
+tags:   ["Life"]
+---
+{% raw %}
+My brother and I have started a new blog about being more awesome. We called it "TwoShay":http://www.two-shay.com. You should check it out.
+
+I'll still keep posting tech things here.
+{% endraw %}

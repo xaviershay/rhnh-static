@@ -1,0 +1,43 @@
+---
+layout: post
+title:  "A Banana a Day"
+date:   2005-03-25 09:40:00 +00:00
+tags:   ["Code", "optimization", "perl", "sql"]
+---
+{% raw %}
+h3. SQL Optimization
+
+Consider the following join (a is a char(32), b is varchar):
+
+--- sql
+select * from t1, t2 where instr(t1.a, t2.b) = 0
+---
+
+The actual code I worked with was a bit more complex, but essentially that is it. It works fine, however performance is rather lacking. This is because for each for every row in t2, the DBMS must perform the instr() function for every row in t1 to check if t1.a is in t2.b until it finds a match.
+
+If a field is used in a function, any indexes on that field cannot be used
+
+That's bad. In this case, since a is fixed length, we can rewrite the query thusly:
+
+--- sql
+select * from t1, t2 where substr(t1.a,0,32) = t2.b
+---
+
+This way, the substr is only performed once for each row of b, and the result can quickly be checked against an index on t2.b.
+
+In the particular case I was working on (there were multiple joins to be rewritten), this cut execution time down from 2 minutes to just under a second.
+
+h3. Lonely Hammer Syndrome
+
+When all you have is a hammer, every problem looks like a nail. After optimising the query referred to above, I found out its context. It's a data collection problem consisting of a server log where each url contains a UID, a csv that contains details about each uid (page title, etcâ€¦), and the two needed to be collated. The original process was:
+
+ # Import both tables into an access db (the server log into a table with one field - whole_line)
+ # Using link tables and SQL string functions, convert the server log into a friendlier format in a table on a local oracle server
+ # Collate the two files using the above mentioned sql
+ # Export collated data to csv (from access)
+ # Append to master file
+
+Basically, we're going from csv, to access, to oracle, back through access out to csv again. Additionally, many of these steps required manual intervention. This process has to be done every week - how can it be optimised? Of course there are many ways - I looked into Java and JDBC to cut access out of the loop, but thought if I'm going to the effort I may as well cut out oracle as well. Perl is reknowned for its log-munging ability, so I put together a script (rather quickly - thank you regular expressions!) which can now automatically give formatted data in barely a few minutes, compared to up to 60 minutes of manual labour using the old method.
+
+The moral - expose yourself to as many tools as possible. You don't need to be an expert in them (I had to google pretty much every perl command :S), but if you know the pros and cons of each you can cut down both development and operational time substantially.
+{% endraw %}

@@ -1,0 +1,104 @@
+---
+layout: post
+title:  "DataMapper Retrospective"
+date:   2011-11-29 04:39:00 +00:00
+tags:   ["code", "datamapper", "orm", "ruby"]
+---
+{% raw %}
+I introduced "DataMapper":http://datamapper.org/ on my last two major projects. As those projects matured after I had left, they both migrated to a different ORM. That deserves a retrospective, I think. As I've left both projects, I don't have the insider level of detail on the decision to abandon DataMapper, but developers from both projects kindly provided background for this blog post.
+
+h2. Project A
+
+Web application and a batch processing component built on top of a legacy Oracle database.
+
+h3. Good
+
+* Field mappings, nice ruby names and able to ignore fields we didn't care about.
+
+h3. Bad
+
+* Had to roll our own locking and time zone integration.
+* Not great for batch processing (trying to write SQL through DM abstraction.)
+
+It turned out this project required a lot more batch processing than we anticipated, which DataMapper does not shine at. It was migrated to "Sequel":http://sequel.rubyforge.org/ which provides a far better abstraction for working closer to SQL.
+
+h2. Project B
+
+A fairly typical Rails 3 application. A couple of tens of thousands of lines of code.
+
+h3. Good
+
+* No migrations (pre-release).
+* Foreign keys, composite primary keys.
+* Auto-validations.
+
+h3. Bad
+
+* Auto-validations with nested attributes was uncharted territory (needed bug fixes).
+* Performance on large object graphs was unusable for page rendering (close to two seconds for our home page, which admittedly had a stupid amount of stuff on it).
+* Performance was suboptimal (though passable) on smaller pages.
+* Tracing through what his happening across multiple gems (particularly around transactions) was tricky.
+* The maintenance/interactions of all the various gems was problematic (e.g.  gems X,Y work with 1.9.3 but Z doesn't yet).
+* Inability to easily "break the abstraction" when SQL was required.
+
+The performance issues were clear in our code base, but eluded much effort to reduce them down to smaller reproducible problems. The best quick win I found was ~15% by disabling assertions, but I suspect that given the large scope of the problem DataMapper is trying to solve there may not be any approachable way of tackling the issue (would love to be proven wrong!)
+
+We ran into obvious integration bugs (apologies for not having kept a concrete list), a symptom of a library not widely used. As a commiter on the project this wasn't an issue, since they were easily fixed and moved past (the DataMapper code base is really nice to work on), but having a commiter on your team isn't a tenable strategy.
+
+DataMapper takes an all-ruby-all-the-time approach, which means things get tricky when the abstraction leaks. Much of the SQL generation is hidden in private methods. Compare some code to create a composable full text search query:
+
+--- Ruby
+def self.search(keywords, options = {})
+  options = {
+    conditions: ["true"]
+  }.merge(options)
+
+  current_query = query.merge(options)
+
+  a           = repository.adapter
+  columns_sql = a.send(:columns_statement,    current_query.fields,     false)
+  conditions  = a.send(:conditions_statement, current_query.conditions, false)
+  order_sql   = a.send(:order_statement,      current_query.order,      false)
+  limit_sql   = current_query.limit || 50
+  conditions_sql, conditions_values = *conditions
+
+  bind_values = [keywords] + conditions_values
+
+  find_by_sql([<<-SQL, *bind_values])
+    SELECT #{columns_sql}, ts_rank_cd(search_vector, query) AS rank
+    FROM things
+    CROSS JOIN plainto_tsquery(?) query
+    WHERE #{conditions_sql} AND (query @@ search_vector)
+    ORDER BY rank DESC, #{order_sql}
+    LIMIT #{limit_sql}
+  SQL
+end
+---
+
+To the ActiveRecord equivalent (Sequel is similar):
+
+--- Ruby
+def self.search(keywords)
+  select("things.*, ts_rank_cd(search_vector, query) AS rank")
+    .joins(sanitize_sql_array(["CROSS JOIN plainto_tsquery(?) query", keywords]))
+    .where("query @@ search_vector")
+    .order("rank DESC")
+end
+---
+
+Switching to ActiveRecord took a week of all hands (~4) on deck, plus another week alongside other feature work to get it stable. From beginning to in production was two weeks. The end result was a drop in response time (the deploy is pretty blatant in the graph below), start up time, plus 3K less lines of code (a lot of custom code for dropping down to SQL was able to be removed).
+
+!http://a.yfrog.com/img739/7449/4h5.png!
+
+h2. Do differently
+
+Ultimately, DataMapper provides an abstraction that I just don't need, and even if I did it hasn't had its tires kicked sufficiently that a team can use it without having to delve down to the internals. The applications I find myself writing are about data, and the store in which that data lives is vitally important to the application. Abstracting away those details seems to be heading in the wrong direction for writing simple applications. As an intellectual achievement in its own right I really dig DataMapper, but it is too complicated a component to justify using inside other applications.
+
+Rich Hickey's talk "Simple Made Easy":http://www.infoq.com/presentations/Simple-Made-Easy has been rattling around my head a lot.
+
+Nowadays I'm back to ActiveRecord for team conformance. It's more work to keep on top of foreign keys and the like, but overall it does the job. It's still too complicated, but has the non-trivial benefit of being used by *lots* of people. This is my responsible choice at the moment.
+
+On my own projects I first reach for Sequel. It supports all the nice database features I want to use, while providing a thin layer over SQL. In other words, I don't have to worry about the abstraction leaking because the abstraction is still SQL, just expressed in ruby (which is a huge win for composeability that you don't get with raw SQL). While it does have "ORM" features, it feels more like the most convenient way of accessing my database rather than an abstraction layer. It's actively maintained and the only bug I have found was something that Rails broke, and a patch was already available.  There are no open issues in the bug tracker. My experiences have been overwhelmingly positive. I haven't built anything big enough with it yet to have confidence using it on a team project though.
+
+I still have a soft spot in my heart for DataMapper, I just don't see anywhere for me to use it anymore.
+{% endraw %}

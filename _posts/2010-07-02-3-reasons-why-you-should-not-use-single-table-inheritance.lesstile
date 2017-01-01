@@ -1,0 +1,21 @@
+---
+layout: post
+title:  "Three Reasons Why You Shouldn't Use Single Table Inheritance "
+date:   2010-07-02 01:05:00 +00:00
+tags:   ["Code", "activerecord", "dbiyf", "rails", "sti"]
+---
+{% raw %}
+*It creates a cluttered data model.* Why don't we just have one table called @objects@ and store everything as STI? STI tables have a tendency to grow and expand as an application develops, and become intimidating and unweildy as it isn't clear which columns belong to which models.
+
+*It forces you to use nullable columns.* A comic book must have an illustrator, but regular books don't have an illustrator. Subclassing @Book@ with @Comic@ using STI forces you to allow illustrator to be null at the database level (for books that aren't comics), and pushes your data integrity up into the application layer, which is not ideal.
+
+*It prevents you from efficiently indexing your data.* Every index has to reference the type column, and you end up with indexes that are only relevant for a certain type.
+
+The only time STI is the right answer is when you have models with exactly the same data, but different behaviour. You don't compromise your data model, and everything stays neat and tidy. I have yet to see a case in the wild where this rule holds, though.
+
+If you are using STI (or inheritance in general) to share code, you're doing it wrong. Having many tables does not conflict with the Don't-Repeat-Yourself principle. Ruby has modules, use them. (I once had a project where a 20 line hash drove the creation of migrations, models, data loaders and test blueprints.)
+
+What you should be doing is using "Class Table Inheritance":http://martinfowler.com/eaaCatalog/classTableInheritance.html. Rails doesn't "support it natively", but that doesn't particularly mean much since it's a simple pattern to implement yourself, especially if you take advantage of named scopes and delegators. Your data model will be much easier to work with, easier to understand, and more performant.
+
+_I expand on this topic and guide you through a sample implementation in my DB is your friend training course. July through September I am running full day sessions in the US and UK. Chances are I'm coming to your city. Check it out at "http://www.dbisyourfriend.com":http://www.dbisyourfriend.com/ !http://www.dbisyourfriend.com/favicon.ico!_
+{% endraw %}

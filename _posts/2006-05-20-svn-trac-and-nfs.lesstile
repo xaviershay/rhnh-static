@@ -1,0 +1,27 @@
+---
+layout: post
+title:  "SVN, Trac and NFS"
+date:   2006-05-20 13:04:00 +00:00
+tags:   ["gentoo", "ldap", "linux", "nfs", "subversion", "sysadmin", "trac"]
+---
+{% raw %}
+Migrated my Subversion repository to my dev server, and am getting it served up through https with LDAP authentication. Going to set up <a href="http://gentoo-wiki.com/HOWTO_Apache2_with_subversion_SVN_and_DAV">pretty formatting</a> this afternoon - not that I ever use the web interface.
+
+Trac also relies on the webserver for authentication, so it too is running through https/LDAP. All very pretty. One thing that's not immediately obvious about Trac (you know, if you don't read the welcome screen) is that managing things like components and milestones is done using the trac-admin program, and not anything on the web interface (although there is a plugin available for this). Initial inspection looks like I'm going to be using it as a glorified TODO list, but hopefully it will improve my work ethic. The value of this program would increase exponentially with the number of developers, I feel.
+
+--- bash
+<Location /svn>
+        DAV svn
+        SVNPath /var/svn/repos
+        AuthType Basic
+        AuthName "Subversion repository"
+        AuthLDAPURL ldap://rhino:389/OU=People,DC=noreality,DC=net?uid?sub?(objectClass=account)
+        Require valid-user
+        SSLRequireSSL
+</Location>
+---
+
+Improvements would be using <code>require group insert-ldap-group</code> rather than <code>require valid-user</code>, and to not allow anonymous binds to my LDAP tree. I don't have groups setup yet though...
+
+Also set up NFS on my server - I had been using SMB (still am for windows) even on my linux clients, but recent dapper updates have really thrown a spanner in those works. I need to comment out my SMB shares in fstab before I reboot or I'll be waiting a loooong time for the system to come up again. Noted a neat trick on the gentoo wiki for <a href="http://gentoo-wiki.com/HOWTO_Remote_Kernel_Upgrade">specifying a fallback kernel</a> when recompiling the kernel on a remote box. Thankfully I didn't have to rely on it, but hooking up a keyboard/monitor to my server-behind-the-TV is not a task I want to have to do on a weekend.
+{% endraw %}

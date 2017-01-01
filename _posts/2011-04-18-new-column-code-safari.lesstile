@@ -1,0 +1,16 @@
+---
+layout: post
+title:  "New Column: Code Safari"
+date:   2011-04-18 00:48:42 +00:00
+tags:   ["Code", "Ruby"]
+---
+{% raw %}
+I am writing a regular weekly column at the newly launched Sitepoint project "RubySource":http://rubysource.com. The column is named "Code Safari", where I explore the jungle of ruby libraries and gems and figure out how they work. It's an introductory series designed to not just explain how things operate, but show you the tools and techniques so that you can figure it out yourself.
+
+Three posts have already been published:
+* "Understanding Concurrent Programming With Ruby’s Goliath":http://rubysource.com/understanding-concurrent-programming-with-ruby-goliath/, in which I dig into the new Goliath web server to figure out how it uses the new 1.9 Fibers to work some magic.
+* "Configuring Capybara":http://rubysource.com/code-safari-configuring-capybara/, in which I investigate how Capybara implemented its configuration DSL, and then make one for myself.
+* "TWSS and Bayesian Classification of Twitter Searches":http://rubysource.com/code-safari-twss-and-bayesian-classification-of-twitter-searches/, in which I inspect the pipes of a beautiful piece of plumbing.
+
+The format is a bit different but I'm really happy with how it is working so far. Let me know what you think.
+{% endraw %}

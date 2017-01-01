@@ -1,0 +1,25 @@
+---
+layout: post
+title:  "inject and collect with jQuery"
+date:   2008-12-28 17:16:03 +00:00
+tags:   ["Code", "Ruby", "inject", "javascript", "jquery"]
+---
+{% raw %}
+You know, I would have thought someone had already made an enumerable plugin for "jQuery":http://jquery.com. Maybe someone has. Mine is better.
+
+ * Complete coverage with screw-unit
+ * Interface so consistent with jQuery you'll think it was core
+
+--- javascript
+squares = $([1,2,3]).collect(function () {
+  return this * this;
+});
+squares // => [1, 4, 9]
+---
+
+"It's on github":http://github.com/xaviershay/jquery-enumerable/tree/master. It deliberately doesn't have the kitchen sink - fork and add methods you need, there's enough code it should be obvious the correct way to do it.
+
+As an aside, it's really hard to spec these methods concisely. I consulted the rubyspec project and it turns out they had trouble as well, check out this all encompassing spec for inject: "Enumerable#inject: inject with argument takes a block with an accumulator (with argument as initial value) and the current element. Value of block becomes new accumulator". Bit of a mouthful eh.
+
+Post your improvements in the comments.
+{% endraw %}

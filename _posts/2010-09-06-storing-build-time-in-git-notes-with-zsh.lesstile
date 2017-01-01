@@ -1,0 +1,31 @@
+---
+layout: post
+title:  "Storing build time in git notes with zsh"
+date:   2010-09-06 04:30:00 +00:00
+tags:   ["Code", "git", "zsh"]
+---
+{% raw %}
+Playing around with git notes, having seen them on the "github blog":http://github.com/blog/707-git-notes-display. I needed to update to git 1.7.2 (homebrew has it). The following shell command stores the run time of your specs inside a note on the latest commit:
+
+--- ZSH
+{time rake spec} 2> >(tail -n 1 | cut -f 10 -d ' ' - |  git notes --ref=buildtime add -F - -f )
+---
+
+Breaking down the tricky bits:
+
+*@{time rake spec}@* Honestly, I cargo culted the curly braces, and can't find a good description of exactly what they do in this instance. It's some sort of grouping thing: I found without them @time@ didn't apply properly.
+
+*@2>@* @time@ prints its output to STDERR, @2>@ redirects STDERR to the next argument. It is kind of like @|@, but for STDERR rather than STDOUT.
+
+--- ZSH
+{time sleep 0.1} 2> /tmp/time.log
+---
+
+*@>( ... )@* Rather than redirecting STDERR to a file, this allows us to pipe it in to more commands.
+
+*@tail -n 1@* @rake spec@ also prints to STDERR, so pipe through tail to grab only the last line (which will be from @time@)
+
+*@cut -f 10 -d ' ' -@* Split the line on a space character, choose the tenth column of the output from @time@, which is the total time taken. The trailing @-@ says "read from STDIN".
+
+*@git notes --ref=buildtime add -F - -f@* Add a note to the latest commit (HEAD is default) in the buildtime namespace. @-F -@ reads the note content from STDIN, which by now is only the final time taken for the spec run, and @-f@ forces an update of the note if it already exists.
+{% endraw %}

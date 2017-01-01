@@ -1,0 +1,65 @@
+---
+layout: post
+title:  "XML Serialization and Persistence"
+date:   2006-05-03 12:35:00 +00:00
+tags:   ["Code", "Ruby", "persistence", "serialization", "xml"]
+---
+{% raw %}
+I've been using <code>cl/xmlserial</code> to save/load my levels. Unfortunately, it doesn't have a good mechanism for making variables transient - it just dumps every instance variable you've got. UNACCEPTABLE. So i patched it a bit. Now we can do something like this:
+
+--- Ruby
+class Actor
+  include XmlSerialization
+  attr_accessor :name, :location, :last_location
+
+  persistent [:name, :location]
+end
+---
+
+I needed a bit of metaprogramming to get that persistent attribute to work properly. It basically adds a class method 'persistent' to any class that includes XmlSerialization, and then provides an accessor for use in the <code>instance_data_to_xml</code> method:
+
+--- Ruby
+def XmlSerialization.append_features(includingClass)
+  includingClass.class_eval <<-EOS
+      def self.persistent var
+        var = [var] if !var.kind_of?(Array)
+          
+        @@persist = var
+        for i in (0..@@persist.length-1)
+          @@persist[i] = @@persist[i].to_s
+        end
+      end
+  
+      def self.persist
+        @@persist
+      end
+    EOS
+
+# Rest snipped
+---
+
+I'd like to get rid of the array in the call (so you can just keep adding on parameters like attr_accessor), but I'm not sure how to do it. Unfortunately I couldn't figure out a good way to ensure that <code>@@persist</code> was defined for all classes, so I've currently just wrapped the access in a begin/rescue (thinking now ... I could do this in <code>persistent</code> to remove the array thing ... hmmmm)
+
+--- Ruby
+module XmlSerialization
+def instance_data_to_xml(element)    
+  begin    
+    p = self.class.persist
+  rescue
+    p = nil
+  end
+
+  instance_variables.each do |instanceVarName|
+    if !p || p.include?(instanceVarName[1..instanceVarName.length])
+
+# Rest snipped
+---
+
+One other small addition is the calling of a post_from_xml instance method (if it exists) after deserialization, to allow the object to do extra initialization, since the constructor has already been called and the instance vars are populated directly (doesn't use accessor methods).
+
+At some point I'll have to write up some proper tests and submit it back to the author. I think it's a worthwhile addition to the code, at least in idea if not implementation.
+
+This morning I add moving platforms, coins (collectibles) that can be attached to those moving platforms, fixed up the XML code as detailed above, and fixed up the collision response to feel a bit nicer.
+
+Link of the day goes to <a href="http://poignantguide.net/dwemthy/">DWEMTHY_S ARRAY</a>, a fun ruby adventure. I've linked to the poignant guide before, but I feel it's worth another mention.
+{% endraw %}

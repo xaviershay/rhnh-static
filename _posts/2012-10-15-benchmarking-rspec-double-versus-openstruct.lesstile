@@ -1,0 +1,56 @@
+---
+layout: post
+title:  "Benchmarking RSpec double versus OpenStruct"
+date:   2012-10-15 00:13:23 +00:00
+tags:   ["code", "rspec", "ruby"]
+---
+{% raw %}
+I noticed a number of my unit tests were taking upwards of 10ms, an order of magnitude slower than they should be. Turns out I was abusing rspec doubles, in particular I was using one instead of a value object. Doubles are _far_ slower than plain Ruby objects, in particular as the number of attributes goes up. It looks linear, but the constant factor is bad. The following benchmark demonstrates using a double versus an @OpenStruct@, which can often be used as a drop in replacement. (Normally I just use the value object itself, but it this case it was an @ActiveRecord@ subclass.)
+
+--- Ruby
+require 'ostruct'
+
+describe 'benchmark' do
+  let(:attributes) {
+    ENV['N'].to_i.times.each_with_object({}) {|x, h| h["attr_#{x}"] = 'hello' }
+  }
+
+  5.times do
+    it 'measures doubles' do
+      double(attributes)
+    end
+
+    it 'measures structs' do
+      OpenStruct.new(attributes)
+    end
+  end
+end
+---
+
+!https://img.skitch.com/20121015-c22uj2mm3ds18ncdisfhf8rqxu.jpg!
+
+Only 6-8 attributes before the 1ms barrier is broken, and this is only for construction!
+
+To graph it, I threw out the first result for each measurement, since it tended to be all over the shop during warm up. The following script is a hack that relies on _a priori_ knowledge that double is slower, since it doesn't try to match rspec profile out measurements to label. The measurements are so different in this case that it works.
+
+---
+> for N in {1..20}; do env N=$N rspec benchmark_spec.rb -p | \
+  grep seconds | \
+  grep benchmark_spec | \
+  awk '{print $1}' | \
+  xargs echo $N; done > results.dat
+
+> gnuplot << eor
+set terminal jpeg size 600,200 font "arial,9"
+set key left
+set output 'graph.jpg'
+set datafile separator " "
+set xlabel '# of attributes'
+set ylabel 'construction time (s)'
+plot 'results.dat' u 1:( (\$3+\$4+\$5+\$6)/4) with lines title 'Double', \
+       '' u 1:( (\$8+\$9+\$10+\$11) / 4) with lines title 'Struct'
+eor
+---
+
+My next project: what is the best way to get the elevated guarantees provided by "rspec-fire":https://github.com/xaviershay/rspec-fire without taking the speed hit?
+{% endraw %}

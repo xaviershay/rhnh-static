@@ -1,0 +1,223 @@
+---
+layout: post
+title:  "Guice in your JRuby"
+date:   2012-10-20 18:26:53 +00:00
+tags:   ["code", "guice", "jruby", "ruby"]
+---
+{% raw %}
+At "work":https://squareup.com we have a Java application container that uses "Google Guice":http://code.google.com/p/google-guice/ for dependency injection. I thought it would be fun to try and embed some Ruby code into it.
+
+Guice uses types and annotations to wire components together, neither of which Ruby has. It also uses Java meta-class information heavily (@SomeClass.class@). High hurdles, but we can clear them.
+
+h2. Warming Up
+
+Normally JRuby is used to interpret Ruby code inside a Java environment, but it also provides functionality to compile a Ruby class to a Java one. In essence, it creates a Java wrapper class that delegates all calls to Ruby. Let's look at a simple example.
+
+--- Ruby
+# SayHello.rb
+class SayHello
+  def hello(name)
+    puts "Hello #{name}"
+  end
+end
+---
+
+Compile using the @jrubyc@ script. By default it compiles directly to a @.class@ file, but it doesn't work correctly at the moment. Besides, going to Java first allows us to see what is going on.
+
+---
+jrubyc --java SayHello.rb
+---
+
+The compiled Java is refreshingly easy to understand. It even has comments!
+
+_Imports are redacted from all Java examples for brevity._
+
+--- Java
+// SayHello.java
+public class SayHello extends RubyObject  {
+    private static final Ruby __ruby__ = Ruby.getGlobalRuntime();
+    private static final RubyClass __metaclass__;
+
+    static {
+        String source = new StringBuilder("class SayHello\n" +
+            "  def hello(name)\n" +
+            "    puts \"Hello #{name}\"\n" +
+            "  end\n" +
+            "end\n" +
+            "").toString();
+        __ruby__.executeScript(source, "SayHello.rb");
+        RubyClass metaclass = __ruby__.getClass("SayHello");
+        metaclass.setRubyStaticAllocator(SayHello.class);
+        if (metaclass == null) throw new NoClassDefFoundError("Could not load Ruby class: SayHello");
+        __metaclass__ = metaclass;
+    }
+
+    /**
+     * Standard Ruby object constructor, for construction-from-Ruby purposes.
+     * Generally not for user consumption.
+     *
+     * @param ruby The JRuby instance this object will belong to
+     * @param metaclass The RubyClass representing the Ruby class of this object
+     */
+    private SayHello(Ruby ruby, RubyClass metaclass) {
+        super(ruby, metaclass);
+    }
+
+    /**
+     * A static method used by JRuby for allocating instances of this object
+     * from Ruby. Generally not for user comsumption.
+     *
+     * @param ruby The JRuby instance this object will belong to
+     * @param metaclass The RubyClass representing the Ruby class of this object
+     */
+    public static IRubyObject __allocate__(Ruby ruby, RubyClass metaClass) {
+        return new SayHello(ruby, metaClass);
+    }
+
+    /**
+     * Default constructor. Invokes this(Ruby, RubyClass) with the classloader-static
+     * Ruby and RubyClass instances assocated with this class, and then invokes the
+     * no-argument 'initialize' method in Ruby.
+     *
+     * @param ruby The JRuby instance this object will belong to
+     * @param metaclass The RubyClass representing the Ruby class of this object
+     */
+    public SayHello() {
+        this(__ruby__, __metaclass__);
+        RuntimeHelpers.invoke(__ruby__.getCurrentContext(), this, "initialize");
+    }
+
+    public Object hello(Object name) {
+        IRubyObject ruby_name = JavaUtil.convertJavaToRuby(__ruby__, name);
+        IRubyObject ruby_result = RuntimeHelpers.invoke(__ruby__.getCurrentContext(), this, "hello", ruby_name);
+        return (Object)ruby_result.toJava(Object.class);
+    }
+}
+---
+
+Simple: A Java class with concrete type and method definitions, delegating each method to Ruby. For the next step, JRuby supports metadata provided in Ruby to control the exact types and annotations that are used in the generated code.
+
+--- Ruby
+# SayHello.rb
+class SayHello
+  java_signature 'void hello(String)'
+  def hello(name)
+    puts "Hello #{name}"
+  end
+end
+---
+
+--- Java
+public void hello(String name) {
+    IRubyObject ruby_name = JavaUtil.convertJavaToRuby(__ruby__, name);
+    IRubyObject ruby_result = RuntimeHelpers.invoke(__ruby__.getCurrentContext(), this, "hello", ruby_name);
+    return;
+}
+---
+
+Perfect! Now we have all the pieces we need to start wiring our Ruby into Guice.
+
+h2. Guice
+
+Let's start by injecting an object that our Ruby class can use to do something interesting.
+
+--- Java
+public class JrubyGuiceExample {
+  public static void main(String[] args) {
+    Injector injector = Guice.createInjector();
+    SimplestApp app = injector.getInstance(SimplestApp.class);
+    app.run();
+  }
+}
+---
+
+--- Ruby
+require 'java'
+
+java_package 'net.rhnh'
+
+java_import 'com.google.inject.Inject'
+
+class SimplestApp
+  java_annotation 'Inject'
+  java_signature 'void MyApp(BareLogger logger)'
+  def initialize(logger)
+    @logger = logger
+  end
+
+  def run
+    @logger.info("Hello from Ruby")
+  end
+end
+---
+
+Guice will see the @BareLogger@ type, and automatically create an instance of that class to be passed to the initializer.
+
+Guice also allows more complex dependency graphs, such as knowing which concrete class to provide for an interface. These are declared using a module, which -- though probably not a good idea -- we can also write in ruby. The following example tells Guice to provide an instance of @PrefixLogger@ whenever an interface of @SimpleLogger@ is asked for.
+
+--- Java
+public class JrubyGuiceExample {
+  public static void main(String[] args) {
+    Injector injector = Guice.createInjector(new ComplexModule());
+    ComplexApp app = injector.getInstance(ComplexApp.class);
+    app.run();
+  }
+}
+---
+--- Java
+require 'java'
+
+java_package 'net.rhnh'
+
+java_import 'com.google.inject.Provides'
+java_import 'com.google.inject.Binder'
+
+class ComplexModule
+  java_implements 'com.google.inject.Module'
+
+  java_signature 'void configure(Binder binder)'
+  def configure(binder)
+    binder.
+      bind(java::SimpleLogger.java_class).
+      to(java::PrefixLogger.java_class)
+  end
+
+  protected
+
+  def java
+    Java::net.rhnh
+  end
+end
+---
+
+You can also provide more complex setup logic in dedicated methods with the @Provides@ annotation. See the example project linked at the bottom of the post.
+
+h2. Maven integration
+
+Running @jrubyc@ all the time is a drag. Thankfully, someone has already made a maven plugin that puts everything in the right place.
+
+--- xml
+<plugin>
+  <groupId>de.saumya.mojo</groupId>
+  <artifactId>jruby-maven-plugin</artifactId>
+  <version>0.29.1</version>
+  <configuration>
+    <generateJava>true</generateJava>
+    <generatedJavaDirectory>target/generated-sources/jruby</generatedJavaDirectory>
+  </configuration>
+  <executions>
+    <execution>
+      <phase>process-resources</phase>
+      <goals>
+        <goal>compile</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
+---
+
+Now running @mvn package@ will compile Ruby code from @src/main/ruby@ to java code in @target@, which is then available for the main Java build to compile.
+
+For more examples and runnable code, see the "jruby-guice":https://raw.github.com/xaviershay/jruby-guice project on GitHub.
+
+{% endraw %}

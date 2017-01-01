@@ -1,0 +1,31 @@
+---
+layout: post
+title:  "Benchmarks for creating a new array"
+date:   2009-08-10 19:48:00 +00:00
+tags:   ["Code", "Ruby", "array", "benchmark"]
+---
+{% raw %}
+--- ruby
+require 'benchmark'
+
+n = 1000
+m = 50000
+blank = [0] * m
+Benchmark.bm(7) do |x|
+  x.report(".new with block:") { (0..n).collect { Array.new(m) { 0 } }}
+  x.report("  .new no block:") { (0..n).collect { Array.new(m, 0) }}
+  x.report("        [0] * x:") { (0..n).collect { [0] * m }}
+  x.report("           #dup:") { (0..n).collect { blank.dup }}
+end
+---
+--- bash
+$ ruby19 benchmark.rb 
+             user     system      total        real
+.new with block: 10.180000   0.210000  10.390000 ( 10.459538)
+  .new no block:  3.690000   0.210000   3.900000 (  3.915348)
+        [0] * x:  4.280000   0.210000   4.490000 (  4.505334)
+           #dup:  0.000000   0.000000   0.000000 (  0.000491)
+---
+
+Know your constructors! What is @#dup@ doing? I think it's cheating.
+{% endraw %}

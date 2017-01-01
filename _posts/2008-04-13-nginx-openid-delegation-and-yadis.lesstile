@@ -1,0 +1,47 @@
+---
+layout: post
+title:  "Nginx, OpenID delegation and YADIS"
+date:   2008-04-13 10:54:00 +00:00
+tags:   ["Code", "nginx", "openid", "yadis"]
+---
+{% raw %}
+Typically OpenID delegation reads delegation information out of HTML headers on your home page:
+
+--- HTML
+<link rel="openid.server" ref="http://server.myid.net/server" />
+<link rel="openid.delegate" href="http://xaviershay.myid.net/" />
+---
+
+The problem with this is that any client trying to discover this information needs to fetch your entire home page. If that client is your page (commenting on your own entry, for instance), that request can get queued up behind the same mongrel that was serving the original request, which of course now won't complete until the OpenID delegation request times out.
+
+There is another way to provide delegation information. Clients will request your home page with an accept header of @application/xrds+xml@ - and you can use that information to serve up a static "YADIS":http://yadis.org/wiki/Main_Page file rather than your home page. Mine looks like this:
+
+--- YADIS
+<xrds:XRDS xmlns:xrds="xri://$xrds" xmlns="xri://$xrd*($v*2.0)"
+      xmlns:openid="http://openid.net/xmlns/1.0">
+  <XRD>
+
+    <Service priority="1">
+      <Type>http://openid.net/signon/1.0</Type>
+      <URI>https://server.myid.net/server</URI>
+      <openid:Delegate>https://xaviershay.myid.net/</openid:Delegate>
+    </Service>
+
+  </XRD>
+</xrds:XRDS>
+---
+
+And I serve it up with this Nginx rewrite rule:
+--- nginx
+if ($http_accept ~* application/xrds\+xml) {
+  rewrite (.*) $1/yadis.xrdf break;
+}
+---
+
+Try it in the comfort of your own home:
+--- bash
+curl -H 'Accept: application/xrds+xml' http://rhnh.net
+---
+
+Ref: "OpenID for non-SuperUsers":http://www.intertwingly.net/blog/2007/01/03/OpenID-for-non-SuperUsers
+{% endraw %}

@@ -1,0 +1,45 @@
+---
+layout: post
+title:  "Six best talks from LSRC 2010"
+date:   2010-09-09 01:55:00 +00:00
+tags:   ["Code", "Ruby", "lsrc", "rails"]
+---
+{% raw %}
+*I wrote this last fortnight, but was waiting for videos. Still missing a few, but it's a start. Enjoy!*
+
+I am just finishing up a week in Austin, Texas. I was here for Lone Star Ruby Conference, at which I ran both my "Database Is Your Friend Training":http://www.dbisyourfriend.com, and also a full day introduction to MongoDB course. I was then free to enjoy the talks for the remaining two days. Here are my top picks.
+
+h3. Debugging Ruby
+
+Aman Gupta gave a fantastic overview of the low level tools available for debugging ruby applications, including perf-tools, strace, gdb, bleak-house, and some nice ruby wrappers he has written around them. I had heard of these tools before, but was never sure when to use them or where to start if I wanted to use them. Aman's presentation was the hook I needed to get into these tools, giving plenty of real examples of where they had been useful and how he used them.
+
+"Slides":http://www.slideshare.net/mongosf/debugging-ruby-aman-gupta
+
+h3. Seven Languages in Seven Weeks
+
+Bruce Tate gave an entertaining talk in which he compared seven languages to movie characters. It was a great narrative, and is energy and excitement about the languages was infectious. He has written a book on the same topic, which I plan on purchasing when I make some time to work through it. There are some sample chapters available at the pragprog site.
+
+"Book":http://pragprog.com/titles/btlang/seven-languages-in-seven-weeks
+
+h3. Greasing Your Suite
+
+I had seen the content of Nick's talk "Greasing Your Suite" before in slide format, and it was just as excellent live. Nick takes the run time of a rails test suite from 13 minutes down to _eighteen seconds_. An incredible effort. While watching his talk I installed and set up his "hydra gem":http://github.com/ngauthier/hydra, and it was dead simple to get my tests running in parallel. I only added a rake task and a tiny yml file---no other setup required---and I got a significant speed up even on trivial test suites. I was impressed at how easy it was to get going, and I'll be using it on all my apps from now on.
+
+"Video":http://vimeo.com/12705404 (From Goruco, but he gave the same talk)
+
+h3. Deciphering Yehuda
+
+Gregg Pollack's talk on how some of the techniques used in the internals of rails and bundler work was excellent. While the content wasn't new to me, I was impressed at Gregg's ability to explain code on slides, a task difficult to do well. If you ever plan to present you should watch this to pick up some of Gregg's techniques. I am going to be checking out his "Introduction to Rails 3 screencasts":http://rubyonrails.org/screencasts/rails3 for the same reason.
+
+"Video":http://confreaks.net/videos/285-lsrc2010-decyphering-yehuda
+
+h3. Real Software Engineering
+
+Glenn Vanderburg opened the conference with a fantastic talk on the history of software engineering. This answered a lot of questions that have been floating around my mind, especially to do with the misleading comparisons often made to other engineering disciplines. Give a civil engineer the ability to quickly prototype bridges for little cost, they are going to do a lost less modelling. A mathematical model is simply a way to reduce costs. And cost is always an object. Watch the talk, it's brilliant.
+
+"Video":http://confreaks.net/videos/282-lsrc2010-real-software-engineering
+
+h3. Keynote
+
+The best overall talk was Tom Preston-Werner's keynote Friday evening. His mix of story, humour, and inspiration were perfect for a keynote, and his delivery was excellent. He pitched his content expertly and though there was no specific item I hadn't heard before, it has had a significant impact on my thoughts the past few days. Hopefully a video is up soon.
+{% endraw %}

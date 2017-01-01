@@ -1,0 +1,47 @@
+---
+layout: post
+title:  "Faster rails testing with ruby_fork"
+date:   2009-03-12 08:45:03 +00:00
+tags:   ["Code", "Ruby", "rails", "ruby_fork", "testing"]
+---
+{% raw %}
+A long running test suite isn't the problem. Your build server can take care of that. A second or two here or there, no one notices.
+
+*The killer wait is in the red/green/refactor loop.* You're only running one or two tests, and an extra second can mean the difference between getting into flow or switching to twitter. And you know what kills you in rails?
+
+---
+$ time ruby -e '' -r config/environment.rb
+
+real    0m3.784s
+user    0m2.707s
+sys     0m0.687s
+---
+
+Yep, the environment. That's a lot of overhead to be waiting for everytime you run a test, especially since it's the same code every time! You fix this with a clever script called @ruby_fork@ that's included in the "ZenTest":http://zentest.rubyforge.org/ZenTest/ package. It loads up your environment, then just chills out, waiting. You send a ruby file to it, and it forks itself (the process containing the environment) to execute that file. The beauty of this is that forking is really quick, and it leaves a pristine copy of the environment around for the next test run. 
+
+'Environment' doesn't just have be @environment.rb@, for bonus points you can load up @test_helper.rb@, which will also load your testing framework into memory. In fact, you can preload any ruby code at all - @ruby_fork@ isn't rails specific.
+---
+$ ruby_fork -r test/test_helper.rb &
+/opt/local/bin/ruby_fork Running as PID 526 on 9084
+
+$ time ruby_fork_client -r test/unit/your_test.rb
+Started
+...
+Finished in 0.565636 seconds. # Aside: this time is bollocks
+
+3 tests, 4 assertions, 0 failures, 0 errors
+
+real    0m0.972s # This is the time you're interested in
+user    0m0.225s
+sys     0m0.035s
+---
+
+That's fantastic, though you'll notice in newer versions of rails your application code is not reloaded. By default your test environment caches classes - which normally isn't a problem except that newer rails versions also eager load those classes (so they're loaded when you load enviornment.rb). You can fix this by clearing out the eager load paths in your test environment file:
+--- Ruby
+# config/environments/test.rb
+config.eager_load_paths = []
+---
+
+On my machine this gets individual test runs down from about 4 seconds to less than 1 second. You can sell that to your boss as a four-fold productivity increase.
+
+{% endraw %}

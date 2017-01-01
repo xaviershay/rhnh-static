@@ -1,0 +1,42 @@
+---
+layout: post
+title:  "Static Asset Caching on Heroku Cedar Stack"
+date:   2011-07-29 05:55:00 +00:00
+tags:   ["caching", "code", "heroku", "rails", "ruby"]
+---
+{% raw %}
+**UPDATE:** This is now "documented at Heroku":https://devcenter.heroku.com/articles/rack-cache-memcached-rails31 (thanks Nick)
+
+I recently moved this blog over to "Heroku":http://heroku.com, and in the process added in some proper HTTP caching headers. The dynamic pages use the build in @fresh_when@ and @stale?@ Rails helpers, combined with @Rack::Cache@ and the free memcached plugin available on Heroku. That was all pretty straight forward, what was more difficult was configuring Heroku to serve all static assets (such as images and stylesheets) with a far-future @max-age@ header so that they will be cached for eternity. What I've documented here is somewhat of a hack, and hopefully Heroku will provide a better way of doing this in the future.
+
+By default Heroku serves everything in @public@ directly via nginx. This is a problem for us since we don't get a chance to configure the caching headers. Instead, use the @Rack::StaticCache@ middleware (provided in the @rack-contrib@ gem) to serve static files, which by default adds far future max age cache control headers. This needs to be out of different directory to @public@ since there is no way to disable the nginx serving. I renamed by @public@ folder to @public_cached@.
+
+--- Ruby
+# config/application.rb
+config.middleware.use Rack::StaticCache, 
+  urls: %w(
+    /stylesheets
+    /images
+    /javascripts
+    /robots.txt
+    /favicon.ico
+  ),
+  root: "public_cached"
+---
+
+I also disabled the built in Rails serving of static assets in development mode, so that it didn't interfere:
+
+--- Ruby
+# config/environments/development.rb
+config.serve_static_assets = false
+---
+
+In the production config, I configured the @x_sendfile_header@ option to be "X-Accel-Redirect". It was "X-Sendfile" which is an apache directive, and was causing nginx to hang (Heroku would never actually serve the assets to the browser).
+
+--- Ruby
+# config/environments/production.rb
+config.action_dispatch.x_sendfile_header = 'X-Accel-Redirect'
+---
+
+A downside of this approach is that if you have a lot of static assets, they all have to hit the Rails stack in order to be served. If you only have one dyno (the free plan) then the initial load can be slower than it otherwise would be if nginx was serving them directly. As I mentioned in the introduction, hopefully Heroku will provide a nicer way to do this in the future.
+{% endraw %}

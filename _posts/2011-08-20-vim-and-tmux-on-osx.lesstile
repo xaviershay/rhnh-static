@@ -1,0 +1,71 @@
+---
+layout: post
+title:  "Vim and tmux on OSX"
+date:   2011-08-20 10:35:00 +00:00
+tags:   ["code", "tmux", "vim"]
+---
+{% raw %}
+I recently switched from MacVim to vim inside tmux, using iTerm in full screen mode (@Command+Enter@). It's pretty rad. I tried screen first, but even after a lot of screwing around there was still a lot of brokeness, and I don't like how it does split panes anyways. Follows are some notes about what is required for tmux.
+
+h3. Get the latest vim and tmux
+
+Latest vim required for proper clipboard sharing, if you don't want to install it you can use the @pbcopy@ plugin mentioned below.
+
+---
+brew install --HEAD vim
+brew install tmux
+---
+
+h3. Set up pretty colors
+
+<a href="https://img.skitch.com/20110821-gfp7b3g8xrk25bfdxgrxdnghnr.jpg"><img src="https://img.skitch.com/20110821-gfp7b3g8xrk25bfdxgrxdnghnr.jpg" width='640' alt='my vim/tmux setup' /></a>
+
+I use the "solarized":http://ethanschoonover.com/solarized color scheme. To make this work, ensure you are not overriding the @TERM@ variable in your @.{bash|zsh}rc@, then create an alias for tmux:
+
+---
+# .zshrc
+alias tmux="TERM=screen-256color-bce tmux"
+---
+
+I also have a tmux config:
+---
+# .tmux.conf
+set -g default-terminal "screen-256color"
+---
+
+h3. Clipboard sharing
+
+Up until I wrote this blog post, I had been using the "pbcopy plugin":https://github.com/mortice/pbcopy.vim to share clipboard using a cute hack involving ssh'ing back into your machine to run @pbcopy@/@pbpaste@. In researching some more details on this though I found an *excellent* write up of the problem and a "far better solution by Chris Johnsen":https://github.com/ChrisJohnsen/tmux-MacOSX-pasteboard that enables proper sharing without ssh'ing, and therefore also the @*@ register (use @"*y@ to copy, @"*p@ to paste - note this does *not* work with the vim that ships with OSX).
+
+h3. Mouse integration
+
+The mouse is good for two things: scrolling, and selecting text from your scrollback.
+
+For the first, put the following config:
+
+---
+# ~/.tmux.conf
+set -g mode-mouse on
+---
+
+For the second, hold the option key while you select.
+
+h3. Workflow
+
+Find another reference for basic keys, this here are notes on top of that. @Ctrl-B@ sucks as an escape sequence, rebind it to @Ctrl-A@ to match screen. Most online references don't mention it, but the default binding for horizontal split is @prefix "@ (it's in the man page). I tend to have a main pane for editing and a smaller pane for a @REPL@ or log. If I need to investigate the smaller pane, I press @Ctrl-A Ctrl-O@, which switches the two panes to give me the log in the larger one.
+
+I use the "tslime.vim plugin (I had to patch it)":https://github.com/xaviershay/tslime.vim to send text directly from vim to the supplementary pane. This is a killer feature. As well as the built in @Ctrl-C@ shortcut, I also use a trick I learned from "Gary Bernhardt":http://blog.extracheese.org/ and remap @<leader>t@ on the fly to send whatever command I am currently testing to the other pane. Some examples:
+
+---
+; Load a file into a clojure repl
+:map ;t :w\|:call Send_to_Tmux("\n\n\n(load-file \"./myfile.clj\")\n")<CR>
+; Run rspec in zsh
+:map ;t :w\|:call Send_to_Tmux("rspec spec/my_spec.rb\n")<CR>
+---
+
+If I need to interact with a shell I'll usually @Ctrl-Z@ vim, do what I need to do, then @fg@ back again. If it's a context switch, I'll start a new tmux window then exit it after I'm done with the distraction.
+
+I don't use sessions. I prefer setting up from scratch each time since it takes no time at all, and eases my brain into the problem. Clean desk and all that.
+
+That's it. Nothing too fancy, but I've been meaning to make the switch from MacVim for a while and with this set up I can't ever see myself going back.
+{% endraw %}

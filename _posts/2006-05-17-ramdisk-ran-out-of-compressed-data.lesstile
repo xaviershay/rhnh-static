@@ -1,0 +1,15 @@
+---
+layout: post
+title:  "RAMDISK: Ran out of compressed data"
+date:   2006-05-17 15:07:00 +00:00
+tags:   ["kernel", "linux", "ubuntu"]
+---
+{% raw %}
+Getting the above error on boot is fairly scary. Thankfully, it's not hard to fix. It probably means you have filled up your <code>/boot</code> partition. In my case, I had 4 kernels/configs stored on there and it was right on 100%. Simply clean out the old ones - I keep the latest (obviously) and the one before, assuming it works. Then if you're on ubuntu, issue:
+
+--- bash
+dpkg-reconfigure linux-image-`uname -r`
+---
+
+To regenerate your initrd file, because if <code>/boot</code> was full it was probably corrupt.
+{% endraw %}

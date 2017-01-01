@@ -1,0 +1,36 @@
+---
+layout: post
+title:  "Ruby progress bar, no gems"
+date:   2014-03-29 22:17:00 +00:00
+tags:   ["code", "ruby"]
+---
+{% raw %}
+--- ruby
+def import(filename, out = $stdout, &block)
+  # Yes, there are gems that do progress bars.
+  # No, I'm not about to add another dependency for something this simple.
+  width     = 50
+  processed = 0
+  printed   = 0
+  total     = File.read(filename).lines.length.to_f
+  label     = File.basename(filename, '.csv')
+
+  out.print "%11s: |" % label
+
+  CSV.foreach(filename, headers: true) do |row|
+    yield row
+
+    processed += 1
+    wanted = (processed / total * width).to_i
+    out.print "-" * (wanted - printed)
+    printed = wanted
+  end
+  out.puts "|"
+end
+---
+
+---
+     file_1: |--------------------------------------------------|
+     file_2: |--------------------------------------------------|
+---
+{% endraw %}

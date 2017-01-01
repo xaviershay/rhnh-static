@@ -1,0 +1,9 @@
+---
+layout: post
+title:  "New non-tech blog"
+date:   2014-10-12 22:30:00 +00:00
+tags:   []
+---
+{% raw %}
+Have been writing a bit recently, just not here. More politics and book reviews. I've separated it out over on "Github pages":https://xaviershay.github.io/blog/.
+{% endraw %}

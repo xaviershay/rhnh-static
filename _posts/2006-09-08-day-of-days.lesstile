@@ -1,0 +1,15 @@
+---
+layout: post
+title:  "Day of days"
+date:   2006-09-08 02:15:00 +00:00
+tags:   ["Life"]
+---
+{% raw %}
+I shouldn't read <a href="http://www.joelonsoftware.com/items/2006/09/07.html">Joel On Software</a>, it makes me covetous. Between no LCDs, a dodgy chair, Delphi <i>6</i>, PVCS(!!), motivation is waning at work. I must have raved about Subversion enough though - we have a meeting on Monday to discuss switching over. Nov 24 I finish. Can't wait until I'm free of these commitments so I can start chasing some choice projects.
+
+Just had an amusing chat with mum about the internets, why people would be interested on the "tripe" on my website, why if you google my name you get "private conversations" I've had.
+
+Which made me realise I've lost my #1 google spot to some posts I made on the Oracle forums while at Swinburne. Freaking Oracle.
+
+Today's awesome Ruby on Rails link: <a href="http://www.writertopia.com/developers/authorization">Declarative Permissions</a>. Just added it to a project I'm working on, and in less than an hour had a full authorization model going. Very pretty.
+{% endraw %}

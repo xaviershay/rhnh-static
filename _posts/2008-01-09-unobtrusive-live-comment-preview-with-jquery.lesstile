@@ -1,0 +1,77 @@
+---
+layout: post
+title:  "Unobtrusive live comment preview with jQuery"
+date:   2008-01-09 12:35:00 +00:00
+tags:   ["Code", "javascript", "jquery", "rails"]
+---
+{% raw %}
+Live preview is shiny. First get your self a URL that renders a comment. In rails maybe something like the following.
+
+--- ruby
+def new
+  @comment = Comment.build_for_preview(params[:comment])
+
+  respond_to do |format|
+    format.js do
+      render :partial => 'comment.html.erb'
+    end
+  end
+end
+---
+
+Now you should have a form or div with an ID something like "new_comment". Just drop in the following JS (you may need to customize the @submit_url@).
+
+--- javascript
+$(function() { // onload
+  var comment_form = $('#new_comment')
+  var input_elements = comment_form.find(':text, textarea')
+  var submit_url = '/comments/new'  
+  
+  var fetch_comment_preview = function() {
+    jQuery.ajax({
+      data: comment_form.serialize(),
+      url:  submit_url,
+      timeout: 2000,
+      error: function() {
+        console.log("Failed to submit");
+      },
+      success: function(r) { 
+        if ($('#comment-preview').length == 0) {
+          comment_form.after('<h2>Your comment will look like this:</h2><div id="comment-preview"></div>')
+        }
+        $('#comment-preview').html(r)
+      }
+    })
+  }
+
+  input_elements.keyup(function () {
+    fetch_comment_preview.only_every(1000);
+  })
+  if (input_elements.any(function() { return $(this).val().length > 0 }))
+    fetch_comment_preview();
+})
+---
+
+The @only_every@ function is they key to this piece - it ensures that an AJAX request will be sent at most only once a second so you don't overload your server or your client's connection.
+
+Obviously you'll need "jQuery":http://jquery.com, less obviously you'll also need these support functions
+
+--- javascript
+// Based on http://www.germanforblack.com/javascript-sleeping-keypress-delays-and-bashing-bad-articles
+Function.prototype.only_every = function (millisecond_delay) {
+  if (!window.only_every_func)
+  {
+    var function_object = this;
+    window.only_every_func = setTimeout(function() { function_object(); window.only_every_func = null}, millisecond_delay);
+   }
+};
+
+// jQuery extensions
+jQuery.prototype.any = function(callback) { 
+  return (this.filter(callback).length > 0)
+}
+---
+
+Viola, now you're shimmering in awesomeness.
+Demo up soon, but it's similar to what you see on this blog (though this blog is done with inline prototype).
+{% endraw %}

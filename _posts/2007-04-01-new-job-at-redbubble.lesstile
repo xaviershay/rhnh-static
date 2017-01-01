@@ -1,0 +1,13 @@
+---
+layout: post
+title:  "New Job at RedBubble"
+date:   2007-04-01 00:30:00 +00:00
+tags:   ["Life", "career", "redbubble"]
+---
+{% raw %}
+As of two weeks ago, I am now a full time software developer for <a href="http://www.redbubble.com">RedBubble</a> - A website for artists and people who want to buy said artist's work. They have some really high quality prints available (the framed ones are gorgeous), and I'm keen to buy some stuff myself once I have a house with walls to put it on...
+
+They are based in Fitzroy, which is a really groovy area, but also kind of hard to get a house near - 2 weeks in and I'm still homeless. I ride my bike to work, so there's a fairly large radius in which I'm looking for a place, and a lot of houses available too, but there are just a ridiculous number of people applying for them.
+
+Anyway, they're a very cool startup with awesome people doing some really nice things with Ruby on Rails (my framework of choice). I'm exceedingly happy to be working with them.
+{% endraw %}

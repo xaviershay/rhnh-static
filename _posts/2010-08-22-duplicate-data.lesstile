@@ -1,0 +1,29 @@
+---
+layout: post
+title:  "Duplicate Data"
+date:   2010-08-22 19:18:00 +00:00
+tags:   ["Code", "Ruby", "dbiyf", "rails"]
+---
+{% raw %}
+*UPDATE:* If you are on PostgreSQL, check this "updated query":http://rhnh.net/2011/04/30/deleting-duplicate-data-with-postgresql, it's more useful.
+
+Forgotten to back @validates_uniqueness_of@ with a unique constraint in your database? Oh no! Here is some SQL that will pull out all the duplicate records for you. 
+
+--- Ruby
+User.find_by_sql <<-EOS
+  SELECT * 
+  FROM users 
+  WHERE name IN (
+    SELECT name 
+    FROM users 
+    GROUP BY name 
+    HAVING count(name) > 1);
+EOS
+---
+
+You will need your own strategy for resolving the duplicates, since it is totally dependent on your data. Some ideas:
+* Arbitrarily deleting one of the records. Perhaps based on latest update time? Don't forget about child records! If you have forgotten a uniqueness constraint it is likely you have also forgotten a foreign key, so you will have to delete child records manually.
+* Merge the records, including child records.
+* Manually resolving the conflicts on a case by case basis. Possible if there are not too many duplicates.
+
+{% endraw %}

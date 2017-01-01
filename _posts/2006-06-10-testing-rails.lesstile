@@ -1,0 +1,49 @@
+---
+layout: post
+title:  "Testing rails"
+date:   2006-06-10 06:45:00 +00:00
+tags:   ["Code", "Ruby", "rails", "testing", "time", "validation"]
+---
+{% raw %}
+I was working on creating functional tests for some of my code today, a task made ridiculously easy by rails. To add extra value, I added an assertion (from <a href="http://scottraymond.net/articles/2005/09/20/rails-xhtml-validation">Scott Raymond</a>) to validate my markup against the w3c online validator:
+
+--- ruby
+def assert_valid_markup(markup=@response.body)
+  if ENV["TEST_MARKUP"]
+    require "net/http"
+    response = Net::HTTP.start("validator.w3.org") do |w3c|
+      query = "fragment=" + CGI.escape(markup) + "&output=xml"
+      w3c.post2("/check", query)
+    end
+    assert_equal "Valid", response["x-w3c-validator-status"]
+  end
+end
+---
+
+The ENV test means it isn't run by default since it slows down my tests considerably, but I don't want to move markup checks out of the functional tests because that's where they belong. Next step is to validate locally, which I've heard you can do with HTML Tidy.
+
+Another problem is testing code that relies on <code>DateTime.now</code>, since this is a singleton call and not easily mockable.
+
+--- ruby
+def pin_time
+  time = DateTime.now
+  DateTime.class_eval <<-EOS
+    def self.now
+      DateTime.parse("#{time}")
+    end
+  EOS
+  yield time
+end
+
+# Usage
+pin_time do |test_time|
+  assert_equal test_time, DateTime.now
+  sleep 2
+  assert_equal test_time, DateTime.now
+end
+---
+
+I haven't found a neat way of resetting the behaviour of <code>now</code>. Using <code>load 'date.rb'</code> works but produces warnings for redefined constants. I couldn't get either aliasing the original method, undefining the new one, or even just calling <code>Date.now</code> to work.
+
+*UPDATE:* Ah, how young I was. A better way to do this is to use a library like "mocha":http://mocha.rubyforge.org
+{% endraw %}

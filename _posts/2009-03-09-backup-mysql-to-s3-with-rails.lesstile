@@ -1,0 +1,19 @@
+---
+layout: post
+title:  "Backup MySQL to S3 with Rails"
+date:   2009-03-09 15:25:00 +00:00
+tags:   ["backup", "code", "database", "mysql", "rails", "ruby", "s3"]
+---
+{% raw %}
+*UPDATE:* This code is too old. Use "db2fog":https://github.com/yob/db2fog instead. It does the same thing but better.
+
+Here is some code I wrote over the weekend - "db2s3":http://github.com/xaviershay/db2s3. It's a rails plugin that provides rake tasks for backing up your database and storing it on Amazon's S3 cloud storage. S3 is a trivially cheap offsite backup solution - for small databases it costs about 4 cents per month, even if you're sending full backups every hour.
+
+There are "many":http://info-architects.net/2007/08/25/rake-task-for-mysql-backup-to-amazon-s3/ "scripts":http://pauldowman.com/2009/02/08/mysql-s3-backup/ "around":http://therailscoder.typepad.com/the_rails_coder_ruby_on_r/2008/04/automatic-mysql.html that do this already, but they fail to address the biggest actual problem. The "aws-s3":http://amazon.rubyforge.org gem provides a really nice ruby interface to S3, and dumping a backup then storing it really isn't that hard. The real problem is that *I really hate system administration.* I want to spend as little time as possible and I want things to Just Work.
+
+A script is great but there's still too many things for me to do. Where does it go in my project? How do I set my credentials? How do I call it?
+
+That's why a plugin was needed. It's as little work as possible for a rails developer to backup their database, so they can get back to making their app awesome.
+
+"db2s3":http://github.com/xaviershay/db2s3. Check it out.
+{% endraw %}

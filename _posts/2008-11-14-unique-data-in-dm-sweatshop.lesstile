@@ -1,0 +1,29 @@
+---
+layout: post
+title:  "Unique data in dm-sweatshop"
+date:   2008-11-14 18:47:00 +00:00
+tags:   ["Code", "Ruby", "datamapper", "dm-more", "dm-sweatshop", "fixtures", "testing"]
+---
+{% raw %}
+@dm-sweatshop@ is how you set up test data for your datamapper apps. Standard practice is to generate random data that follows a pattern:
+
+--- Ruby
+User.fix {{
+  :login  => /\w+/.gen
+}}
+
+new_user = User.gen
+---
+
+Let's not now debate whether or not random data in tests is a good idea. What's more important is that the above code should make you uneasy if login is supposed to be unique. There was a hack in sweatshop that would try recreating the data if you had a uniqueness constraint on login and it was invalid, but it was exactly that: a hack. As of a few days ago (what will be 0.9.7), you need to be more explicit if you want unique data. It's pretty easy:
+
+--- Ruby
+include DataMapper::Sweatshop::Unique
+
+User.fix {{
+  :login  => unique { /\w+/.gen }
+}}
+---
+
+Tada! You can also easily get non-random unique data by providing a block with one parameter. "Check the README":http://github.com/sam/dm-more/tree/master/dm-sweatshop/README.textile for this and other cool things you can do.
+{% endraw %}

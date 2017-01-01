@@ -1,0 +1,137 @@
+---
+layout: post
+title:  "YAML Tutorial"
+date:   2011-01-31 10:37:00 +00:00
+tags:   ["Code", "Ruby", "psych", "yaml"]
+---
+{% raw %}
+Many years ago I wrote a "tutorial on using YAML in ruby":http://rhnh.net/2006/06/25/yaml-tutorial. It still sees the most google traffic of any post, by far. So people want to know about YAML? I'll help them out.
+
+h3. What is YAML?
+
+YAML is a flexible, human readable file format that is ideal for storing object trees. YAML stands for "YAML Ain’t Markup Language". It is easier to read (by humans) than JSON, and can contain richer meta data. It is far nicer than XML. There are libraries available for all mainstream languages including Ruby, Python, C++, Java, Perl, C#/.NET, Javascript, PHP and Haskell. It looks like this:
+
+--- YAML
+--- 
+- name: Xavier
+  country: Australia
+  age: 24
+- name: Don
+  country: US
+---
+
+That is a simple array of hashes. You can nest any combination of these simple data structures however you like. Most parsers will also detect the 24 as an integer too. Quoting strings is optional, and was omitted in this example.
+
+YAML allows you to add tags to your objects, which is extra meta-data that your application can use to deserialize portions into complex data structures. For instance, in ruby if you serialize a set object it looks like this:
+
+--- YAML
+# Set.new([1,2]).to_yaml
+--- !ruby/object:Set 
+hash: 
+  1: true
+  2: true
+---
+
+Notice that ruby has added the @ruby/object:Set@ tag so that the correct object can be instantiated on deserialization, while maintaining a human readable rendition of a set. These tags can be anything you like, ruby just happens to use that particular format.
+
+You can remove duplication from YAML files by using anchors (&) and aliases (*). You typically see this in configuration files, such as:
+
+--- YAML
+defaults: &defaults
+  adapter:  postgres
+  host:     localhost
+
+development:
+  database: myapp_development
+  <<: *defaults
+
+test:
+  database: myapp_test
+  <<: *defaults
+---
+
+@&@ sets up the name of the anchor ("defaults"), @<<@ means "merge the given hash into the current one", and @*@ includes the named anchor ("defaults" again). The expanded version looks like this:
+
+--- YAML
+defaults:
+  adapter:  postgres
+  host:     localhost
+
+development:
+  database: myapp_development
+  adapter:  postgres
+  host:     localhost
+
+test:
+  database: myapp_test
+  adapter:  postgres
+  host:     localhost
+---
+
+Note that the defaults hash hangs around, even though it isn't really required anymore.
+
+YAML generators use this technique to correctly serialize repeated references to the same object, and even cyclic references. That's pretty clever.
+
+h3. Flow style
+
+YAML has an alternate synax called "flow style", that allows arrays and hashes to be written inline without having to rely on indentation, using square brackets and curly brackets respectively.
+
+--- YAML
+--- 
+# Arrays
+colors:
+  - red
+  - blue
+# in flow style...
+colors: [red, blue]
+
+# Hashes
+- name: Xavier
+  age: 24
+# in flow style...
+- {name: Xavier, age: 24}
+---
+
+This has the curious effect of making YAML a superset of JSON. A valid JSON document is also a valid YAML document.
+
+h3. Performance
+
+Given YAML's richness and human readability, you would expect it to be slower than native serialization or JSON. This would be correct. My "brief testing":https://github.com/xaviershay/sandbox/blob/master/misc/yaml-test.rb shows it is about an order of magnitude slower. For the typical configuration use-case, this is irrelevant, but worth keeping in mind if you are doing something crazy. Remember to run your own benchmarks that represent your specific need. 
+
+--- Bash
+                     user       system     total    real
+Marshal serialize    0.090000   0.000000   0.090000 (  0.091822)
+Marshal deserialize  0.090000   0.000000   0.090000 (  0.092186)
+JSON serialize       0.480000   0.010000   0.490000 (  0.480291)
+JSON deserialize     0.130000   0.010000   0.140000 (  0.134860)
+YAML serialize       2.040000   0.020000   2.060000 (  2.065693)
+YAML deserialize     0.520000   0.010000   0.530000 (  0.526048)
+Psych serialize      2.530000   0.030000   2.560000 (  2.565116)
+Psych deserialize    1.510000   0.120000   1.630000 (  1.622601)
+---
+
+Curiously, the new YAML parser Psych included in ruby 1.9.2 appears significantly slower than the old one. Not sure what is going on there.
+
+h3. Reading YAML from a file with ruby
+
+--- Ruby
+require 'yaml'
+
+parsed = begin
+  YAML.load(File.open("/tmp/test.yml"))
+rescue ArgumentError => e
+  puts "Could not parse YAML: #{e.message}"
+end
+---
+
+h3. Writing YAML to a file with ruby
+
+--- Ruby
+require 'yaml'
+
+data = {"name" => "Xavier"}
+File.open("path/to/output.yml", "w") {|f| f.write(data.to_yaml) }
+---
+
+Anything else you'd like to know? Leave a comment.
+{% endraw %}

@@ -1,0 +1,16 @@
+---
+layout: post
+title:  "SICP Lisp interpreter in Clojure"
+date:   2011-08-21 21:00:00 +00:00
+tags:   ["clojure", "code", "sicp"]
+---
+{% raw %}
+On a lazy Sunday morning I can oft be found meandering through the classics of computer science literature. This weekend was no exception, as I put together a LISP interpreter in Clojure based off chapter 4 of "The Structure and Interpretation of Computer Progams.":http://mitpress.mit.edu/sicp/
+
+The "code is on github":https://github.com/xaviershay/sandbox/blob/master/clj/lisptwo.clj, rather than including it inline here, since at 90 lines plus tests it's getting a tad long for a snippet.
+
+It differs from the SICP version in that the environment variable is immutable, so new versions have to be passed through to each function. This resulted in the "context" concept that encapsulates both the current expression and the environment that does with. It causes a small amount of clunky code (see @map-reducer@), but also allows easier managing of scoping for lambdas (see @do-apply@ and @env-extend@). It matches the functional paradigm much better anyway. I also used some higher level primitives such as @map@ and @reduce@ that SICP doesn't --- SICP is demonstrating that they aren't necessary, but that's a point I've already conceeded and don't feel I need to replicate.
+
+Critique of my style warmly encouraged, I'm still new to Clojure.
+
+{% endraw %}

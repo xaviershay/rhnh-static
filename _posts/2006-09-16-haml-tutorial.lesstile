@@ -1,0 +1,122 @@
+---
+layout: post
+title:  "HAML Tutorial"
+date:   2006-09-16 11:00:00 +00:00
+tags:   ["Code", "Ruby", "haml"]
+---
+{% raw %}
+"HAML":http://dev.hamptoncatlin.com/haml is, and is an acronym for, an HTML Abstraction Markup Language. It is a replacement for the RHTML templates we are so used to in rails applications. If you are interested in _why_ one would need such a thing, please read John Philip Green's excellent "HAML introduction":http://unspace.ca/discover/haml. If you are more interested in _how_ one would use such a thing, read on!
+
+h3. Table of Contents
+
+# "Installation":#installation
+# "Fundamentals":#fundamentals
+# "XHTML techniques":#xhtml_techniques
+# "Ruby techniques":#ruby_techniques
+# "Conclusion":#conclusion
+
+h3.#installation). Installation
+
+First things first, install the plugin:
+--- bash
+./script/plugin install -x svn://hamptoncatlin.com/haml/trunk haml
+---
+
+This gives you a library to parse HAML templates, and also registers the .haml extension with rails. What this means is that to start using HAML you only need to rename your template from 'index.rhtml' to 'index.haml'. Do that now (in a new test app, an existing app, whatever), as we are about to get our first taste of ham ... (l).
+
+h3.#fundamentals). Fundamentals
+
+--- haml
+%h1 HAML Example
+%div
+  %blockquote 
+    Farewell, Emily. It was fun, but you were a robot. 
+    You had no heart. 
+---   
+
+In the same vein as YAML and Python, *indentation matters* in HAML. It allows the parser to cleverly close our tags without being explicitly told to do so. Equals less typing for us lazy sloths. 2 spaces per indent is the rule. The first non-whitespace character of each line is what is used to decide how to parse the line. As may be evident, the % character indicates an XHTML tag. There are only 5 others, which we will cover in due course. Lines that do not begin with a special character are treated as normal text.
+
+h3.#xhtml_techniques). XHTML techniques
+
+Being a prime requirement of a templating language, outputting XHTML is as simple as you would expect. I'm not even going to write a full paragraph, this annotated listing should suffice:
+--- haml
+/ The slash character specifies an XHTML comment,
+/  but if after a tag name it self closes that tag
+%br/
+
+/ Attributes are specified by a hash provided directly after 
+/ the tag name. There is NO SPACE between the tag and the hash
+%a{"name" => "top"}
+
+/ "class" is such a common attribute that it has a shortcut syntax
+%span.important Tada!
+
+/ Combine the two to impress you friends
+%span.extra{"style"=>"color: red"} Tada! Tada!
+
+/ A div with id is also common, so it too has a shortcut syntax
+#content
+  This is a div with id "content"
+
+/ As does a div with class
+.fancy
+  This is a div with class "fancy"
+---
+
+The one curly aspect of generating XHTML you only need to deal with once - the doctype. You can use three exclamation marks on the first line of a template (hopefully a layout template) to output a doctype declaration. The problem is that it makes your document XHTML 1.0 transitional. Always. It also forgets to give you an XML prolog, so for now I specify these without using HAML, which brings up another point - you can mix normal XHTML tags and HAML code (although why you would want to outside of this fix eludes me).
+
+--- haml
+!!!
+%html{"xmlns"=>"http://www.w3.org/1999/xhtml", "xml:lang"=>"en"}
+  %head
+    %title Layout Example
+  %body= @content_for_layout
+---
+--- haml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+%html{"xmlns"=>"http://www.w3.org/1999/xhtml", "xml:lang"=>"en"}
+  %head
+    %title Layout Example
+  %body= @content_for_layout
+---
+Those on the edge may want to keep an eye on "this ticket":http://dev.hamptoncatlin.com/haml/ticket/13 , which proposes a fix.
+
+h3.#ruby_techniques). Ruby techniques
+
+--- haml
+= link_to :controller => 'home'
+= 1 + 2 # => 3
+%span= 1 + 2
+---
+
+Text after an equals sign is evaluated as ruby code. It is roughly equivalent to
+@<%= 1 + 2 # => 3 %>@, but with one fairly major caveat: Each is evaluated independent of the rest of the template. Meaning the follow *will not* work, because the first line is evaluated as an entire ruby snippet, and does not find the @end@ it requires to be valid.
+
+--- haml
+= for i in (1..10)
+= i
+= end
+---
+
+There is currently no way around this. There is a "ticket":http://dev.hamptoncatlin.com/haml/ticket/16 on the HAML trac with a proposed fix, but at the time of authoring the patch has not been attached. This is not as shocking as it may first appear. Ask yourself why you are using a loop or an if block in your code. If it cannot be reduced to a one liner, maybe it should be moved it out into a partial.
+
+--- haml
+= (1..10).inject('') { |buffer, i| buffer + i.to_s }
+= render :partial => 'secret', :collection => @secrets if cia?
+---
+
+An alternative way to evaluate ruby code is to use a tilde instead of equals. This has the effect of searching in the evaluated string and replacing all newlines found in @pre@, @code@ or @textarea@ tags with an XHTML entity (@&#000A;@). This allows you to create neat markup even when displaying large chunks of preformatted text.
+
+--- haml
+ ~ "<textarea>\n\n\n\n\n\nYo</textarea>"
+---
+
+Keep in mind that your ruby expression must not span more than one line - only the first line will be parsed and the rest will be treated as plain text. There is a "proposed fix":http://dev.hamptoncatlin.com/haml/ticket/6 (that makes 3! I want a pony) on the HAML Trac, if you are in to that sort of thing.
+
+h3.#conclusion). Conclusion
+
+HAML may not be quite as powerful as RHTML yet, but it drastically reduces the size of your views while greatly increasing readability and the quality of the markup. The best part is you can mix and match - you can start writing HAML templates in your existing project right now and keep all your old RHTML code hanging around.
+
+{% endraw %}

@@ -1,0 +1,33 @@
+---
+layout: post
+title:  "Automatically backup Zoho Calendar, Google Calendar"
+date:   2012-06-02 22:13:00 +00:00
+tags:   ["code", "ruby"]
+---
+{% raw %}
+Quick script I put together to automatically back up all of Jodie's calendars for her.
+
+Works for any online calendar that exposes an iCal link. You'll need to replace "http://icalurl" in the script with the private iCal URL of your calendar. In Zoho, this is under Settings > My Calendars > Share > Enable private Address for this calendar.
+
+--- Ruby
+require 'date'
+require 'fileutils'
+
+calendars = {
+  'My Calendar'    => 'http://icalurl',
+  'Other Calendar' => 'http://icalurl'
+}
+
+folder = Date.today.to_s
+
+FileUtils.mkdir_p(folder)
+
+calendars.each do |name, url|
+  puts %|Backing up "#{name}"...|
+  `curl -s "#{url}" > "#{folder}/#{name}.ics"`
+end
+puts "Done!"
+---
+
+Stores a folder per day. For bonus points, put it straight into Dropbox.
+{% endraw %}

@@ -1,0 +1,13 @@
+---
+layout: post
+title:  "Let's go bowling with OO"
+date:   2007-05-13 02:14:00 +00:00
+tags:   ["Code", "Ruby", "bowling"]
+---
+{% raw %}
+To compare with my <a href="http://rhnh.net/2007/5/12/let-s-go-bowling">previous post</a>: <a href="http://github.com/xaviershay/sandbox/tree/master/bowling_scorer/bowling_scorer_oo.rb">bowling_scorer_oo.rb</a>
+
+I don't like this version as much.
+
+How would YOU do it?
+{% endraw %}

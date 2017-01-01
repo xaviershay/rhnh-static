@@ -1,0 +1,29 @@
+---
+layout: post
+title:  "Enumerable#inject is my favourite method"
+date:   2007-10-23 07:46:00 +00:00
+tags:   ["Code", "Ruby", "array", "core extensions", "hash"]
+---
+{% raw %}
+<em>Combines the elements of enum by applying the block to an accumulator value (memo) and each element in turn. At each step, memo is set to the value returned by the block. - "RubyDoc":http://www.ruby-doc.org/core/classes/Enumerable.html#M003171</em>
+
+It just doesn't sound very helpful. I must confess, it isn't something I use everyday. But I love that when you do want to use it, it is oh so sweet. The canonical example is summing the elements in an array:
+
+--- ruby
+[1,2,3].inject(0) {|sum, n| sum + n} # => 6
+---
+
+Probably the most used pattern is converting an array to a hash:
+
+--- ruby
+[1,2,3].inject({}) {|a, v| a.update(v => v * 2)} # => {1 => 2, 2 => 4, 3 => 6}
+---
+
+Someone in IRC today wanted a nested send, something like @"string".send("trim.downcase")
+
+--- ruby
+"trim.downcase".split('.').inject("HELLO  ") {|obj, method| obj.send(method)} # => "hello"
+---
+
+What do you inject?
+{% endraw %}

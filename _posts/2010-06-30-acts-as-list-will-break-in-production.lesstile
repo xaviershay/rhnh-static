@@ -1,0 +1,36 @@
+---
+layout: post
+title:  "acts_as_list will break in production"
+date:   2010-06-30 02:12:00 +00:00
+tags:   ["Code", "Ruby", "activerecord", "acts_as_list", "dbiyf", "rails"]
+---
+{% raw %}
+@acts_as_list@ doesn't work in a typical production deployment. It pretends to for a while, but every application will eventually have issues with it that result in real problems for your users. Here is a short 4 minute long screencast showing you how it breaks, and also a quick fix which will prevent your data from becoming corrupted.
+
+<object width="600" height="375"><param name="allowfullscreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=12943499&amp;server=vimeo.com&amp;show_title=0&amp;show_byline=0&amp;show_portrait=0&amp;color=00ADEF&amp;fullscreen=1" /><embed src="http://vimeo.com/moogaloop.swf?clip_id=12943499&amp;server=vimeo.com&amp;show_title=0&amp;show_byline=0&amp;show_portrait=0&amp;color=00ADEF&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="600" height="375"></embed></object>
+
+(<a href="http://vimeo.com/12943499">View it over at Vimeo</a> if embedding doesn't work for you)
+
+Here is the "quick fix" I apply in the screencast. It's ugly, but it will work.
+
+--- Ruby
+def move_down
+  Tractor.transaction do
+    Tractor.connection.execute("SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE")
+    @tractor = Tractor.find(params[:id])
+    @tractor.move_to_bottom
+  end
+  redirect_to(tractors_path)
+end
+---
+
+Some things to note when fixing your application in a nicer way:
+# This is not MySQL specific, all databases will exhibit this behaviour.
+# The isolation level needs to be set as the first statement in the transaction (or globally, but you don't want serializable globally!)
+# For bonus points, add a unique index to the position column, though you'll have to re-implement most of @acts_as_list@ to make it work.
+# It's possible to do this under read committed, but it's pretty complicated and optimised for concurrent access rather than individual performance.
+# Obtaining a row lock before moving will fix this specific issue, but won't address all the edge cases.
+
+_This is a small taste of the type of thing I cover in my DB is your friend training course. July through September I am running full day sessions in the US and UK. Chances are I'm coming to your city. Check it out at "http://www.dbisyourfriend.com":http://www.dbisyourfriend.com/ !http://www.dbisyourfriend.com/favicon.ico! _
+
+{% endraw %}

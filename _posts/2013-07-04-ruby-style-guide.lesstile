@@ -1,0 +1,11 @@
+---
+layout: post
+title:  "Ruby Style Guide"
+date:   2013-07-04 18:08:02 +00:00
+tags:   ["code", "ruby"]
+---
+{% raw %}
+My coding style has evolved over time, and has always been something I kept in my head. This morning I tried to document it explicitly, so I can point offending pull requests at it. My personal "Ruby Style Guide":http://xaviershay.com/ruby-style-guide
+
+What is it missing?
+{% endraw %}

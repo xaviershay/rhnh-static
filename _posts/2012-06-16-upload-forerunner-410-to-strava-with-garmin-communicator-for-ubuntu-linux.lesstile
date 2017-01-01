@@ -1,0 +1,37 @@
+---
+layout: post
+title:  "Upload Forerunner 410 to Strava with Garmin Communicator for Ubuntu Linux"
+date:   2012-06-16 23:43:00 +00:00
+tags:   ["code", "garmin", "linux", "ubuntu"]
+---
+{% raw %}
+I didn't figure this out, these instructions were kindly emailed to be by Andreas, the author of Linux Garmin Communicator.
+
+1. Install "Linux Garmin Communicator":http://www.andreas-diesner.de/garminplugin/doku.php
+2. Uncompress "Forerunner410.tar.gz":https://dl.dropbox.com/u/8686208/Forerunner410.tar.gz to @~/forerunner@ (this was sent to me by Andreas.)
+3. Configure your @~/.config/garminplugin/garminplugin.xml@ thusly, substituting in your own home folder:
+--- xml
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<GarminPlugin logfile="/tmp/garminplugin.log" level="ERROR">
+    <Devices>
+        <Device>
+            <Name>Forerunner 410</Name>
+            <StoragePath>/home/xavier/forerunner</StoragePath>
+            <StorageCommand></StorageCommand>
+            <FitnessDataPath></FitnessDataPath>
+            <GpxDataPath></GpxDataPath>
+        </Device>
+    </Devices>
+    <Settings>
+        <ForerunnerTools enabled="false" />
+    </Settings>
+</GarminPlugin>
+---
+
+4. Install "python-ant-downloader":https://github.com/braiden/python-ant-downloader
+5. Set @tcx_output_dir = ~/forerunner/Garmin/History@ in @~/.antd/antd.cfg@
+6. With your watch on, run @ant-downloader@. It will download raw data from the device and create a TCX file in the above mentioned output directory.
+7. At "Strava":http://www.strava.com, Upload Activity.
+
+`ant-downloader` also has a daemon mode that automatically downloads files from your watch, but I'm not using it (I don't like things running when not necessary).
+{% endraw %}

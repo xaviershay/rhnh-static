@@ -1,0 +1,57 @@
+---
+layout: post
+title:  "Testing Stripe OAuth Connect with Capybara and Selenium"
+date:   2012-10-13 19:11:00 +00:00
+tags:   ["code", "ruby", "stripe"]
+---
+{% raw %}
+"Stripe":https://stripe.com only allows you to set a fixed redirect URL in your test OAuth settings. This is problematic because you need to redirect to a different host and port depending on whether you are in development or test mode. In other words, there is a global callback that needs to be routed correctly to local callbacks.
+
+My workaround is to use a simple rack application that redirects any incoming requests to the selected host and port. The Capybara host and port is written out to a file on spec start, and if that isn't present it assumes development. It is clearly a hack, but works fairly well until Stripe provides a better way to do it.
+
+---
+# stripe.ru
+run lambda {|env|
+  req = Rack::Request.new(env)
+
+  server_file = "/tmp/capybara_server"
+  host_and_port = if File.exists?(server_file)
+    File.read(server_file)
+  else
+    "localhost:3000"
+  end
+
+  response = Rack::Response.new(env)
+  url = "http://#{host_and_port}"
+  url << "#{req.path}"
+  url << "?#{req.query_string}" unless req.query_string.empty?
+
+  response.redirect(url)
+  response.finish
+}
+---
+
+--- Ruby
+# spec/acceptance_helper.rb
+SERVER_FILE = "/tmp/capybara_server"
+
+Capybara.server {|app, port|
+  File.open(SERVER_FILE, "w") {|f| f.write("%s:%i" % ["127.0.0.1", port]) }
+  Capybara.run_default_server(app, port)
+}
+
+RSpec.configure do |config|
+  config.after :suite do
+    FileUtils.rm(SERVER_FILE) if File.exists?(SERVER_FILE)
+  end
+end
+---
+
+This requires the rack application to be running already (much like the database is expected to be running), which can be done thusly:
+
+---
+bundle exec rackup --port 3001 stripe.ru
+---
+
+Set your Stripe callback to @http://localhost:3001/your/callback@.
+{% endraw %}

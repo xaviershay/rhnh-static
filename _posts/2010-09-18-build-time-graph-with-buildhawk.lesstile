@@ -1,0 +1,20 @@
+---
+layout: post
+title:  "Build time graph with buildhawk"
+date:   2010-09-18 13:59:53 +00:00
+tags:   ["Code", "Ruby", "buildhawk", "rails"]
+---
+{% raw %}
+!http://farm5.static.flickr.com/4147/5000723561_6c5a18eef0_z.jpg!
+
+How long your build took to run, in a graph, on a webpage. That's pretty fantastic. You need to be "storing your build time in git notes":http://rhnh.net/2010/09/06/storing-build-time-in-git-notes-with-zsh, as I wrote about a few weeks back. Then simply:
+
+--- Ruby
+gem install buildhawk
+buildhawk > report.html
+open report.html
+---
+
+This is a simple gem I hacked together today that parses @git log@ and stuffs the output into an ERB template that uses "TufteGraph":http://xaviershay.github.com/tufte-graph and some subtle jQuery animation to make it look nice. For extra prettiness, I use the "Monofur":http://www.dafont.com/monofur.font font, but maybe you are content with your default @monospace@. If you want to poke around the internals (there's not much!) have a look on "Github":http://github.com/xaviershay/buildhawk.
+
+{% endraw %}

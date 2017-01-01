@@ -1,0 +1,76 @@
+---
+layout: post
+title:  "PostgreSQL 9 and ruby full text search tricks"
+date:   2011-02-25 04:30:52 +00:00
+tags:   ["Ruby", "datamapper", "dbiyf", "postgresql", "rails"]
+---
+{% raw %}
+I have just released an introduction to PostgreSQL screencast, published through PeepCode. It is over an hour long and covers a large number of juicy topics:
+
+* Setup full text search
+* Optimize search with triggers and indexes
+* Use Postgres with Ruby on Rails 3
+* Optimize indexes by including only the rows that you need
+* Use database standards for more reliable queries
+* Write powerful reports in only a few lines of code
+* Convert an existing MySQL application to use Postgres
+
+It's a steal at only $12. You can "buy it over at PeepCode":http://peepcode.com/products/postgresql.
+
+In it, I introduce full text search in postgres, and use a trigger to keep a search vector up to date. I'm not going to cover that here, but the point I get to is:
+
+--- SQL
+CREATE TRIGGER posts_search_vector_refresh 
+  BEFORE INSERT OR UPDATE ON posts 
+FOR EACH ROW EXECUTE PROCEDURE
+  tsvector_update_trigger(search_vector, 'pg_catalog.english',  body, title);
+---
+
+That is good for simple models, but what if you want to index child models as well? For instance, we want to include comment authors in the search index. I rolled up my sleeves an came up with this:
+
+--- SQL
+CREATE OR REPLACE FUNCTION search_trigger() RETURNS trigger AS $$
+DECLARE
+  search TEXT;
+  child_search TEXT;
+begin
+  SELECT string_agg(author_name, ' ') INTO child_search
+  FROM comments
+  WHERE post_id = new.id;
+
+  search := '';
+  search := search || ' ' || coalesce(new.title);
+  search := search || ' ' || coalesce(new.body);
+  search := search || ' ' child_search;
+
+  new.search_index := to_tsvector(search); 
+  return new;
+end
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER posts_search_vector_refresh 
+  BEFORE INSERT OR UPDATE ON posts
+FOR EACH ROW EXECUTE PROCEDURE
+  search_trigger();
+---
+
+Getting a bit ugly eh. It might be nice to move that logic back into ruby land, but we have the problem that we need to call a database function to convert our search document into the correct data-type. In this case, a quick work around is to store a @search_document@ in a text field on the model, then use a trigger to only index that field into our @search_vector@ field. The @search_document@ field can then easily be set from your ORM.
+
+Of course, any self-respecting rubyist should hide all this complexity behind a neat interface. I have come up with one using DataMapper that automatically adds the required triggers and indexes via auto-migrations. You use it thusly:
+
+--- Ruby
+class Post
+  include DataMapper::Resource
+  include Searchable
+
+  property :id, Serial
+  property :title, String
+  property :body, Text
+
+  searchable :title, :body # Provides Post.search('keyword')
+end
+---
+
+You can find the "Searchable module code over on github":https://github.com/xaviershay/sandbox/blob/master/misc/searchable.rb. In it you can also find a fugly proof-of-concept for a DSL that generates the above SQL for indexing child models using DataMapper's rich property model. It worked, but I'm not using it in any production code so I can hardly recommend it. Maybe you want to have a play though.
+
+{% endraw %}

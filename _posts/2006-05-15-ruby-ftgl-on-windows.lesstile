@@ -1,0 +1,13 @@
+---
+layout: post
+title:  "Ruby-FTGL on Windows"
+date:   2006-05-15 15:42:00 +00:00
+tags:   ["Ruby", "ftgl"]
+---
+{% raw %}
+The ruby FTGL bindings were segfaulting on windows. Spent the morning trying getting it to compile on my system (I'd been using prebuilt binaries) to see if I could get the C++ demos to run. Got them working, and they quit gracefull because the default font path is invalid. This translates into a segfault in ruby. Doh. Simple change to the test suite and it all works. Lucky for me the author trolls rubyforum and was able to help me through it, and will hopefully incorporate a patch for my kids to enjoy. An exception would be much preferable.
+
+Was going to get the rest of my project working on windows, but figured it was higher priority to move my svn repo on to my gentoo server, so I can properly share files. Subversion has been broken in portage, but thankfully it's all fixed now. On Lucien's mention I also emerged Trac to have a play with.
+
+Had a quick look at <a href="http://www.erikveen.dds.nl/distributingrubyapplications/index.html">Distributing Ruby Applications</a>. Very nice. Although for some reason my framerate halves when running a tar2ruby script. Will have to investigate.
+{% endraw %}

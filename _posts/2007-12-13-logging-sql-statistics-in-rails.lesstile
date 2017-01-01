@@ -1,0 +1,71 @@
+---
+layout: post
+title:  "Logging SQL statistics in rails"
+date:   2007-12-13 09:40:00 +00:00
+tags:   ["Code", "Ruby", "activerecord", "plugin", "rails", "sql", "statistics"]
+---
+{% raw %}
+When your sysadmin comes to you -whinging- with a valid concern that your app is reading 60 gazillion records from the DB, you kinda wish you had a bit more information than % time spent in the DB. So I wrote a plugin that counts both the number of selects/updates/inserts/deletes and also the number of records affected. [This plugin is no longer available, the code is below for posterity.]
+
+That does the counting, you need to decide how to log it. I am personally quite partial to adding it to the request log line, thus getting stats per request:
+
+--- ruby
+# vendor/rails/actionpack/lib/action_controller/benchmarking.rb:75
+log_message << " | Select Records: #{ActiveRecord::Base.connection.select_record_count}"
+log_message << " | Selects: #{ActiveRecord::Base.connection.select_count}"
+
+ActiveRecord::Base.connection.reset_counters!
+---
+
+Don't forget the last line, otherwise you get cumulative numbers. That may be handy, but I doubt it. We're only logging selects because that's all we care about at the moment. I am sure this will change in time.
+
+*UPDATE:* Moved to github, bzr repo is no longer available
+
+*UPDATE 2:* Pasted code inline below, it's way old and probably doesn't work anymore.
+
+--- ruby
+module ActiveRecord::ConnectionAdapters
+  class MysqlAdapter
+    class << self
+      def counters
+        @counters ||= []
+      end
+
+      def attr_accessor_with_default(name, default)
+        attr_accessor name
+        define_method(name) do
+          instance_variable_get(:"@#{name}") || default 
+        end
+      end
+
+      def define_counter(name, record_func = lambda {|ret| ret })
+        attr_accessor_with_default("#{name}_count", 0)
+        attr_accessor_with_default("#{name}_record_count", 0)
+
+        define_method("#{name}_with_counting") do |*args|
+          ret = send("#{name}_without_counting", *args)
+          send("#{name}_count=", send("#{name}_count") + 1)
+          send("#{name}_record_count=", send("#{name}_record_count") + record_func[ret])
+          ret
+        end
+        alias_method_chain name, :counting
+
+        self.counters << name
+      end
+    end
+
+    define_counter :select, lambda {|ret| ret.length }
+    define_counter :update
+    define_counter :insert
+    define_counter :delete
+
+    def reset_counters!
+      self.class.counters.each do |counter|
+        self.send("#{counter}_count=", 0)
+        self.send("#{counter}_record_count=", 0)
+      end
+    end
+  end
+end
+---
+{% endraw %}

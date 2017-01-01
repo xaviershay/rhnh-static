@@ -1,0 +1,18 @@
+---
+layout: post
+title:  "LDAP Authentication"
+date:   2006-04-07 01:26:00 +00:00
+tags:   ["Code", "authentication", "ldap", "linux", "pam_ldap", "ubuntu"]
+---
+{% raw %}
+Spent the better part of the evening setting up LDAP authentication for my boxen. The portage issue I mentioned prior was because I hadn't updated portage for like 8 months ... my bad. Slapd installed without a hitch on my gentoo server, and I was even able to set it up with an SSL certificate. The problems came getting pam_ldap setup on my ubuntu client. I'm not really sure what I did, but part of my problem was installing all the packages a few days ago, and then changing my mind on the configuration today but not reinstalling the packages. As such, I learnt a handy new command, to reconfigure without reinstall:
+
+--- bash
+dpkg-reconfigure libpam-ldap
+dpkg-reconfigure libnss-ldap
+---
+
+I'd also warn against using the libnss-ldap sample nsswitch.conf without a contigency plan - I wasn't able to execute commands (ls, sudo) after using it, and my machine wouldn't reboot properly, even in recovery mode. Moral of the story - Always have a LiveCD handy!
+
+I'm at the point now where everything seems to work ... except passwd. When changing my password I get "passwd: Authentication information cannot be recovered". Posted something on the forums, hopefully someone helps me out.
+{% endraw %}

@@ -1,0 +1,41 @@
+---
+layout: post
+title:  "Poniard: a Dependency Injector for Rails"
+date:   2012-11-25 20:27:38 +00:00
+tags:   ["code", "dependency injection", "rails", "ruby"]
+---
+{% raw %}
+I just open sourced "poniard":https://github.com/xaviershay/poniard, a dependency injector for Rails. It's a newer version of "code I posted a few weeks back":http://rhnh.net/2012/10/09/dependency-injection-for-rails-controllers that allows you to write controllers using plain ruby objects:
+
+--- Ruby
+module Controller
+  class Registration
+    def update(response, now_flash, update_form)
+      form = update_form
+
+      if form.save
+        response.respond_with SuccessfulUpdateResponse, form
+      else
+        now_flash[:message] = "Could not save registration."
+        response.render action: 'edit', ivars: {registration: form}
+      end
+    end
+
+    SuccessfulUpdateResponse = Struct.new(:form) do
+      def html(response, flash, current_event)
+        flash[:message] = "Updated details for %s" % form.name
+        response.redirect_to :registrations, current_event
+      end
+
+      def js(response)
+        response.render json: form
+      end
+    end
+  end
+end
+---
+
+This makes it possible to test them in isolation, leading to a better appreciation of your dependencies and nicer code.
+
+"Check it out!":https://github.com/xaviershay/poniard
+{% endraw %}

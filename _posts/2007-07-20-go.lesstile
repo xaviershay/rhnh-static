@@ -1,0 +1,11 @@
+---
+layout: post
+title:  "Go"
+date:   2007-07-20 07:22:00 +00:00
+tags:   ["Life", "board games", "go"]
+---
+{% raw %}
+Rather than actually doing any of the work I was supposed to do tonight, I started teaching myself <a href="http://playgo.to/interactive/">how to play "Go"</a>. This game is all very zen and is one of the few that computers haven't been able to master (top level programs can't even beat amateurs...). It appeals to me more than chess (which I actually quite like) - maybe because it's new and exciting.
+
+It is also a really good way to make you feel really stupid. There is a go proverb (one of many): "Lose your first 50 games as fast as possible". So I let <a href="http://www.gnu.org/software/gnugo/">gnugo </a> hammer me a few times and already it's almost midnight. I suspect I have a way to go before I start hitting the internet for a challenge, though I will most likely do so soon in search of guidance.
+{% endraw %}

@@ -1,0 +1,25 @@
+---
+layout: post
+title:  "Facets patch"
+date:   2007-11-05 23:21:00 +00:00
+tags:   ["Code", "Ruby", "core extensions", "facets", "hash"]
+---
+{% raw %}
+--- bash
+$ svn log svn://rubyforge.org/var/svn/facets/trunk -r 383 -v
+------------------------------------------------------------------------
+r383 | transami | 2007-11-03 23:31:54 +1100 (Sat, 03 Nov 2007) | 2 lines
+Changed paths:
+   M /trunk/lib/core/facets/hash/op.rb
+   M /trunk/test/unit/hash/test_op.rb
+
+Fixed bug in Hash#- Thanks to Xavier Shay.
+---
+--- ruby
+require 'facets/hash/op'
+{:a => 1, :b => 2, :c => 3} - [:a, :b]            # => {:c => 3}
+{:a => 1, :b => 2, :c => 3} - {:a => 1, :b => 99} # => {:b => 2, :c => 3}
+---
+
+It may be small, but it's authentic. In the 2.0.5 gem.
+{% endraw %}

@@ -1,0 +1,29 @@
+---
+layout: post
+title:  "Test setup broken in Rails 2.0.2"
+date:   2007-12-20 22:18:00 +00:00
+tags:   ["Code", "Ruby", "activemessaging", "rails", "testing"]
+---
+{% raw %}
+Some changes went into rails 2.0.2 that mean the @setup@ method in test subclasses won't get called. Here's how it went down:
+
+ * "8392":http://dev.rubyonrails.org/changeset/8392 broke it
+ * "8430":http://dev.rubyonrails.org/changeset/8430 tagged 2.0.2
+ * "8442":http://dev.rubyonrails.org/changeset/8442 reverted 8392
+ * "8445":http://dev.rubyonrails.org/changeset/8445 added a test so it doesn't break again
+
+You can see some code illustrating the problem in 8445. This affects two plugins that we're using - "helper_test":http://nubyonrails.com/articles/test-your-helpers and "activemessaging":http://code.google.com/p/activemessaging/wiki/ActiveMessaging.
+
+For the helper test, the work around is to rename your helper test setup methods to @setup_with_fixtures@.
+--- ruby
+def setup_with_fixtures
+  super
+end
+---
+
+For activemessaging, add the following line to the setup of your functionals that are failing ("from the mailing list":http://groups.google.com/group/activemessaging-discuss/browse_frm/thread/d0c7f025b2855463):
+
+--- ruby
+ActiveMessaging.reload_activemessaging
+---
+{% endraw %}

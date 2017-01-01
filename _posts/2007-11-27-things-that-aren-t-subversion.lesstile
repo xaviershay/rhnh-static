@@ -1,0 +1,11 @@
+---
+layout: post
+title:  "Things that aren't subversion"
+date:   2007-11-27 06:29:00 +00:00
+tags:   ["Code", "Ruby", "bazaar", "vcs"]
+---
+{% raw %}
+"Here are the slides":http://rhnh.net/assets/2007/11/27/not-subversion.pdf for the talk I gave at the Melbourne Ruby Meetup last Thursday night. It was a little bit rambling, but my basic point was: You should try using bazaar instead of subversion because it's more awesome. Number one question was "so should I use bazaar or git?", to which I unfortunately don't have a good answer. I personally haven't used either enough to give an unequivocal recommendation, and there are heavyweights in both corners (ubuntu, linux kernel). My initial impression is bazaar is easier, git more powerful. There are also other options such as darcs and mecurial.
+
+For the curious, I'd say start with bazaar because it has the smallest learning curve from svn - see the slides. It seem that most non-svn ruby projects are on git, so you'll get to know that eventually :)
+{% endraw %}

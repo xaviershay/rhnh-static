@@ -1,0 +1,36 @@
+---
+layout: post
+title:  "Finding related content with Sphinx"
+date:   2008-05-31 16:50:00 +00:00
+tags:   ["Code", "Ruby", "classifier", "sphinx"]
+---
+{% raw %}
+Previous efforts to "find related posts with the classifier gem":http://rhnh.net/2008/04/16/classifier-gem-rubbish-for-recommending-posts yielded no fruit, so I tried another approach using sphinx. Turned out to be a winner. 
+
+The basic theory is to index all posts by tag, then to find related posts just use the current post's tags as a search string. Remember to exclude the current post from the search results. For this blog, I use tags for the main categories, which were corrupting the results - most everything is tagged 'Ruby' so it doesn't add any value in determining likeness. So rather than indexing all tags I excluded some of the main ones.
+
+--- Ruby
+class Post < ActiveRecord::Base
+  has_many :searchable_tags, 
+           :through    => :taggings,
+           :source     => :tag,
+           :conditions => "tags.name NOT IN ('Ruby', 'Code', 'Life')"
+  
+  def related_posts(number = 3)
+    Post.search(:limit => number + 1, :conditions => {
+      :tag_list => tag_list.join("|")
+    }).reject {|x| x == self }.first(number)
+  end
+
+  define_index do
+    indexes searchable_tags(:name), :as => :tag_list
+    # If you want to use this for normal search as well you'll have to 
+    # add in title/body here as well
+  end
+end
+---
+
+For a more complete example, see the relevant RHNH commits: "cdc0bf":http://gitorious.org/projects/enki/repos/rhnh/commits/cdc0bfec73499a83c9ea299a6e1d09c7eb2a56d3 and "d4d844":http://gitorious.org/projects/enki/repos/rhnh/commits/d4d844dc1cad1c55888342b8dc8dc9683efffbe3
+
+Showing links to related content is a good way to stop the bottom of your page from being a 'dead end'. In the event that no related posts are found, I'm linking to the archives instead.
+{% endraw %}

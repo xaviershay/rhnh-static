@@ -1,0 +1,11 @@
+---
+layout: post
+title:  "Absence, with suitable recompense"
+date:   2008-01-19 08:17:00 +00:00
+tags:   ["Code", "Life", "enki"]
+---
+{% raw %}
+I'm going on holidays until the end of January. The off line kind of holiday where I don't see a computer. So sad.
+
+So here is a tasty treat for you to devour until I return. A sneak preview of a Fashionable New Blogging App (tm) named "Enki":http://www.enkiblog.com. It is an alternative to Mephisto and SimpleLog that is built on the principles espoused in my "prior writings":http://rhnh.net/2008/1/2/i-don-t-want-preferences. The website is built using Enki itself, and the port of this site from mephisto is just about finished, so you know you're getting code that's got a real life application. There's still a few rough edges, but it's ready enough to start building something with if you don't mind getting your hands a little dirty. I've set up a mailing list for it which I'll be catching up on once I get back.
+{% endraw %}

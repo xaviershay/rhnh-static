@@ -1,0 +1,39 @@
+---
+layout: post
+title:  "Rails 3, Ruby 1.9.2, Windows 2008, and SQL Server 2008 Tutorial"
+date:   2010-10-10 00:00:00 +00:00
+tags:   ["Code", "Ruby", "odbc", "rails", "sqlserver"]
+---
+{% raw %}
+This took me a while to figure out, especially since I'm not so great with either windows or SQL server, but in the end the process isn't so difficult.
+
+<iframe src="http://player.vimeo.com/video/15701033?title=0&amp;byline=0&amp;portrait=0&amp;color=FFFACD" width="600" height="510" frameborder="0"></iframe><p><a href="http://vimeo.com/15701033">Rails 3, Ruby 1.9.2, Windows 2008, and SQL Server 2008 Screencast</a></p>
+
+The steps covered in this screencast are:
+# Create user
+# Create database
+# Give user permissions
+# Create DSN
+# Install "ruby":http://rubyinstaller.org/
+# Install "devkit":http://github.com/oneclick/rubyinstaller/wiki/Development-Kit (Needed to complie native extensions for ODBC)
+# Create a new rails app
+# Add @activerecord-sqlserver-adapter@ and @ruby-odbc@ to Gemfile
+# Customize @config/database.yml@
+--- YAML
+# config/database.yml
+development:
+  adapter: sqlserver
+  dsn: testdsn_user
+  mode: odbc
+  database: test
+  username: xavier
+  password:
+---
+
+
+Some errors you may encounter:
+
+*The specified module could not be found - odbc.so* You have likely copied odbc.so from i386-msvcrt-ruby-odbc.zip. This is for 1.8.7, and does not work for 1.9. Remove the .so file, and install ruby-odbc as above.
+
+*The specified DSN contains an architecture mismatch between the Driver and the Application.* Perhaps you have created a system DSN. Try creating a user DSN instead. I also found some suggestions that you need to "use a different version of the ODBC configuration panel":http://social.answers.microsoft.com/Forums/en-US/addbuz/thread/a2c16c27-194f-452f-8447-5a70a4178a42, but this wasn't relevant for me.
+{% endraw %}

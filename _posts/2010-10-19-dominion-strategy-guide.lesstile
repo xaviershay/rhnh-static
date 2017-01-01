@@ -1,0 +1,22 @@
+---
+layout: post
+title:  "Dominion Strategy Guide"
+date:   2010-10-19 22:24:17 +00:00
+tags:   ["dominion"]
+---
+{% raw %}
+It has mostly escaped the attention of this blog, but I'm pretty into card, board and strategy games. I played Magic: The Gathering for a long while (and followed the pro scene for longer still), have sunk far too many hours into Civilization, and was the reigning Lord of Catan on my departure from Tanzania. Recently I have being playing a lot of Dominion, and combining my personal experience with a lot of research I have put together two items which may interest you. 
+
+The first is an open-source project that allows you to quickly goldfish (play against yourself) Dominion games in order to experiment with strategies. You can grab "Dominion Solitaire":http://github.com/xaviershay/dominion-solitaire over at github. The code is interesting for a few reasons: It is written in a highly functional style, much more so than traditional ruby applications, it demonstrates how to use ncurses to write effective text user interfaces, and the specs for the cards are, if I may say so myself, particularly good examples of how to use rspec.
+
+The second is a 28-page strategy guide, covering general concepts, specific cards, and in-depth analysis of real games. Every single person who has previewed this guide has gone on to repeatedly win games with the strategies and techniques presented, as well as attaining a deeper knowledge and appreciation of the game. 
+
+Here is a excerpt from the concepts section:
+!http://farm5.static.flickr.com/4086/5095590154_bee32c50c1_z.jpg!
+
+And the beginning of a game analysis:
+!http://farm5.static.flickr.com/4087/5095543552_04f25c6ae3_z.jpg!
+
+Also, there is math, statistics, and a table. It's only $17, including any future updates. Buy "The Ultimate Dominion Strategy Guide":http://dominionstrategyguide.bigcartel.com/product/the-ultimate-dominion-strategy-guide over on bigcartel.
+
+{% endraw %}

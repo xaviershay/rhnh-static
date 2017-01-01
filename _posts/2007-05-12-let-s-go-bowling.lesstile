@@ -1,0 +1,44 @@
+---
+layout: post
+title:  "Let's go bowling"
+date:   2007-05-12 02:15:00 +00:00
+tags:   ["Code", "Ruby", "bowling", "functional"]
+---
+{% raw %}
+--- ruby
+class BowlingScorer
+  def score(balls, frames = 10)
+    return frames == 0 ? 0 : score_function(balls[0], balls[1]).call(balls) + score(balls, frames - 1)
+  end
+  
+protected
+  Component       = Struct.new(:condition, :number_to_score, :number_to_shift)
+  ConditionIsTrue = lambda {|x| x[0].call }
+  
+  def score_function(s1, s2)
+    p = Component.new *[
+      [ lambda { s1 == 10},      3, 1], # Strike
+      [ lambda { s1 + s2 == 10}, 3, 2], # Spare
+      [ lambda { true },         2, 2]  # Default
+    ].find(&ConditionIsTrue)
+    return join_return_first(score_frame(p.number_to_score), multi_shift(p.number_to_shift))
+  end
+  
+  def score_frame(n)
+    lambda {|balls| n ? balls[0..n-1].inject(0) {|a, g| a + g } : 0 }
+  end
+  
+  def multi_shift(count)
+    lambda {|x| count.times { x.shift } }
+  end
+end
+
+scorer = BowlingScorer.new
+scorer.score([10] * 11) # => 300
+scorer.score([5] * 21)  # => 150
+---
+
+Full source and tests - <a href="http://github.com/xaviershay/sandbox/tree/master/bowling_scorer/bowling_scorer.rb">bowling_scorer.rb</a>
+
+EDIT: Refactored BowlingScorer#score_function
+{% endraw %}

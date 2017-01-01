@@ -1,0 +1,13 @@
+---
+layout: post
+title:  "Global Warming"
+date:   2007-02-02 06:58:00 +00:00
+tags:   ["Ethics", "global warming"]
+---
+{% raw %}
+Not IT related, but I recall a few byteclubbers are interested in this.
+
+I have recently read two quite different views on global warming. The first is Peter Singer's analysis in "One World: The Ethics of Globalization" (highly recommended, although I haven't actually finished it yet...), which argues in support of the Kyoto protocol (in particular, why developing countries should be exempt). The second was linked to today by bbspot: <a href="http://www.johnstonsarchive.net/environment/index.html">http://www.johnstonsarchive.net/environment/index.html</a>. I like extreme contrasts like this since they get you thinking. Ultimately, I find Peter Singer much more convincing. He presents a much more robust coverage of the issue (in particular considering the entire world rather than just the US), and tends to avoid loaded language (loaded language rings alarm bells for me - if it's a convincing argument you should be able to present it without hyperbole). In addition, he makes it much easier to follow his sources - both authors claim scientific studies to support their claims.
+
+In the end, it for me it comes down to acceptable risk. Yes, there may not be a robust scientific proof that global warming is caused by man, but there is sufficient correlation, and the risks too great (for non-developed countries, not so much the developed ones that Johnston focuses on) that we cannot afford to take a chance and do nothing.
+{% endraw %}

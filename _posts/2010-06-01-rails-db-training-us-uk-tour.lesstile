@@ -1,0 +1,11 @@
+---
+layout: post
+title:  "Rails DB Training - US/UK Tour"
+date:   2010-06-01 01:58:00 +00:00
+tags:   ["Code", "database", "dbiyf", "rails", "training"]
+---
+{% raw %}
+You may not know, but I run an advanced rails training session titled "Your Database Is Your Friend". Previously, I have only done this in Australia. Starting late July, I will be running this session throughout the United States and the United Kingdom. I'm still planning dates and venues, if you or someone you know is interested in hosting a session, please get in touch.
+
+For details, see the "DB is your friend rails training website":http://www.dbisyourfriend.com.
+{% endraw %}

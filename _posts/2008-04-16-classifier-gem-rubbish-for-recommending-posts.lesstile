@@ -1,0 +1,85 @@
+---
+layout: post
+title:  "Classifier gem rubbish for recommending posts"
+date:   2008-04-16 19:16:00 +00:00
+tags:   ["Code", "Ruby", "classifier", "gsl", "lsi"]
+---
+{% raw %}
+Chatting with "Tim":http://toolmantim.com today he suggested maybe using Classifier::LSI would be a cool way to offer 'related posts' suggestions for a blog.
+
+Not really knowing anything about it, I whipped up a prototype rake task. It creates the index then marshals it to disk because it takes ages to create and it's not much fun to play with when you have to wait minutes each time. It then presents 3 related suggestions for each post.
+
+--- ruby
+require 'classifier'
+
+namespace :lsi do
+  task :test => :environment do
+    if File.exists?("lsidata.dump")
+      lsi = File.open("lsidata.dump") {|f| Marshal.load(f) }
+    else  
+      lsi = Classifier::LSI.new
+      Post.find(:all, :order => 'published_at DESC').each do |post|
+        text = post.body
+        categories = post.tags.collect(&:name)
+        puts "Indexing " + post.title
+        lsi.add_item(text, *categories)
+      end
+      File.open("lsidata.dump", "w") {|f| Marshal.dump(lsi, f) }
+    end
+
+    Post.find(:all).each do |post|
+      puts post.title
+      puts lsi.find_related(post.body, 3).collect {|i| Post.find_by_body(i).title }.inspect
+    end
+  end
+end
+---
+
+Here's the data for my last 5 articles. I don't know what I was expecting, but this just doesn't seem very helpful. I don't have a very rich set of tags on my posts, so that probably has something to do with it. Was kind of hoping it would just look at text and all just work * waves hands *.
+
+---
+Seagate 500Gb FreeAgent Pro external drive - first impressions
+  - Building Firefox Extensions
+  - The Colemak Diaries
+  - Counting ActiveRecord associations: count, size or length?
+Coconut Oats
+  - The Colemak Diaries
+  - Summertime Tagliarini
+  - Mary Iron Chef - Chocolate Jaffa Boxes
+Mary Iron Chef - Chocolate Jaffa Boxes
+  - The Colemak Diaries
+  - Building Firefox Extensions
+  - Summertime Tagliarini
+Paypal IPN fails date standards
+  - Building Firefox Extensions
+  - Straight Sailing with Magellan
+  - The Colemak Diaries
+I'm number 8!
+  - Extending Rails
+  - Practical Hpricot: SVG
+  - Day of days
+---
+
+Next step is to try tagging my stuff better and seeing if that helps out.
+
+h3. Getting classifier working
+
+Quick side note - pure ruby classifier doesn't work out of the box with rails because it also redefines @Array#sum@. If you install the GSL lib and the ruby bindings (see classifier docs) you'll still need this one line patch to classifier to get it to work:
+
+--- diff
+Index: lib/classifier/lsi.rb
+===================================================================
+--- lib/classifier/lsi.rb       (revision 31)
++++ lib/classifier/lsi.rb       (working copy)
+@@ -25,6 +25,8 @@
+   # please consult Wikipedia[http://en.wikipedia.org/wiki/Latent_Semantic_Indexing].
+   class LSI
+     
++    include GSL if $GSL
++    
+     attr_reader :word_list
+     attr_accessor :auto_rebuild
+---
+
+*UPDATE:* I've forked "classifier on github":http://github.com/xaviershay/classifier/tree/master, so you can just grab that version if you like.
+{% endraw %}

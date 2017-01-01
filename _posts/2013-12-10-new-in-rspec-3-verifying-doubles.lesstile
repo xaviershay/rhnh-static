@@ -1,0 +1,95 @@
+---
+layout: post
+title:  "New in RSpec 3: Verifying Doubles"
+date:   2013-12-10 04:37:26 +00:00
+tags:   ["code", "rspec", "ruby"]
+---
+{% raw %}
+One of the features I am most excited about in RSpec 3 is the verifying double support[1]. Using traditional doubles has always made me uncomfortable, since it is really easy to accidentally mock or stub a method that does not exist. This leads to the awkward situation where a refactoring can leave your code broken but with green specs. For example, consider the following:
+
+--- Ruby
+# double_demo.rb
+class User < Struct.new(:notifier)
+  def suspend!
+    notifier.notify("suspended as")
+  end
+end
+
+describe User, '#suspend!' do
+  it 'notifies the console' do
+    notifier = double("ConsoleNotifier")
+
+    expect(notifier).to receive(:notify).with("suspended as")
+
+    user = User.new(notifier)
+    user.suspend!
+  end
+end
+---
+
+@ConsoleNotifier@ is defined as:
+
+--- Ruby
+# console_notifier.rb
+class ConsoleNotifier
+  def notify!(msg)
+    puts msg
+  end
+end
+---
+
+Note that the method @notify!@ does not match the @notify@ method we are expecting! This is broken code, but the spec still passes:
+
+---
+> rspec -r./console_notifier double_demo.rb
+.
+
+Finished in 0.0006 seconds
+1 example, 0 failures
+---
+
+Verifying doubles solve this issue.
+
+h3. Verifying doubles to the rescue
+
+A verifying double provides guarantees about methods that are being expected, including whether they exist, whether the number of arguments is valid for that method, and whether they have the correct visibility. If we change @double('ConsoleNotifier')@ to @instance_double('ConsoleNotifier')@ in the previous spec, it will now ensure that any method we expect is a valid instance method of @ConsoleNotifier@. So the spec will now fail:
+
+---
+> rspec -r./console_notifier.rb double_demo.rb
+F
+
+Failures:
+
+  1) User#suspend! notifies the console
+     Failure/Error: expect(notifier).to receive(:notify).with("suspended as")
+       ConsoleNotifier does not implement:
+         notify
+    # ... backtrace
+         
+Finished in 0.00046 seconds
+1 example, 1 failure         
+---
+
+Other types of verifying doubles include @class_double@ and @object_double@. You can read more about them in "the documentation":https://relishapp.com/rspec/rspec-mocks/v/3-0/docs/verifying-doubles.
+
+h3. Isolation
+
+Even though we have a failing spec, we now have to load our dependencies for the privilege. This is undesirable when those dependencies take a long time to load, such as the Rails framework. Verifying doubles provide a solution to this problem: if the dependent class does not exist, it simply operates as a normal double! This is often confusing to people, but understanding it is key to understanding the power of verifying doubles.
+
+Running the spec that failed above _without_ loading @console_notifier.rb@, it actually passes:
+
+---
+> rspec double_demo.rb
+.
+
+Finished in 0.0006 seconds
+1 example, 0 failures
+---
+
+This is the killer feature of verifying doubles. You get both confidence that your specs are correct, _and_ the speed of running them isolation. Typically I will develop a spec and class in isolation, then load up the entire environment for a full test run and in CI.
+
+There are a number of other neat tricks you can do with verifying doubles, such as enabling them for partial doubles and replacing constants, all covered in "the documentation":https://relishapp.com/rspec/rspec-mocks/v/3-0/docs/verifying-doubles.
+There really isn't a good reason to use normal doubles anymore. "Install the RSpec 3 beta":http://myronmars.to/n/dev-blog/2013/11/rspec-2-99-and-3-0-betas-have-been-released (via 2.99) to take them for a test drive!
+
+fn1. This functionality has been available for a while now in "rspec-fire":http://github.com/xaviershay/rspec-fire. RSpec 3 fully replaces that library, and even adds some more features.
+{% endraw %}

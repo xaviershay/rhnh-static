@@ -1,0 +1,39 @@
+---
+layout: post
+title:  "BacktraceCleaner and gems in rails"
+date:   2009-09-01 23:42:00 +00:00
+tags:   ["Code", "Ruby", "patch", "rails"]
+---
+{% raw %}
+*UPDATE:* Fixed the monkey-patch to match the latest version of the patch, and to explicitly require Rails::BacktraceCleaner before patching it to make sure it has been loaded
+
+If there's one thing my mother taught me, if you're going to clean something up you may as well do it properly. Be thorough, cover every surface.
+
+@Rails::BacktraceCleaner@ is a bit sloppy when it comes to gem directories. It misses all sorts of dust - hyphens, underscores, upper case letters, numbers. That's not going to earn any pocket money. Let's teach it a lesson.
+
+--- Ruby
+# config/initializers/this_is_what_a_gem_looks_like.rb
+require 'rails/backtrace_cleaner'
+
+module Rails
+  class BacktraceCleaner < ActiveSupport::BacktraceCleaner
+    private
+      GEM_REGEX = "([A-Za-z0-9_-]+)-([0-9.]+)"
+
+      def add_gem_filters
+        Gem.path.each do |path|
+          # http://gist.github.com/30430
+          add_filter { |line| line.sub(/(#{path})\/gems\/#{GEM_REGEX}\/(.*)/, '\2 (\3) \4')}
+        end
+
+        vendor_gems_path = Rails::GemDependency.unpacked_path.sub("#{RAILS_ROOT}/",'')
+        add_filter { |line| line.sub(/(#{vendor_gems_path})\/#{GEM_REGEX}\/(.*)/, '\2 (\3) [v] \4')}
+      end
+  end
+end
+---
+
+I've "submitted a patch to rails":https://rails.lighthouseapp.com/projects/8994-ruby-on-rails/tickets/3129-patch-better-cleaning-of-gem-directories, please review if you like.
+
+Kudos to "Matthew Todd":http://matthewtodd.org/ for pairing with me on this.
+{% endraw %}

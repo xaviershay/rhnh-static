@@ -1,0 +1,26 @@
+---
+layout: post
+title:  "Five Tips For Adding Foreign Keys To Existing Apps"
+date:   2010-07-06 21:55:05 +00:00
+tags:   ["Code", "Ruby", "activerecord", "dbiyf", "rails"]
+---
+{% raw %}
+You're convinced "foreign keys are a good idea":http://www.railsinside.com/misc/455-the-perils-of-opinionated-software-like-rails.html, but how should you retroactively add them to your production application? Here are some tips to help you out.
+
+*Identify and fix orphan records.* If orphan records exist, creating a foreign key will fail. Use the following SQL to identify children that reference a parent that doesn't exist:
+--- SQL
+SELECT * FROM children LEFT JOIN parents ON parent_id = parents.id WHERE parents.id IS NULL
+---
+
+*Begin with new or unimportant relationships.* With any new change, it's best to walk before you run. Targeting the most important relationships in your application head on can quickly turn into a black hole. Adding foreign keys to new or low value relationships first means you have a smaller code base that is affected, and allows you to test your test suite and plugins for compatibility over a smaller area. Get this running in production early, so any issues will crop up early on low value code where they'll be easier to fix. Be agile in your approach and iterate.
+
+*Move away from fixtures and mocking in your tests.* Rails fixture code is not designed to work well with foreign keys. (Fixtures are generally not a good idea regardless.) Also, the intense stubbing of models that was in vogue back when rspec first came on the scene doesn't play nice either. The current best practice is to use object factories (such as "Machinist":http://github.com/notahat/machinist) to create your test data, and this works well with foreign keys.
+
+*Use restrict rather than cascade for ON DELETE.* You still want to keep @on_destroy@ logic in your models, so even if conceptually a cascading delete makes sense, implement it using the @:dependent => :destroy@ option to @has_many@, with a restrict option at the database level to ensure all cascading deletes run through your callbacks.
+
+*Be pragmatic.* Ideally every relationship will have a foreign key, but for that model filled with weird hacks and supported by a massive old school test suite, it may be just too much effort to get everything working smoothly with database constraints. In this case, set up a test suite that runs over your production data regularly to quickly identify any data problems that arise (see the SQL above).
+
+Foreign keys give you confidence and piece of mind about your data and your application. Rails may be afraid of them, but that doesn't mean you have to be.
+
+_July through September I am running full day training sessions in the US and UK on how to make use of your database and write solid Rails code, increasing your quality without compromising your velocity. Chances are I'm coming to your city, so check it out at "http://www.dbisyourfriend.com":http://www.dbisyourfriend.com/ !http://www.dbisyourfriend.com/favicon.ico!_
+{% endraw %}

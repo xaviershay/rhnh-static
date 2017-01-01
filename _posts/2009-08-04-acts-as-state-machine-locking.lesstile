@@ -1,0 +1,68 @@
+---
+layout: post
+title:  "Acts_as_state_machine locking"
+date:   2009-08-04 17:40:14 +00:00
+tags:   ["Code", "Ruby", "activerecord", "acts_as_state_machine", "locking", "rails"]
+---
+{% raw %}
+consider the following!
+
+--- ruby
+class Door < ActiveRecord::Base
+  acts_as_state_machine :initial => :closed
+
+  state :closed
+  state :open, :enter => :say_hello
+
+  event :open do
+    transitions :from => :closed, :to => :open
+  end
+
+  def say_hello
+    puts "hello"
+  end
+end
+
+door = Door.create!
+
+fork do
+  transaction do
+    door.open!
+  end
+end
+
+door.open!
+
+# >> hello
+# >> hello
+---
+
+It's broken, you can only open a door once. This is a classic double-update problem. One way to solve is with pessimistic locking. I made some codes that automatically lock any object when you call an event on it.
+
+--- ruby
+class ActiveRecord::Base
+  # Forces all state transition events to obtain a DB lock
+  def self.obtain_lock_before_all_state_transitions
+    event_table.keys.each do |transition|
+      define_method("#{transition}_with_lock!") do
+        self.class.transaction do
+          lock!
+          send("#{transition}_without_lock!")
+        end
+      end
+      alias_method_chain "#{transition}!", :lock
+    end
+  end
+end
+
+class Door < ActiveRecord::Base
+  # ... as before
+
+  obtain_lock_before_all_state_transitions
+end
+---
+
+beware! Your state transitions can now throw @ActiveRecord::RecordNotFound@ errors (from @lock!@), since the object may have been deleted before you got a chance to play with it.
+
+If you're not using any locking in your web app, you're probably doing it wrong. Just sayin'.
+{% endraw %}

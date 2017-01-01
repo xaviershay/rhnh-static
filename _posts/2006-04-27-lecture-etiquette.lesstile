@@ -1,0 +1,15 @@
+---
+layout: post
+title:  "Lecture Etiquette"
+date:   2006-04-27 20:43:00 +00:00
+tags:   ["Life", "Rant", "lectures"]
+---
+{% raw %}
+I love enterprise .NET, but nothing annoys me more than people slagging off microsoft in the lectures. Today on security "There's no such thing as 100% security?" "Linux?". Aaaargh. And it only got worse. SHUTUP AND LEARN. The lecture didn't even have any MS specific material in it. People not liking the subject because they "don't like the way microsoft does things". 3-tier design? Security? Welcome to the enterprise world. THESE ARE BEST PRACTICES. We are just using microsoft products as a context for those practices. We can't possibly cover all the options - this is a 12 week course. You knew we were going to be using microsoft products before you started the course.
+
+Of course, this goes for all lectures.
+
+<strong>There is rarely a reason to speak in a lecture</strong>
+
+Save it for the tutes. No one else is interested in your opinion/question.
+{% endraw %}

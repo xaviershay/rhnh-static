@@ -1,0 +1,114 @@
+---
+layout: post
+title:  "How we use the Presenter pattern"
+date:   2007-10-19 07:01:00 +00:00
+tags:   ["Code", "Ruby", "ideology", "presenter", "rails"]
+---
+{% raw %}
+<em>FAKE EDIT: I wrote this article just after RailsConf but have just got around to publishing it. Jay has since "written a follow up":http://blog.jayfields.com/2007/10/rails-rise-fall-and-potential-rebirth.html which is worthwhile reading.</em>
+
+I may have been zoning out during Jay Fields talk at RailsConf - not sleeping for a few days will do that to you - but I think I got the gist of his presentation: "Presenter" isn't really a pattern because it's use is to specific and there isn't anything that be generalized from it. Now, I'm not going to argue with Jay, but I thought it may be helpful to give an example of how we're using this "pattern" and how it is helpful for us at "redbubble":http://www.redbubble.com.
+
+Uploading a piece of work to redbubble requires us to create two different models - a work and a storage, and associate them with each other. Initially, this logic was simply in the create method of one of our controllers. My problem with this was it obscured the intent of the controller. To my mind a controller is responsible for the flow of the application - the logic governing which page the user is directed to next - and kicking off any changes that need to happen at the model layer. In this case the controller was also dealing with the exact associations between the models, roll back conditions. Code that as we will see wasn't actually specific to the controller. In addition, passing validation errors through to the views was hard because errors could exist on one or more of the models. So we introduced a psuedo-model that handled the aggregation of the models for us, it looks something like this:
+
+--- ruby
+class UploadWorkPresenter < Presenter
+  include Validatable
+
+  attr_reader :storage
+  attr_reader :work
+
+  delegate_attributes :storage, :attributes => [:file]
+  delegate_attributes :work,    :attributes => [:description]
+
+  include_validations_for :storage
+  include_validations_for :work
+
+  def initialize(work_type, user, attributes = {})
+    @work_type = work_type
+    @work = work_type.new(:user => user, :publication_state => Work::PUBLISHED)
+    @storage = work_type.storage_type.new
+
+    initialize_from_hash(attributes)
+  end
+
+  def save
+    return false if !self.valid?
+
+    if @storage.save
+      @work.storage = @storage
+      if @work.save
+        return true
+      else
+        @storage.destroy
+      end
+    end
+
+    return false
+  end
+end
+---
+
+We have neatly encapsulated the logic of creating a work in a nice testable class that not only slims our controller, but can be reused. This came in handy when our UI guy thought it would be awesome if we could allow a user to signup and upload a work all on the same screen:
+
+--- ruby
+class SignupWithImagePresenter < UploadWorkPresenter
+  attr_reader :user
+
+  delegate_attributes :user, :attributes => [:user_name, :email_address]
+
+  include_validations_for :user
+
+  def initialize(attributes)
+    @user = User.new
+    super(ImageWork, @user, attributes)
+  end
+
+  def save
+    return false if !self.valid?
+
+    begin
+      User.transaction do
+        raise(Validatable::RecordInvalid.new(self)) unless @user.save && super
+        return true
+      end
+    rescue Validatable::RecordInvalid
+      return false
+    end
+  end
+end
+---
+
+So why does Jay think this is such a bad idea? I think it stems from a terminology issue. Presenters on Jay's project were cloudy with their responsibilties - handling aggregation, helper functions, and navigation. As you can see, the Presenters we use solely deal with aggregation, keeping their responsibility narrow.
+
+For reference, here is our base Presenter class:
+--- ruby
+class Presenter
+  extend Forwardable
+  
+  def initialize_from_hash(params)
+    params.each_pair do |attribute, value| 
+      self.send :"#{attribute}=", value
+    end unless params.nil?
+  end
+  
+  def self.protected_delegate_writer(delegate, attribute, options)
+    define_method "#{attribute}=" do |value|
+      self.send(delegate).send("#{attribute}=", value) if self.send(options[:if])
+    end
+  end
+  
+  def self.delegate_attributes(*options)
+    raise ArgumentError("Must specify both a delegate and an attribute list") if options.size != 2
+    delegate = options[0]
+    options = options[1]
+    prefix = options[:prefix].blank? ? "" : options[:prefix] + "_"
+    options[:attributes].each do |attribute|
+      def_delegator delegate, attribute, "#{prefix}#{attribute}"
+      def_delegator delegate, "#{attribute}=".to_sym, "#{prefix}#{attribute}=".to_sym
+      def_delegator delegate, "#{attribute}?".to_sym, "#{prefix}#{attribute}?".to_sym
+    end
+  end
+end
+---
+{% endraw %}

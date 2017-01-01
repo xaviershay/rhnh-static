@@ -1,0 +1,23 @@
+---
+layout: post
+title:  "What's new in Enki - Admin Interface"
+date:   2008-05-03 12:48:00 +00:00
+tags:   ["Code", "enki"]
+---
+{% raw %}
+I've just finished up a fairly major over haul of the Enki admin area, finally throwing away the ugly SimpleLog stylings. Features include:
+
+ # New visual style, heavily inspired by the "new Habari Monolith look":http://binarybonsai.com/archives/2008/02/19/i-named-her-monolith/
+ # New dashboard, with space to add your own data (feedburner subscribers? analytics data?)
+ # Nicer forms (thanks "formtastic":http://github.com/justinfrench/formtastic/tree/master!)
+ # AJAX goodness for UI snappiness
+ # Undo for item deletion (no more alert boxes!)
+
+Screens:
+
+<a href="http://www.flickr.com/photos/18919286@N08/2459959933/" title="Enki - Admin dashboard by Xavier Shay, on Flickr"><img src="http://farm4.static.flickr.com/3285/2459959933_76ec3b2c02.jpg" width="500" height="191" alt="Enki - Admin dashboard" /></a>
+
+<a href="http://www.flickr.com/photos/18919286@N08/2460795352/" title="Enki - Admin posts list by Xavier Shay, on Flickr"><img src="http://farm4.static.flickr.com/3111/2460795352_4f93b0ff5a.jpg" width="500" height="303" alt="Enki - Admin posts list" /></a>
+
+Of course there's still more I'd like to add (in particular to do with tags), but isn't that always the case? I think it's pretty swish - if you've already got an install just pull from master, if you think you might like an install, head over to the  "Enki website":http://www.enkiblog.com.
+{% endraw %}

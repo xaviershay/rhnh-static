@@ -1,0 +1,48 @@
+---
+layout: post
+title:  "Evolution of a graph"
+date:   2008-12-29 13:41:10 +00:00
+tags:   ["Code", "Life", "data", "tufte"]
+---
+{% raw %}
+Recently I have wanted to chart some cost data I collected on various foods. As a baseline for discussion, here is a very vanilla excel type graph, reminiscent of ones I am certain you have seen in powerpoint presentations:
+
+!http://farm4.static.flickr.com/3211/3141627141_fa64ecf450_o.png!
+
+This is not a good graph for several reasons
+
+ * Only provides a general overview of the data - some foods are cheaper, some more expensive, so what?
+ * Labels feel cramped and ugly.
+ * The grid is too prominent and distracting, without being very helpful - you can't read accurate values from it.
+
+The biggest problem is that it doesn't "invite the eye to compare". It doesn't leave an impact. The first step to addressing this is to revisit the data - it's quite possible you just have boring data. In this case, I improved the data by coding it according to whether it is vegetarian or not.
+
+h2. Version 2
+
+For the next iteration of this graph, I colored the graph to highlight the vegetarian aspect of the food. To address the other issues, I moved the labels into the legend, and completely removed the grid, instead displaying the values directly on the graph. This technique works due to the low number of data points. You can think of it has "enhancing" the table rather than displaying a high level overview of it. Also, a serif font (georgia) was used.
+
+!http://farm4.static.flickr.com/3220/3141627109_26f6d3caca_o.png!
+
+This is certainly an improvement, but it still has its flaws
+
+ * 8 different colors, which distracts from the data, and the vegetarian data is muted.
+ * It is much harder to identify the food with the data point, now that the labels have been moved into the legend.
+
+h2. Final
+
+I iterated again, moving the labels back down to the x-axis, which in addition to solving the identification problem, allowed me to drop back down to 2 colours. In our initial graph this felt cramped, so I added some more whitespace and also kept the serif font from the last iteration.
+
+!http://farm4.static.flickr.com/3292/3142466744_d52132f480_o.png!
+
+This version of the graph speaks much louder. It's easier on the eye, and the conclusion I want to draw from the data is clearly expressed. I am using this graph (with proper references and notes) on a new information site I'm working on - it's far from complete but you can "follow along on github":http://github.com/xaviershay/vegeinfo if you're interested.
+
+h2. Tools
+
+The first graph was made with "OpenOffice":http://www.openoffice.org/ spreadsheet, the second with a hacked version of "flot":http://code.google.com/p/flot/ for "jQuery":http://jquery.com. The final graph was made with a new jQuery plugin I wrote called "tufte-graph":http://xaviershay.github.com/tufte-graph/. There is a meta-lesson here - I spent hours hacking different JS libraries to try and get them working exactly how I wanted, in the end the quickest solution was to just write what I needed.
+
+I use "Colour Lovers":http://www.colourlovers.com to find color nice colour palettes. Works much better than trying random RGB codes.
+
+h2. Final word
+
+Spend time on your graphs. A picture is worth a thousand words. They are too often neglected, and it doesn't take much effort to make them really shine.
+{% endraw %}

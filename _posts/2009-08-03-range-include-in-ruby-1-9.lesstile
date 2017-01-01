@@ -1,0 +1,89 @@
+---
+layout: post
+title:  "Range#include? in ruby 1.9"
+date:   2009-08-03 08:18:00 +00:00
+tags:   ["Code", "Ruby", "range"]
+---
+{% raw %}
+@Range#include?@ behaviour has changed in ruby 1.9 for non-numeric ranges. Rather than a greater-than/less-than check against the min and max values, the range is iterated over from min until the test value is found (or max). This is necessary to cover some edge cases of ranges which are incorrect in 1.8.7, as demonstrated by the following example:
+
+--- Ruby
+class EvenNumber < Struct.new(:value)
+  def <=>(other)
+    puts "#{value} <=> #{other.value}"
+    value <=> other.value
+  end
+
+  def succ
+    puts "succ: #{value}"
+    EvenNumber.new(value + 2)
+  end
+end
+
+puts (EvenNumber.new(2)..EvenNumber.new(6)).include?(EvenNumber.new(5))
+
+
+# 1.8.7
+#   2 <=> 6
+#   2 <=> 5
+#   5 <=> 6
+#   true # buggy!
+# 1.9.1 
+#   2 <=> 6
+#   2 <=> 6
+#   succ: 2
+#   4 <=> 6
+#   succ: 4
+#   6 <=> 6
+#   false # correct!
+---
+
+This makes sense for the conceptual range, but has a performance impact especially on large ranges. @#include?@ has gone from @O(1)@ to @O(N)@. This is most likely to crop up when checking time ranges - Time#succ returns a time one second in the future.
+
+--- ruby
+(Time.utc(1999)..Time.utc(2001)).include?(2000) 
+
+# 1.8.7
+#   true
+# 1.9.1
+#   Don't wait for this to finish...
+---
+
+h2. Workarounds
+
+Ruby 1.9 introduces a new method @Range#cover?@ that implements the old @include?@ behaviour, however this method isn't available in 1.8.7.
+
+--- Ruby
+puts (EvenNumber.new(2)..EvenNumber.new(6)).cover?(EvenNumber.new(5))
+
+# 1.8.7
+#   undefined method `cover?' for #<struct EvenNumber value=2>..#<struct EvenNumber value=6> (NoMethodError)
+# 1.9.1
+#   2 <=> 6
+#   2 <=> 5
+#   5 <=> 6
+#   true
+---
+
+Another alternative, if it makes sense for your range, is to define the @to_int@ method, which ruby will use to do a straight comparison against your min/max values.
+
+--- Ruby
+class EvenNumber < Struct.new(:value)
+  # ... as before
+
+  def to_int
+    value
+  end
+end
+
+puts (EvenNumber.new(2)..EvenNumber.new(6)).include?(EvenNumber.new(5))
+
+# 1.8.6 and 1.9.1
+#   2 <=> 6
+#   2 <=> 5
+#   5 <=> 6
+#   true
+---
+
+Personally, I've monkey-patched range in 1.8.* to alias @cover?@ to @include?@. That's it. May your test suites not appear to hang.
+{% endraw %}

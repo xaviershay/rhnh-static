@@ -1,0 +1,26 @@
+---
+layout: post
+title:  "Object#send_with_default"
+date:   2007-10-02 07:37:00 +00:00
+tags:   ["Code", "Ruby", "core extensions", "object", "rails"]
+---
+{% raw %}
+Avoid those pesky whiny nils! @send_with_default@ won't complain.
+--- ruby
+"hello".send_with_default(:length, 0)      # => 5
+    nil.send_with_default(:length, 0)      # => 0
+"hello".send_with_default(:index, -1, 'e') # => 1
+---
+So sending parameters is a little clunky, but I don't reckon' you'll want to do that much. Here is the extension you want:
+--- ruby
+module CoreExtensions
+  module Object
+    def send_with_default(method, default, *args)
+      !self.nil? && self.respond_to?(method) ? self.send(*args.unshift(method)) : default
+    end
+  end
+end
+
+Object.send(:include, CoreExtensions::Object)
+---
+{% endraw %}

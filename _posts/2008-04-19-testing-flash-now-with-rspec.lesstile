@@ -1,0 +1,34 @@
+---
+layout: post
+title:  "Testing flash.now with RSpec"
+date:   2008-04-19 11:32:53 +00:00
+tags:   ["Code", "Ruby", "controllers", "flash", "rails", "rspec"]
+---
+{% raw %}
+@flash.now@ has always been a pain to test. The the traditional rails approach is to use @assert_select@ and find it in your views. This clearly doesn't work if you want to test your controller in isolation.
+
+Other folks have found work arounds to the problem, including "mocking out the flash":http://rspec.lighthouseapp.com/projects/5645/tickets/98-11834-fake-controller-flash-object or "monkey patching":http://www.pluitsolutions.com/2008/01/22/testing-flashnow-in-rails/ it.
+
+These solutions feel a bit like using a sledgehammer to me. If you're going to monkey patch/mock something, you want it to be as discreet as possible so to minimize the chance of the implementation changing underneath you and also to reduce the affect on other areas of your application. Also, why duplicate perfectly good code that is provided elsewhere?
+
+The real problem with testing @flash.now@ is that it gets cleaned up (via @#sweep@) at the end of the action before you get to test anything. So let's solve that problem and that problem only: disable sweeping of @flash.now@:
+
+--- Ruby
+# spec/spec_helper.rb
+module DisableFlashSweeping
+  def sweep
+  end
+end
+
+# A spec
+describe BogusController, "handling GET to #index" do
+  it "sets flash.now[:message]" do
+    @controller.instance_eval { flash.extend(DisableFlashSweeping) }
+    get :index
+    flash.now[:message].should_not be_nil
+  end
+end
+---
+
+@instance_eval@ is used to access the flash, since it's a protected method, and we extend with the minimum possible code to do what we want - blanking out the sweep method. This should not cause problems because sweeping is only relevant across multiple requests, which we shouldn't be doing in our controller specs.
+{% endraw %}

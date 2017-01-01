@@ -1,0 +1,73 @@
+---
+layout: post
+title:  "YAML persistence"
+date:   2006-05-06 17:50:00 +00:00
+tags:   ["Code", "Ruby", "persistence", "yaml"]
+---
+{% raw %}
+Fixed up my persistence code to not have to specify variables as an array, and committed my changes to CVS. Funny that on the day I got developer access to clxmlserial, I switched it out of my project in favour of YAML. Of course, I need to add a persistent attribute to that also, but it works a little different from XML:
+
+--- ruby
+class Object
+  def self._persist klass
+    begin
+      @@persist
+    rescue
+      @@persist = {}
+    end
+    @@persist[klass] = [] if !@@persist[klass]
+    @@persist[klass]
+  end
+
+  def self._persist_with_parent klass
+    begin
+      @@persist
+    rescue
+      @@persist = {}
+    end
+    p = nil
+    while (!p) && klass
+      p = @@persist[klass.to_s]      
+      klass = klass.superclass
+    end
+    p
+  end
+
+  def self.persistent *var
+    p = self._persist(self.to_s)
+    for i in (0..var.length-1)
+      var[i] = var[i].to_s
+    end
+    p.concat(var)
+  end
+
+  def to_yaml ( opts = {} )       
+    p = self.class._persist_with_parent(self.class)
+   
+    if p.size > 0
+      YAML::quick_emit( object_id, opts ) do |out|
+        out.map( taguri, to_yaml_style ) do |map|
+          p.each do |m|
+            map.add( m, instance_variable_get( '@' + m ) )
+          end
+        end
+      end
+    else
+      YAML::quick_emit( object_id, opts ) do |out|
+        out.map( taguri, to_yaml_style ) do |map|
+				  to_yaml_properties.each do |m|
+            map.add( m[1..-1], instance_variable_get( m ) )
+          end
+        end
+      end
+    end
+  end
+
+  def save(filename)
+    File.open( filename + '.yaml', 'w' ) do |out|
+      YAML.dump( self, out )
+    end
+  end
+end
+---
+{% endraw %}

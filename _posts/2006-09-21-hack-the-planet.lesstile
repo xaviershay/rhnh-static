@@ -1,0 +1,20 @@
+---
+layout: post
+title:  "Hack the Planet"
+date:   2006-09-21 02:10:00 +00:00
+tags:   ["Code", "Ethics", "Life", "Rant", "csharp"]
+---
+{% raw %}
+<ol>
+<li>Vegetarian - battery farms lose!</li>
+<li>Buy organic, fairtrade and/or local where possible</li>
+<li>No car, use public transport and feet, except where not possible (Geelong)</li>
+<li>Refuse plastic bags, although I think perversely our excessive number of green bags at home is soon to become an environmental risk</li>
+<li>I plan to vote, haven't had the opportunity yet</li>
+<li>Spread the love. Bring politics into conversations. Getting people talking and thinking is the first step.</li>
+</ol>
+
+The last one is important. Preaching at people will never work - global awareness must come from within. We must provide the support and encouragement. Lead by example. It can be tough sometimes. I almost hit intolerable despair last night. Startling, raw, realisations: The pope - the most important man in Christianity - is a political retard, the most powerful man in the world is widely regarded an idiot, and you couldn't have pulled the recent Naomi Robson story from Frontline... Politics, Religion, Media, the triple crown. The world is loco.
+
+In other news, I've just commited some C Sharp tools to <a href="http://make.rubyforge.org">Ruby Rant</a> , if you're interested in a sweet build tool that lets you use ruby (XML loses!). I'm using it for a fairly decent project at work (multiple projects, resources, unit tests, etc) and find it a pleasure to work with. Note I'm talking about a replacement for the deprecated method described in the current documentation. I'm going to get that updated, but for now check the mailing list for info.
+{% endraw %}

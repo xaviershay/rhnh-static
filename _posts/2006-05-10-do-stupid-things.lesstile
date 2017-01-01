@@ -1,0 +1,17 @@
+---
+layout: post
+title:  "Do stupid things..."
+date:   2006-05-10 13:17:00 +00:00
+tags:   ["Life", "linux", "nvidia", "ubuntu"]
+---
+{% raw %}
+... stupid things happen.
+
+Like running ubuntu dapper as your primary, despite an explicit, stickied recommendation against the practice on the forums. I just wanted to try out compiz...
+
+So as of 10 o'clock this morning I can't boot properly. It was working at 7:30 - should never have restarted. I can get in to safe mode (no GUI), but the work I need (Ent .NET) is on my virtual PC. So I need to revert to breezy, reconfigure nvidia drivers, reconfigure vmware, and hope to god nothing ridiculous happens. .NET assignment checkpoint due tomorrow. At the worst I've only lost 2 hours of work, hopefully will take a lot less time to recreate. Except I'll have to do it in the lab. I hate working on any computer that isn't mine. It's just not <i>right</i>.
+
+EDIT: We're back in action now. dist-upgrade to the latest kernel version, had to manually grab the matching linux-restricted-modules since apt-get wasn't finding it, re-install nvidia-glx, vmware-config.pl. YAY COMPUTER WORKS. In the process I also disabled my network shares in fstab, not sure if this had anything to do with it, but when trying to debug I found I couldn't ls one of them. I never thought I'd hang ls, but it's been done. I suspect if I'd left my comp for 5 minutes initially it would have eventually come up. You live, you learn. Although after all that I'm still running Dapper. In another stupid move I put my OS on the same partition as my home dir, so I need to find space on the server to back everything up for a reinstall. Including an 8Gb VM. I am such an idiot.
+
+We've now added WSE to our .NET project and it's starting to look rather fancy.
+{% endraw %}

@@ -1,0 +1,26 @@
+---
+layout: post
+title:  "Hash#translate_keys_and_values"
+date:   2007-11-15 05:55:00 +00:00
+tags:   ["Code", "Ruby", "core extensions", "hash"]
+---
+{% raw %}
+--- ruby
+module CoreExtensions
+  module Hash 
+    def translate_keys_and_values(&block)
+      inject({}) {|a, (key, value)| a.update(block.call(key) => block.call(value))}
+    end
+  end
+end
+
+Hash.send(:include, CoreExtensions::Hash)
+---
+
+It's like @symbolize_keys@ but a bit more flexible. It calls the block for every key and value in the hash. Of course you could tune it just do keys or values if you wanted. I do not want!
+
+--- ruby
+{"1" => "2"}.translate_keys_and_values(&:to_i)  # => {1 => 2}
+{1 => 2}.translate_keys_and_values {|x| x + 1 } # => {2 => 3}
+---
+{% endraw %}

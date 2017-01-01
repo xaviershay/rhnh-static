@@ -1,0 +1,15 @@
+---
+layout: post
+title:  "Mode Errors in Mobile Phones"
+date:   2006-12-22 01:00:00 +00:00
+tags:   ["Code", "UI", "ideology"]
+---
+{% raw %}
+A <a href="http://www.humanized.com/weblog/2006/12/07/is_visual_feedback_enough_why_modes_kill/">recent post</a> on the humanized weblog has got me thinking about mode errors in software I use often.
+
+One particularly nasty one occurs on my Nokia 2100 phone when sending SMS messages. After selecting "send", a box is displayed to enter the destination number. To select a contact from your address book, you press button A. However, if a number is already present in the entry box (if you are replying to a message, and in other circumstances whose criteria I am uncertain of), the same button A sends the message!
+
+The implication? My reflex action is to press button A immediately after selecting "send" to go to my address book. Twice in the past two days there has already (unexpectedly!) been a number there, causing me to send a message to the wrong person.
+
+What potentially embarrassing or disastrous mode errors do you deal with regularly?
+{% endraw %}

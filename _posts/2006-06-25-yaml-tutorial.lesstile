@@ -1,0 +1,83 @@
+---
+layout: post
+title:  "YAML in Ruby Tutorial"
+date:   2006-06-25 11:15:00 +00:00
+tags:   ["Code", "Ruby", "core extensions", "yaml"]
+---
+{% raw %}
+_UPDATE 2011-01-31: I have posted a newer tutorial which is probably going to be more useful to you than this one: "YAML Tutorial":/2011/01/31/yaml-tutorial_
+
+So you've got all these tasty ruby objects lying around in memory, and they're going to be lost when your program ends. Such a tragic end. What's a robot to do? Why, store them to disk in a language agnostic format, of course! Enter YAML, a language perfectly suited to the task, more so than it's heavier bretheren, XML. YAML support comes built in to the ruby language, and it couldn't be easier to use. Every object automagically gets a @to_yaml@ method that returns a string containing appropriate YAML markup when you include the right file.
+
+--- ruby
+require 'yaml' # Assumed in future examples
+
+puts "hello".to_yaml
+---
+
+Of course this works for any object, using some of that oh-so-sweet reflection. @to_yaml@ recursively calls itself on all of your instance variables, and even knows how to handle complex structure like arrays and hashes. It even copes with cyclic references! How's _that_ for value?
+
+--- ruby
+class Square
+  def initialize width, height
+    @width = width
+    @height = height
+    @bonus = ['yo', {:msg => 'YAML 4TW'}]
+    @me = self
+  end
+end
+
+puts Square.new(2, 2).to_yaml
+---
+
+Now that you've got a handy YAML string you can do whatever you like with it: write it to disk, store it in a database, email it to your cousin Benny. But Benny is going to spin out - how does he reproduce your shiny ruby objects? Thoughtfully, ruby makes it just about as easy to create an object from YAML markup - in other words to go the other way. The @YAML::load@ method takes either a string or an IO object and gives you back an object, ready to use. It's worth noting that the @initialize@ method is *not* called on the new object - a fact that will become pertinent later.
+
+--- ruby
+serialized = Square.new(2, 2).to_yaml
+new_obj = YAML::load(serialized)
+puts new_obj.width
+---
+
+h3(#transience). Transience
+
+The YAML serializer works in essentially the same manner as a sledgehammer. There's no finesse - it will serialize *all* of your instance variables. Always. This is generally not a problem, but every now and then for reasons of space, security, beauty or public health you will have a transient variable that you really just don't want to be serialized. There is no neat way in the supplied library to do this. You could override @to_yaml@ and blank out the transient fields before you call @super@, but then you need to restore them afterwards. And what if those fields were calculated on initialization - how do you restore them when the object is deserialized?
+
+Not to worry, our gallant hero (yours truly) has created a "helper script":http://github.com/xaviershay/sandbox/tree/master/yaml_helper/ that  allows you to specify which fields are to be persisted in a declarative manner using a class attribute.
+
+--- ruby
+require 'rhnh/yaml_helper' # Assumed in future examples
+
+class Square
+  persistent :width, :height
+  
+  def initialize width, height
+    @width = width
+    @height = height
+    @me = self        # @me will not be serialized
+  end
+end
+---
+
+The script also provides a @post_deserialize@ hook that is called, not surprisingly, after deserialization. It essentially acts as @initialize@ for deserialized objects. No setup is necessary to use this hook, it's mere presence will attract enough attention.
+
+--- ruby
+class OnTheBall
+  def post_deserialize
+    puts "I'm awake!"
+  end
+end
+
+YAML::load(OnTheBall.new.to_yaml)
+---
+
+h3(#conclusion). In closing
+
+YAML is an excellent choice for serializing your Ruby objects. Its brevity and readability give it the edge over both XML and Marshal, and with the addition of "YAML Helper":http://github.com/xaviershay/sandbox/tree/master/yaml_helper/ it becomes more flexible as well.
+
+h3(#resources). Resources
+
+* "YAML":http://www.yaml.org/
+* "yaml4r":http://yaml4r.sourceforge.net/
+
+
+{% endraw %}

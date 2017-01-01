@@ -1,0 +1,11 @@
+---
+layout: post
+title:  "No Audio in Ubuntu"
+date:   2007-01-08 00:58:00 +00:00
+tags:   ["Code", "linux", "ubuntu"]
+---
+{% raw %}
+Just a quick one - for some reason my sound stopped working in Ubuntu. To fix, right click volume icon (once you've re added it to the panel if it's not usually there), select "Open Volume Control" and ensure that PCM is not muted.
+
+Also, to allow sounds from multiple sources to play simultaneously, go to System -> Preferences -> Sound and select ESD for your output device and ensure "Enable Software Sound Mixing (ESD)" is selected. Not sure why this wasn't working as a default for me.
+{% endraw %}

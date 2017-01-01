@@ -1,0 +1,42 @@
+---
+layout: post
+title:  "Updating Class Table Inheritance Tables"
+date:   2010-08-17 16:41:42 +00:00
+tags:   ["Code", "Ruby", "activerecord", "cti", "dbiyf", "rails"]
+---
+{% raw %}
+My last post covered "querying class table inheritance":http://rhnh.net/2010/08/15/class-table-inheritance-and-eager-loading tables; this one presents a method for updating them. Having set up our ActiveRecord models using composition, we can use a standard rails method @accepts_nested_attributes_for@ to allow easy one-form updating of the relationship.
+
+--- Ruby
+class Item < ActiveRecord::Base
+  validates_numericality_of :quantity
+
+  SUBCLASSES = [:dvd, :car]
+  SUBCLASSES.each do |class_name|
+    has_one class_name
+  end
+
+  accepts_nested_attributes_for *SUBCLASSES
+end
+
+@item = Dvd.create!(
+  :title => 'The Matix',
+  :item  => Item.create!(:quantity => 1))
+
+@item.update_attributes(
+  :quantity => 2,
+  :dvd_attributes => {
+    :id    => @item.dvd.id,
+    :title => 'The Matrix'})
+---
+
+This issues the following SQL to the database:
+--- SQL
+UPDATE "items" SET "quantity" = 10 WHERE ("items"."id" = 12)
+UPDATE "dvds" SET "title" = 'The Matrix' WHERE ("dvds"."id" = 12)
+---
+
+Note that depending on your application, you may need some extra locking to ensure this method is concurrent, for example if you allow items to change type. Be sure to read the "accepts_nested_attributes_for documentation":http://apidock.com/rails/ActiveRecord/NestedAttributes/ClassMethods/accepts_nested_attributes_for for the full API.
+
+_I talk about this sort of thing in my "Your Database Is Your Friend" training sessions. They are happening throughout the US and UK in the coming months. One is likely coming to a city near you. Head on over to "www.dbisyourfriend.com":http://www.dbisyourfriend.com for more information and free screencasts !http://www.dbisyourfriend.com/favicon.ico!_
+{% endraw %}

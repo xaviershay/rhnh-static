@@ -1,0 +1,49 @@
+---
+layout: post
+title:  "Maintaining a stable branch"
+date:   2007-11-06 00:47:00 +00:00
+tags:   ["Code", "Ruby", "subversion", "vcs"]
+---
+{% raw %}
+Part one of my VCS ninja skills program.
+
+A common scenario for a production application is to have a trunk for development, and a stable branch that is deployed to production. This is what we do at "RedBubble":http://www.redbubble.com, and here I share how to complete some common tasks with subversion.
+
+h3. Push out a new release
+
+It might seem like a good idea to merge trunk into stable. Not so! Trunk is the code that you've been working with and testing with, merging it into another branch introduces the risk of either hard conflicts (not so bad - you can fix them) or the scarier Bodgy Merge (technical term) where subversion thinks it has merged everything correctly but hasn't. We blow away our stable branch and just copy over trunk. Takes less time, and we're more confident in the result. Here's an example from our release notes:
+
+--- bash
+svn delete -m "Removed previous stable branch" svn+ssh://example.com/home/svn/branches/stable
+svn copy -m "Ice T Release - Iteration 2 : trunk to stable (r1234)" svn+ssh://example.com/home/svn/trunk svn+ssh://example.com/home/svn/branches/stable
+---
+
+We also tag the release in @tags/@ (just another copy), but to this day we have never checked out one of the tags, so maybe that isn't worthwhile. You can always checkout a specific revision anyway.
+
+h3. Patch a bug fix into stable
+
+Oh noes! Production is broken! Code Red! Hopefully you release often enough that trunk and stable are similar enough that you can apply the same patch to both of them. This is the case 99% of the time for us, so when something is broken we fix it in trunk, then merge the patch across to stable to release.
+
+--- bash
+# trunk fix was r100
+cd branches/stable
+svn merge -r99:100 svn+ssh://example.com/home/svn/trunk .
+svn st   # Always check!
+svn diff # Always check!
+svn ci -m "Merge r100 from trunk (my awesome bug fix)"
+---
+
+That'll get it done, but we don't want to be just competent. Ninjas aren't just 'competent'.
+
+--- ruby
+#!/usr/bin/env ruby
+ARGV.collect {|x| x.to_i }.each do |revision|
+  cmd = "svn merge -r#{revision-1}:#{revision} svn+ssh://example.com/home/svn/trunk ."
+  puts `#{cmd}`
+end
+---
+
+Put that in your bin folder - mine's called @rbm@ (RedBubble Merge - yay for obscure shortcuts) - and you can now patch with @rbm 100 105@. It's so quick, there have been reports of patches getting merged before they're even committed to trunk.
+
+*UPDATE:* Multi-param version of @rbm@
+{% endraw %}

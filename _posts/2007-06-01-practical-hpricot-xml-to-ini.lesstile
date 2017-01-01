@@ -1,0 +1,34 @@
+---
+layout: post
+title:  "Practical Hpricot: XML to INI"
+date:   2007-06-01 02:11:00 +00:00
+tags:   ["Code", "Ruby", "hpricot"]
+---
+{% raw %}
+--- ruby
+require 'hpricot'
+require 'open-uri'
+
+def ini_entry(url, name)
+  buffer = "[#{url}]\\n"
+  buffer += "name = #{name}\\n"
+  buffer += "\\n"
+  buffer
+end
+
+doc = Hpricot(open("http://www.byteclub.net/testsite/getFeeds.php"))
+
+(doc/"blog").each do |elem|
+  url  = (elem/"url")
+  name = (elem/"name")
+  comments = (elem/"comments")
+  
+  if name.length > 0
+    puts ini_entry(url.inner_text, name.inner_text) if url.inner_text.length > 0
+    puts ini_entry(comments.inner_text, name.inner_text + " Comments") if comments.inner_text.length > 0
+  end
+end
+---
+
+Planet coming soon!
+{% endraw %}

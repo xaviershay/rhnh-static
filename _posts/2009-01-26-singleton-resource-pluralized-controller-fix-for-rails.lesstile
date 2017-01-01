@@ -1,0 +1,33 @@
+---
+layout: post
+title:  "Singleton resource, pluralized controller fix for rails"
+date:   2009-01-26 04:01:00 +00:00
+tags:   ["Code", "Ruby", "rails", "resource", "rest", "routing", "singleton"]
+---
+{% raw %}
+@map.resource@ still looks for a pluralized controller. This has always bugged me. Here's a quick monkey patch to fix. Tested on rails 2.2.2.
+
+--- Ruby
+# config/initializers/singleton_resource_fix.rb
+module ActionController
+  module Resources
+    class SingletonResource < Resource #:nodoc:
+      def initialize(entity, options)
+        @singular = @plural = entity
+        # options[:controller] ||= @singular.to_s.pluralize
+        options[:controller] ||= @singular.to_s # This is the only line to change
+        super
+      end
+    end
+  end
+end
+---
+--- Ruby
+# config/routes.rb
+# before fix
+map.resource :session, :controller => 'sessions'
+
+# after fix
+map.resource :session
+---
+{% endraw %}

@@ -1,0 +1,140 @@
+---
+layout: post
+title:  "OpenGL Text with Imlib2"
+date:   2006-04-20 23:43:00 +00:00
+tags:   ["Code", "Ruby", "imlib2", "opengl", "text"]
+---
+{% raw %}
+Getting text into your openGL apps is simple with the use of the imlib2 library (developed by the <a href="http://www.enlightenment.org">enlightenment</a> team). If you have the good fortune of working on a debian system, the libraries are in apt:
+
+--- bash
+sudo apt-get install libimlib2-ruby
+---
+
+The examples at the <a href="http://www.pablotron.org/software/imlib2-ruby/">ruby bindings webpage</a> show the basics of loading an image and writing text, all that remains is converting an Imlib2::Image into an OpenGL texture - just switch the data around from BGRA to RGBA...
+
+--- Ruby
+class Imlib2::Image
+  # Convert data to format compatible with OpenGL
+  def rgba_data
+    new_data = Array.new(data.size)
+    i = 0
+    for i in (0..data.size/4-1)
+      new_data[i*4] = data[i*4+2] 
+      new_data[i*4+1] = data[i*4+1]
+      new_data[i*4+2] = data[i*4+0]
+      new_data[i*4+3] = data[i*4+3]
+    end
+    return new_data.pack('C*')
+  end
+end
+---
+
+... and you can pass it straight into GL::TexImage2D. Follows is the @TextMananger@ class I wrote tonight. Still haven't quite mastered imlib2 - note the resize hack to get the correct format. If anyone has any suggestions I'm all ears.
+
+--- ruby
+require 'imlib2'
+ 
+class OpenGLTextManager
+  def initialize
+    @textures = Hash.new
+ 
+    blank_filename = 'res/img/blank.png' # 1x1 png image
+    @blank = Imlib2::Image::load(blank_filename)
+ 
+    # Probably better to copy the font locally and load it from there
+    Imlib2::Font::add_path '/usr/share/fonts/truetype/ttf-bitstream-vera'
+    fontname = 'Vera/10'
+    
+    @font = Imlib2::Font.new(fontname)
+  end
+  
+  def render text, x, y
+    texture = @textures[text]
+    texture = create_texture(text) if texture == nil
+ 
+    # Draw a quad with the text texture
+    # Looks best with Ortho 1:1 projection
+    GL::Enable(GL::TEXTURE_2D);
+    GL::LoadIdentity();
+    GL.BindTexture(GL::TEXTURE_2D, texture.ogl);
+    GL::Begin(GL::QUADS);
+        GL::TexCoord(0.0, 0.0); GL::Vertex(x, y)
+        GL::TexCoord(0.0, 1.0); GL::Vertex(x, texture.height + y)
+        GL::TexCoord(1.0, 1.0); GL::Vertex(texture.width + x, texture.height + y)
+        GL::TexCoord(1.0, 0.0); GL::Vertex(texture.width + x, y)
+    GL::End()
+  end
+ 
+  def create_texture text
+    fw, fh = @font.size(text)
+ 
+    # This is a hack
+    # Image.new doesn't have the right color format (or something),
+    # so just resize a preloaded png
+    image = @blank.clone
+    image.crop_scaled! 0,0,image.width, image.height, fw, fh
+    image.fill_rect [0,0], [image.w, image.h], Imlib2::Color::RgbaColor.new(0,0,0,255)
+ 
+    image.draw_text @font, text, 0, 0, Imlib2::Color::WHITE
+ 
+    texture = TextTexture.new
+    texture.ogl = GL::GenTextures(1)[0];
+    GL.BindTexture(GL::TEXTURE_2D, texture.ogl);
+    GL.TexParameteri(GL::TEXTURE_2D, GL::TEXTURE_WRAP_S, GL::CLAMP);
+    GL.TexParameteri(GL::TEXTURE_2D, GL::TEXTURE_WRAP_T, GL::CLAMP);
+    GL.TexParameteri(GL::TEXTURE_2D, GL::TEXTURE_MAG_FILTER,GL::LINEAR);
+    GL.TexParameteri(GL::TEXTURE_2D, GL::TEXTURE_MIN_FILTER,GL::LINEAR);
+    GL.TexImage2D(GL::TEXTURE_2D, 0, GL::RGBA, image.width,
+                  image.height, 0, GL::RGBA, GL::UNSIGNED_BYTE, image.rgba_data);
+    texture.width = image.width
+    texture.height = image.height
+    image.delete!
+    @textures[text] = texture
+    return texture
+  end
+ 
+  def get_texture text
+    texture = @textures[text]
+    texture = create_texture(text) if texture == nil
+    texture
+  end
+end
+ 
+class TextTexture
+  attr_accessor :ogl
+  attr_accessor :width
+  attr_accessor :height
+end
+ 
+class Imlib2::Image
+  # Convert data to format compatible with OpenGL
+  def rgba_data
+    new_data = Array.new(data.size)
+    i = 0
+    for i in (0..data.size/4-1)
+      new_data[i*4] = data[i*4+2] 
+      new_data[i*4+1] = data[i*4+1]
+      new_data[i*4+2] = data[i*4+0]
+      new_data[i*4+3] = data[i*4+3]
+    end
+    return new_data.pack('C*')
+  end
+end
+---
+--- Ruby
+# Usage
+# ... Inside draw loop ...
+GL::MatrixMode(GL::PROJECTION);
+GL::LoadIdentity()
+GL::Ortho(0,@viewport.x,@viewport.y,0,-1.0,1.0)
+		
+GL::MatrixMode(GL::MODELVIEW);
+GL::LoadIdentity()
+GL::Disable(GL::LIGHTING);
+GL::Disable(GL::DEPTH_TEST);
+   
+GL::Color(1.0, 1.0, 1.0, 0.7);
+OpenGLTextManager.new.render 'hello', 0, 0
+---
+{% endraw %}

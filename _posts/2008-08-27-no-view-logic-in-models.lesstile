@@ -1,0 +1,48 @@
+---
+layout: post
+title:  "You don't need view logic in models"
+date:   2008-08-27 13:19:04 +00:00
+tags:   ["Code", "Data Structures", "Ruby", "semantics"]
+---
+{% raw %}
+"Jake Scruggs wrote about moving view logic into his models":http://jakescruggs.blogspot.com/2008/08/im-thinking-of-putting-view-logic-into.html
+
+It's hard to tell without knowing the full dataset, but my approach to these sort of problems is to reduce the data down to the simplest possible form (usually a hash), and then use an algorithm to extract what I need.
+
+"One commenter tried this":https://gist.github.com/7062/71ec7c0b47354cc3a06b39974f44c31ae9726a19 and I think it's heading in the right direction. There is potentially quite a lot of duplication here - the repetition of the layouts and scripts. To ease this it can sometimes be easier to inverse the key/values, for a more concise representation. You could reduce this even further if there were sensible defaults (if 90% of cars used a two_column layout, for instance) - just replace the @raise@ in the following code.
+
+--- Ruby
+# See original post for context
+# Data
+layouts = {
+  'two_column'   => [Toyota, Saturn],
+  'three_column' => [Hyundai],
+  'ford'         => [Ford]
+}
+
+scripts => {
+  'discount' => [Hyundai, Ford],
+  'poll'     => [Saturn]
+}
+
+# Algorithm
+find_key = lambda {|hash, car| 
+  (
+    hash.detect {|key, types| 
+      types.any? {|type| car.is_a?(type)}
+      # types.include?(car.class) if you're not using inheritance
+    } || raise("No entry for car: #{car}")
+  ).first
+}
+
+layout = find_key[layouts, @car]
+script = find_key[scripts, @car]
+
+@stylesheets += ['layout', 'theme'].collect {|suffix| "#{layout}_#{suffix}.css" }
+@scripts     += ["#{script}.js"]
+
+render :action => find_view, :layout => layout
+---
+
+This is preferable to putting this data in your object hierarchy for all the normal reasons, especially since it keeps view logic where you expect to find it and doesn't muddy up your models.
+{% endraw %}

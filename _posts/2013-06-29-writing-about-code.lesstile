@@ -1,0 +1,11 @@
+---
+layout: post
+title:  "Writing About Code"
+date:   2013-06-29 18:02:00 +00:00
+tags:   ["code", "ruby"]
+---
+{% raw %}
+I wrote some words about "The Mathematical Syntax of Small-step Operational Semantics":http://xaviershay.github.io/writing/docs/1_sos.html
+
+It's the latest in a sequence of experiments on techniques for presenting ideas and code, "xspec":https://github.com/xaviershay/xspec being another that you may be interested in.
+{% endraw %}

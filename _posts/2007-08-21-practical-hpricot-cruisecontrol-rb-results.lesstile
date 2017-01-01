@@ -1,0 +1,22 @@
+---
+layout: post
+title:  "Practical Hpricot: CruiseControl.rb results"
+date:   2007-08-21 07:33:00 +00:00
+tags:   ["Code", "Ruby", "cruisecontrol.rb", "hpricot"]
+---
+{% raw %}
+--- ruby
+require 'hpricot'
+require 'open-uri'
+
+url = "http://mydomain.com/builds/myapp/#{ARGV[0]}"
+doc = Hpricot(open(url))
+
+puts (doc/"div#build_details h1").first.inner_text.gsub(/^\s*/, '')
+(doc/"div.test-results").each do |results|
+  puts results.inner_html
+end
+---
+
+Grabs the current build status from CruiseControl.rb. Especially handy since our build server isn't sending emails at the moment.
+{% endraw %}

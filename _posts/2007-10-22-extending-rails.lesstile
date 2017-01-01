@@ -1,0 +1,21 @@
+---
+layout: post
+title:  "Extending Rails"
+date:   2007-10-22 07:31:00 +00:00
+tags:   ["Code", "Ruby", "rails"]
+---
+{% raw %}
+Previously, I extended rails by monkey patching stuff in @lib/@. This was good because it kept @vendor/rails@ clean.
+
+I have changed my mind!
+
+I now just patch @vendor/rails@ directly with a comment prefixed by RBEXT explaining why. This means that when I @piston update@ rails, I get notified of any conflicts immediately, rather than having to remember what was in lib. It's also much easier and quicker than monkey patching. Theoretically, I could also run the rails tests to make sure everything is still kosher, but I must confess I haven't gotten around to patching the tests as well...
+
+And the comments are ace because I can use this sweet rake task to see what rb-rails currently looks like:
+--- ruby
+desc "Show all RB extensions in vendor/"
+task :core_extensions do
+  FileList["vendor/**/*.rb"].egrep(/RBEXT/)
+end
+---
+{% endraw %}

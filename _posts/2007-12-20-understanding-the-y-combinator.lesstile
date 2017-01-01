@@ -1,0 +1,152 @@
+---
+layout: post
+title:  "Understanding the Y Combinator"
+date:   2007-12-20 08:29:00 +00:00
+tags:   ["Code", "Ruby", "recursion"]
+---
+{% raw %}
+Many people have written about this, it still took me a long while to figure it out. It's a bit of a mindfuck. So here is me rehashing what other people have said in a way that makes sense to me.
+
+h3. The Problem
+
+I'll start with the same example of hash autovivication (that's what perl calls it) used by "Charles Duan in his article":http://www.eecs.harvard.edu/~cduan/technical/ruby/ycombinator.shtml.
+We want the following code to work:
+
+--- ruby
+hash = Hash.new {|h, k| h[k] = default } # We need to implement default later, read on!
+hash[1][2][3][4][5] = true
+hash # => {1=>{2=>{3=>{4=>{5=>true}}}}}
+---
+
+To do this, we need to specify an appropriate default value for the hash. If we set the default to @{}@, we only get one level of autovivication.
+
+--- ruby
+hash = Hash.new {|h, k| h[k] = {} }
+hash[1]    # => {} 
+hash[1][2] # => nil
+---
+
+Clearly we need a recursive function to support infinite depth, which we can do with a normal ruby method.
+
+--- ruby
+def make_hash
+  Hash.new {|h, k| h[k] = make_hash }
+end  
+
+hash = make_hash
+hash[1][2][3][4][5] # => {}
+---
+
+The problem here is we've introduced a new method into the namespace (@make_hash@), which isn't really necessary. The Y Combinator allows us to achieve the same result, *without* a named method or variable.
+
+h3. The Solution
+
+We can avoid the need for a named method by wrapping the Hash creation code in an anonymous lambda that passes in the callback as an argument.
+
+--- ruby
+lambda {|callback| Hash.new {|h, k| h[k] = callback.call }}.call(some_callback)
+---
+
+We just need a way to pass in a callback function that is the same as the initial function. If you try to copy and paste in the hash maker code, you'll find it doesn't quite work because we then need a way to get a callback for that callback.
+
+--- ruby
+lambda {|callback| 
+  Hash.new {|h, k| h[k] = callback.call }
+}.call(
+  lambda { 
+    Hash.new {|h, k| h[k] = callback.call }
+  }
+}) # fails because the second callback isn't defined
+---
+
+But we're getting closer. What if we pass in our initial callback function as a parameter to itself? Then it will know how to call itself over and over again. This is pretty tricky - the first example illustrates the concept using a named method for clarity, the second example is what we actually want.
+
+--- ruby
+# With named method
+def make_hash(x) 
+  Hash.new {|h,k| h[k] = x.call(x)}
+end 
+hash = make_hash(method(:make_hash))
+
+# With lambdas
+hash = lambda {|callback| 
+  Hash.new {|h, k| h[k] = callback.call(callback) }
+}.call(
+  lambda {|callback| 
+    Hash.new {|h, k| h[k] = callback.call(callback) }
+  })
+hash[1][2][3][4][5] # => {}, hooray!
+---
+
+*And that's really the guts of it.* If you understand that you've pretty much got it. From here on in it's just extra credit.
+
+h3. Making it DRY
+
+The previous code repeats itself somewhat - you copy and paste the hash maker function into two spots. Basically, the code is @hash = x.call(x)@. So let's use another lambda to express it as such.
+
+--- ruby
+lambda {|x| x.call(x) }.call(
+  lambda {|callback| 
+    Hash.new {|h, k| h[k] = callback.call(callback) }
+  })
+---
+
+h3. Making it work for callbacks with an arbitrary number of parameters
+
+By passing in the callback to itself, we're restricting ourselves to a callback with no parameters. You'll notice we're not able to pass in any parameters to the hash maker above. As you may have guessed, we add another level of abstraction with a lambda that passes in a @callback_maker@ function.
+
+--- ruby
+hash = lambda {|x| x.call(x) }.call(lambda {|callback_maker| 
+  lambda {|*args| 
+    callback = callback_maker.call(callback_maker)
+    Hash.new {|h, k| h[k] = callback.call(*args) }
+  }
+}).call("an argument!")
+---
+
+So yes, that example is kind of useless because we don't use the arguments. Let's try something a bit meatier, say a factorial function.
+
+--- ruby
+lambda {|x| x.call(x) }.call(lambda {|callback_maker| 
+  lambda {|*args| 
+    callback = callback_maker.call(callback_maker)
+    v = args.first
+    return v == 1 ? 1 : v * callback.call(v - 1)
+  }
+}).call(5) # => 120
+---
+
+h3. Making it generic and pretty
+
+--- ruby
+def y_combinator(&generator)
+  lambda {|x| x.call(x) }.call(lambda {|callback_maker| 
+    lambda {|*args| 
+      callback = callback_maker.call(callback_maker)
+      generator.call(callback).call(*args)
+    }
+  })
+end
+
+y_combinator {|callback|
+  lambda {|v|
+    return v == 1 ? 1 : v * callback.call(v - 1)
+  }
+}.call(5) # => 120
+end
+---
+
+And let's make it a bit less ugly by doing what "Tom Mortel did":http://weblog.raganwald.com/2007/02/guest-blogger-tom-moertel-derives-y.html and using [] instead of call (they're equivalent), and moving the callback_maker inline.
+
+--- ruby
+def y_combinator(&f)
+  lambda {|x| x[x] } [
+    lambda {|maker| lambda {|*args| f[maker[maker]][*args] }}
+  ]
+end
+---
+
+Thus ends my exploration of the Y Combinator. Practically useless in any language you'd be using today, but hey, don't you feel smarter?
+
+*UPDATE:* Added dmh's suggestion from the comments.
+{% endraw %}

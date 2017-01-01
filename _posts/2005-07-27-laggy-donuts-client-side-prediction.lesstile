@@ -1,0 +1,27 @@
+---
+layout: post
+title:  "Laggy Donuts - Client Side Prediction"
+date:   2005-07-27 13:22:00 +00:00
+tags:   ["Code", "UI", "lag"]
+---
+{% raw %}
+Obviously, you have to synchronize your client data with the server. How do you do this when the client is entering data? A naive solution* might send the client data and refresh itself when a confirmation or update message is received from the server. This works great on local testing, but what happens when you are getting lag? The client will notice delays between them doing something and the UI reflecting the change - a Bad Thing. The UI must be responsive at all times. The way around this problem is client-side prediction. In most cases, you can assume that the user will enter â€œcorrectâ€ data. Think about it - how many times do you enter invalid data into a game? This means that in most cases, we can update the UI to reflect the change as soon!
+as it is entered, then we double check that our assumption was correct when confirmation from the server is received, and if not, rollback the changes.
+
+Unfortunately, It's not quite that simple. It will work if the confirmation consists of a complete data refresh, but often this is not the case. For reasons of bandwidth, usually only incremental changes are sent to clients. Consider the following example, where we are using client-side prediction: There are 4 donuts on a table. Clients can pick up a donut, but they may only hold one at a time. If they try to pick up another, their current donut is put back on the table. There is lag between the server and clients. Imagine the following chain of events:
+
+ # Client picks up iced donut
+ # Client picks up cinnamon donut (iced donut goes back on table)
+ # Client receives iced donut picked up message
+ # Client receives iced donut drop message
+ # Client receives iced cinnamon donut picked up message
+
+If we are blindly trusting updates from the server, by the end of this sequence our display will be correct. But imagine there is considerable lag between steps 3 and 4. At this point, the client will be showing that we have picked up both donuts, yet we know this to (most likely) not be the case!
+
+One method of dealing with this problem involves keeping track of an â€œexpected replyâ€ from the server. This method assumes that a full data refresh is sent from the server on error (reasonable, since they are infrequent, and removes the need for sophisticated event histories). If we receive a message from the server telling us we have done something we know we have made obsolete (does not match the expected reply), we can safely ignore it. In the event that an error occurs (say, someone picked up the cinnamon donut before out message arrived at the server), we can rollback to the data provided by the server.
+
+It is impossible to have the UI be correct at every single point in time, but using this method we have reduced the time to only when an erroneous action is made.
+
+An easy way to test these sort of UI issues is to add a sleep(500) before the line that dispatches your messages in the server code.
+
+{% endraw %}

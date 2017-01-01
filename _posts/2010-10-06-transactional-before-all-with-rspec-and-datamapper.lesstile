@@ -1,0 +1,73 @@
+---
+layout: post
+title:  "Transactional before all with RSpec and DataMapper"
+date:   2010-10-06 23:31:02 +00:00
+tags:   ["Code", "Ruby", "datamapper", "rspec"]
+---
+{% raw %}
+By default, @before(:all)@ in rspec executes _outside_ of any transaction, meaning that you can't really use it for creating objects. Normally this should go in a @before(:each)@, but for a spec with simple creation and a large number of assertions this is terribly inefficient.
+
+Let's fix it!
+
+This code assumes you are using DataMapper, and that your database supports some form of nested transactions (at the very least faking them with savepoints - see "nested transactions in postgres with datamapper":http://rhnh.net/2010/10/06/nested-transactions-in-postgres-with-datamapper). It wraps each before/after @:all@ and @:each@ in it's own transaction.
+
+--- Ruby
+RSpec.configure do |config|
+  [:all, :each].each do |x|
+    config.before(x) do
+      repository(:default) do |repository|
+        transaction = DataMapper::Transaction.new(repository)
+        transaction.begin
+        repository.adapter.push_transaction(transaction)
+      end
+    end
+
+    config.after(x) do
+      repository(:default).adapter.pop_transaction.rollback
+    end
+  end
+
+  config.include(RSpecExtensions::Set)
+end
+---
+
+See that @RSpecExtensions::Set@ include? That's a version of the lovely @let@ helpers that works with before(:all) setup. Props to "pcreux":http://twitter.com/pcreux for this:
+
+--- Ruby
+module RSpecExtensions
+  module Set
+
+    module ClassMethods
+      # Generates a method whose return value is memoized
+      # in before(:all). Great for DB setup when combined with
+      # transactional before alls.
+      def set(name, &block)
+        define_method(name) do
+          __memoized[name] ||= instance_eval(&block)
+        end
+        before(:all) { __send__(name) }
+        before(:each) do
+          __send__(name).tap do |obj|
+            obj.reload if obj.respond_to?(:reload)
+          end
+        end
+      end
+    end
+
+    module InstanceMethods
+      def __memoized # :nodoc:
+        @__memoized ||= {}
+      end
+    end
+
+    def self.included(mod) # :nodoc:
+      mod.extend ClassMethods
+      mod.__send__ :include, InstanceMethods
+    end
+
+  end
+end
+---
+
+Fast specs make me a happy man.
+{% endraw %}

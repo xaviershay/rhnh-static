@@ -1,0 +1,65 @@
+---
+layout: post
+title:  "The Colemak Diaries"
+date:   2006-09-18 10:55:00 +00:00
+tags:   ["Life", "colemak"]
+---
+{% raw %}
+*UPDATE 2008-12-9:* In response to Gregor's comment, yes I'm still using Colemak. Eesh, it's been over 2 years now. I'm very happy with it - I type fast and I can still use QWERTY when I have to.
+
+I spend more than 50 hours per week in front of my computer. A large proportion of that time is spent coding or typing. It is well known that QWERTY is an inefficient keyboard layout, so in my quest to do things the Right Way I decided to do something about it.
+
+I considered two alternatives - "Dvorak":http://www.mwbrooks.com/dvorak/ and "Colemak":http://colemak.com/. The former is the more popular, but Colemak - a newer layout - appears to have addressed many of the issues people have found with Dvorak. No point going into detail here, I'll just link you to the "Colemak FAQ":http://colemak.com/faq.
+
+And so here presented is a diary of my transition to Colemak.
+
+h3. Day 1 - August 23
+
+A Wednesday evening after a long day at work. No mood to code, what is on my list of low-priority-things-to-be-done? Ah yes, this one has been here for a while - "Learn Colemak". Biggest concern is the productivity hit my coding will take while getting my WPM(Words Per Minute) back (80+ in QWERTY). I'm coming to the end of a project at my day job, which means less typing than normal as I'm testing/debugging. Busy social calendar will keep me away from my contract work for a bit, so it would seem that now is the time.
+
+Installation on ubuntu linux is dead simple. I'm stuck into Lesson 1 on the wiki in under 5 minutes. Freaking weird - I have to concentrate really hard lest I go into autopilot and let my fingers sneakily revert to QWERTY. Brings back memories of "Home Row" on the Apple IIe from grade 2.
+
+A remapped caps lock is the best thing since scoped closures. Within my first few mistakes I'm tapping away with that left pinky like it's my job. Even if I go back to QWERTY I am keeping this mapping. I can't recommend it enough.
+
+After a about an hour on and off I'm fairly confident with level 4. WPM on proper text is a frustrating 15.
+
+h3. Day 2 - August 24
+
+No, this won't normally be a daily affair, but these first few days are going to be the interesting ones. Today I was a little anxious about taking Colemak to work, but confident I could get through the day and at least get something done. Installation on windows was also simple. Not quite as straight forward as linux because you have to manually install the language, but it ain't rocket science.
+
+"Automatic" words such as usernames and passwords are the trickiest. Passwords especially because you don't get any feedback on what you're typing.
+
+I use .NET at work, and Intellisense is a godsend. I hardly have to type at all! Going back to "automatic" behaviour, shortcuts such as CTRL+S are particularly difficult. It's a good thing CTRL+R isn't mapped to anything destructive in any of my apps! Semicolon is another tricky one, I think partially because (in QWERTY also) I never hit it with the right finger - my hand is usually moving to a shortcut or the mouse.
+
+I was planning to stay away from QWERTY as much as possible, but I have to use VMWare a lot and none of my VMs have Colemak installed. It would be impractical to do so. To try and minimize the detriment this would have on my Colemak skills I made a point of typing two fingered and looking at the keys while I type. Sad thing is I can still go faster than when I'm typing Colemak, so I deliberately slowed myself down. Whether this was of benefit is a question maybe one day science can answer.
+
+The day started with patience. By 4:30 I'm ready to smash my keyboard through the monitor. Breath in. Breath out. I'm going home.
+
+h3. Day 3 - August 25
+
+This exercise has been promoted fairy near the top of my things-not-to-do-hungover list. Right there above "Go to work".
+I found the easiest (not necessarily best) way to type is by staring at the keyboard picture I printed out and sat below my monitor. WPM is up to 25.
+
+h3. Day 11 - August 31
+
+Maybe it wasn't such a good time to start learning. I was away all weekend, and then am out every night because it is production week for the musical I'm doing. I haven't spent any more time at all practising, only just general usage at work. It is no longer painful to type, but I feel I could be a lot faster if I dedicated some time to practice. 
+
+h3. Day 15 - September 5
+
+Panic sets in as I try to type something one handed while talking to someone on the phone. It just isn't happening. Encountered other problems when having to type with a colleague looking over my shoulder. Calm down - look at my print out. Occasionally they want to type on my machine, and here the windows language manager really fails me. You can set the current input language quickly through an icon on the toolbar, but it remembers what setting you had for each application. So I change it, they type some code, switch to a browser, flail their fingers, and before they know it have searched for gibberish. I can't think of a scenario where this behaviour would be beneficial - there should at least be an option to disable.
+
+h3. Day 17 - September 6
+
+Had to do some typing at a friends place. Took a minute or two to install Colemak, typed to my hearts content, then uninstalled when I was done. I can still type QWERTY if I have to, but the cases where this is required is less than you would think. When doing tech support on a foreign machine, often it is better to let the user drive anyway.
+
+h3. Day 28 - September 17
+
+One month. Just tried lesson 12 in gtypist and got 47 WPM. I feel that is pretty good since every word has a z or an x in it. Error rate is still fairly high (7%) but I think I would have had that problem on QWERTY anyways. Seriously, who types that many bottom row characters? I find the things that slow me down the most when coding is punctuation. With ruby underscores give me all sorts of grief because they are such a big stretch. I'm considering remapping it to an easier to reach key, but not sure what could be replaced. Maybe switch it with semicolon (on Colemak - where P is on QWERTY). Having learnt an alternate layout has given me confidence to further modify my keyboard to achieve typing nirvana. Note that the underscore is in the same place as it is on QWERTY. Learning Colemak has dramatically improved my technique, and at the same time exposed some potential hurdles to higher speeds. My QWERTY speed was largely a result of extend usage.
+
+Overall I am very satisfied with switching to Colemak. It was frustrating at first, but is much more comfortable to type now that I am used to it. My speed is still not quite what it was with QWERTY, but is fast enough for everyday usage. A few more weeks of usage and I'll be faster than a greased pig.
+
+Not to mention the awesome geek cred... (* tumble weeds *).
+
+Looks like I may need to bring forward my purchase of a "keyboard fitting of my elite typing status":http://daskeyboard.com. The connection at the back of my old keyboard is getting dodgy anyways. Honest.
+
+{% endraw %}

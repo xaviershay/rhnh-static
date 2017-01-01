@@ -1,0 +1,93 @@
+---
+layout: post
+title:  "How I Test Rails Applications"
+date:   2012-12-20 02:44:00 +00:00
+tags:   ["code", "goos", "rails", "ruby", "testing"]
+---
+{% raw %}
+The "Rails conventions":http://guides.rubyonrails.org/testing.html for testing provide three categories for your tests:
+
+* **Unit.** What you write to test your models.
+* **Integration.** Used to test the interaction among any number of controllers.
+* **Functional.** Testing the various actions of a single controller.
+
+This tells you *where* to put your tests, but the type of testing you perform on each part of the system is the same: load fixtures into the database to get the app into the required state, run some part of the system either directly (models) or using provided harnesses (controllers), then verify the expected output.
+
+This techinque is simple, but is only one of a number of ways of testing. As your application grows, you will need to add other approaches to your toolbelt to enable your test suite to continue providing valuable feedback not just on the correctness of your code, but its design as well.
+
+I use a different set of categories for my tests (taken from the "GOOS book":http://www.growing-object-oriented-software.com/):
+
+* **Unit.** Do our objects do the right thing, and are they convenient to work with?
+* **Integration.** Does our code work against code we can’t change?
+* **Acceptance.** Does the whole system work?
+
+Note that these definitions of unit and integration are _radically different_ to how Rails defines them. That is unfortunate, but these definitions are more commonly accepted across other languages and frameworks and I prefer to use them since it facilitates an exchange of information across them. All of the typical Rails tests fall under the "integration" label, leaving two new levels of testing to talk about: unit and acceptance.
+
+h2. Unit Tests
+
+bq. “A test is not a unit test if it talks to the database, communicates across a network, or touches the file system.” - Working with Legacy Code, p. 14
+
+This type of test is typically referred to in the Rails community as a "fast unit test", which is unfortunate since speed is far from the primary benefit. **The primary benefit of unit testing is the feedback it provides on the dependencies in your design.** "Design unit tests" would be a better label.
+
+This feedback is absolutely critical in any non-trivial application. Unchecked dependency is crippling, and Rails encourages you not to think about it (most obviously by implicitly autoloading everything).
+
+By unit testing a class you are forced to think about how it interacts with other classes, which leads to simpler dependency trees and simpler programs.
+
+Unit tests tend to (though don't always have to) make use of mocking to verify interactions between classes. Using "rspec-fire":https://github.com/xaviershay/rspec-fire is absolutely critical when doing this. It verifies your mocks represent actual objects with no extra effort required in your tests, bridging the gap to statically-typed mocks in languages like Java.
+
+As a guideline, a single unit test shouldn't take more than 1ms to run.
+
+h2. Acceptance Tests
+
+A Rails integration test doesn't exercise the entire system, since it uses a harness and doesn't use the system from the perspective of a user. As one example, you need to post form parameters directly rather than actually filling out the form, making the test both brittle in that if you change your HTML form the test will still pass, and incomplete in that it doesn't actually load the page up in a browser and verify that Javascript and CSS are not intefering with the submission of the form.
+
+Full system testing was popularized by the "cucumber":http://cukes.info/ library, but cucumber adds a level of indirection that isn't useful for most applications. Unless you are actually collaborating with non-technical stakeholders, the extra complexity just gets in your way. RSpec can easily be written in a BDD style without extra libraries.
+
+Theoretically you should only be interacting with the system as a black box, which means no creating fixture data or otherwise messing with the internals of the system in order to set it up correctly. In practice, this tends to be unweildy but I still maintain a strict abstraction so that tests read like black box tests, hiding any internal modification behind an interface that _could_ be implemented by black box interactions, but is "optimized" to use internal knowledge. I've had success with the builder pattern, also presented in the GOOS book, but that's another blog post (i.e. @build_registration.with_hosting_request.create@).
+
+A common anti-pattern is to try and use transactional fixtures in acceptance tests. Don't do this. It isn't executing the full system (so can't test transaction level functionality) and is prone to flakiness.
+
+An acceptance test will typically take seconds to run, and should only be used for happy-path verification of behaviour. It makes sure that all the pieces hang together correctly. Edge case testing should be done at the unit or integration level. Ideally each new feature should have only one or two acceptance tests.
+
+h2. File Organisation.
+
+I use @spec/{unit,integration,acceptance}@ folders as the parent of all specs. Each type of spec has it's own helper require, so unit specs require @unit_helper@ rather than @spec_helper@. Each of those helpers will then require other helpers as appropriate, for instance my @rails_helper@ looks like this (note the hack required to support this layout):
+
+--- Ruby
+ENV["RAILS_ENV"] ||= 'test'
+require File.expand_path("../../config/environment", __FILE__)
+
+# By default, rspec/rails tags all specs in spec/integration as request specs,
+# which is not what we want. There does not appear to be a way to disable this
+# behaviour, so below is a copy of rspec/rails.rb with this default behaviour
+# commented out.
+require 'rspec/core'
+
+RSpec::configure do |c|
+  c.backtrace_clean_patterns << /vendor\//
+  c.backtrace_clean_patterns << /lib\/rspec\/rails/
+end
+
+require 'rspec/rails/extensions'
+require 'rspec/rails/view_rendering'
+require 'rspec/rails/adapters'
+require 'rspec/rails/matchers'
+require 'rspec/rails/fixture_support'
+require 'rspec/rails/mocks'
+require 'rspec/rails/module_inclusion'
+# require 'rspec/rails/example' # Commented this out
+require 'rspec/rails/vendor/capybara'
+require 'rspec/rails/vendor/webrat'
+
+# Added the below, we still want access to some of the example groups
+require 'rspec/rails/example/rails_example_group'
+require 'rspec/rails/example/controller_example_group'
+require 'rspec/rails/example/helper_example_group'
+---
+
+Controllers specs go in @spec/integration/controllers@, though I'm trending towards using "poniard":https://github.com/xaviershay/poniard that allows me to test controllers in isolation (@spec/unit/controllers@).
+
+Helpers are either unit or integration tested depending on the type of work they are doing. If it is domain level logic it can be unit tested (though I tend to use presenters for this, which are also unit tested), but for helpers that layer on top of Rails provided helpers (like @link_to@ or @content_tag@) they should be integration tested to verify they are using the library in the correct way.
+
+I have used this approach on a number of Rails applications over the last 1-2 years and found it leads to better and more enjoyable code.
+{% endraw %}

@@ -1,0 +1,17 @@
+---
+layout: post
+title:  "Project Euler solutions 1-25 in Literate Haskell"
+date:   2011-12-31 02:13:42 +00:00
+tags:   []
+---
+{% raw %}
+A holiday project!
+
+<blockquote>
+<blockquote>Project Euler is a series of challenging mathematical/computer programming problems that will require more than just mathematical insights to solve. Although mathematics will help you arrive at elegant and efficient methods, the use of a computer and programming skills will be required to solve most problems. — Project Euler.</blockquote>
+
+Follows is my attempt at the problems. I use Haskell and mathematics, two subjects in which I am a novice. In writing about my solutions and discoveries, I hope to present a gentle introduction to both.
+</blockquote>
+
+Please do enjoy: "Project Euler solutions 1-25 in Literate Haskell.":http://xaviershay.github.com/project-euler/
+{% endraw %}

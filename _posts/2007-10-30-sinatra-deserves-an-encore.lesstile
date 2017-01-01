@@ -1,0 +1,55 @@
+---
+layout: post
+title:  "Sinatra deserves an encore"
+date:   2007-10-30 10:39:00 +00:00
+tags:   ["Code", "Ruby", "sinatra"]
+---
+{% raw %}
+I'm putting together a small site for a dancing troupe I'm involved with. Index page, bio pages, that's about it. I want basic templating so I can keep my HTML dry. Initially I tried rolling my own solution with ERB and rake to generate HTML, but that was shit, so I found "Sinatra":http://sinatra.rubyforge.org and found that a much tastier. It's kind of like "camping":http://code.whytheluckystiff.net/camping/ but without all the weird meta-fu. Also, it has a sweet name and sweet copy:
+
+--- bash
+$ ruby app.rb 
+== Sinatra has taken the stage on port 4567!
+GET / | Status: 200 | Params: {:format=>"html"}
+== Sinatra has ended his set (crowd applauds)
+---
+
+My app, sans views and data (use your imagination):
+
+--- ruby
+['sinatra', 'yaml'].each {|x| require x }
+
+# This complex bit just loads up a YAML file and indexes an array of hashes
+# by their name. Also, it symbolizes keys because strings are for losers
+symbolize_keys = lambda {|a,v| a.update(v[0].intern => v[1]) }
+Data = YAML.load(File.open('data/performers.yml')).inject({}) {|a, v| a.update(v["name"].downcase => v.inject({}, &symbolize_keys))}
+
+layout do
+  File.open('views/main.erb').read
+end
+
+helpers do
+  def dancer
+    data = Data[params[:id].downcase]
+    data[:bio] = erb(:"dancers/#{params[:id]}")
+    data
+  end
+end
+
+get '/' do
+  erb :index
+end
+
+get '/dancers/:id' do
+  if dancer
+    erb :dancer
+  else
+    status(404)
+  end
+end
+
+static '/static', 'static'
+---
+
+When I need to deploy to some cheap-cheap-we-support-nothing host I can just spider wget the whole site and FTP it up. For the complete integrated coding experience may I recommend Mr. Sinatra live with The Count Basie Band.
+{% endraw %}

@@ -1,0 +1,24 @@
+---
+layout: post
+title:  "Buffalo+"
+date:   2007-02-20 03:57:00 +00:00
+tags:   ["Language", "Life"]
+---
+{% raw %}
+Buffalo buffalo Buffalo buffalo buffalo buffalo Buffalo buffalo
+
+Cue my inner language geek. This seemingly inane tribute is in fact a valid sentence. I was certainly confused. There are 3 readings of the word necessary to comprehend:
+
+ # The animal
+ # The city
+ # The verb, meaning to confuse, deceive, or intimidate
+
+Replacing each with an appropriate substitute, we could rewrite the sentence as:
+Buffalo people [that] Buffalo people intimidate[,] intimidate Buffalo people. The cool thing is you can do a similar thing (you need to add plurals) with any animal/verb pair, albeit without the city: Badgers badgers badger badger badgers; Dogs dogs dog dog dogs.
+
+<em>Explanation taken from "Wikipedia":http://en.wikipedia.org/wiki/Buffalo_buffalo_Buffalo_buffalo_buffalo_buffalo_Buffalo_buffalo.</em>
+
+UPDATE: Badger is also a city! Located in Minnesota.
+
+.... Badger badgers Badger badgers badger badger Badger badgers
+{% endraw %}

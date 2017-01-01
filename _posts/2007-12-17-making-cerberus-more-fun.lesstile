@@ -1,0 +1,58 @@
+---
+layout: post
+title:  "Making cerberus more fun"
+date:   2007-12-17 04:25:00 +00:00
+tags:   ["Code", "Ruby", "cerberus"]
+---
+{% raw %}
+!http://img263.imageshack.us/img263/4033/mc1842oj.jpg!
+
+_And throughout the lands of the Greek empire, he was known and feared as Cerberus, the original three-headed party dog from hell_
+
+Here is patch to the "cerberus":http://cerberus.rubyforge.org/ campfire publisher that enables it to prepend a funny image to its messages. Submitted to core, guess it depends on how much of a sense of humour the author has.
+
+Someone let "GIS":http://images.google.com/ know it's about to be thrashed by queries for train wrecks and hi fives.
+
+--- diff
+Index: lib/cerberus/config.example.yml
+===================================================================
+--- lib/cerberus/config.example.yml     (revision 167)
++++ lib/cerberus/config.example.yml     (working copy)
+@@ -17,6 +17,11 @@
+ #    channel: cerberus
+ #  campfire:
+ #    url: http://someemail:password@cerberustool.campfirenow.com/room/51660
++#    preamble: 
++#      # Posts content before the main message based on the build state. Perfect for amusing images.
++#      # Valid states are: setup, broken, failed, revival, successful
++#      broken:  http://mydomain.com/broken.jpg
++#      revival: http://mydomain.com/fixed.jpg
+ #  rss:
+ #    file: /usr/www/rss.xml
+ #builder:
+@@ -26,4 +31,4 @@
+ #hook:
+ #  rcov:
+ #    on_event: successful, setup #by default - run hook for any state
+-#    action: 'export CERBERUS_HOME=/home/anatol && sudo chown www-data -R /home/anatol/cerberus && rcov' #Add here any hook you want
+\ No newline at end of file
++#    action: 'export CERBERUS_HOME=/home/anatol && sudo chown www-data -R /home/anatol/cerberus && rcov' #Add here any hook you want
+Index: lib/cerberus/publisher/campfire.rb
+===================================================================
+--- lib/cerberus/publisher/campfire.rb  (revision 167)
++++ lib/cerberus/publisher/campfire.rb  (working copy)
+@@ -3,8 +3,10 @@
+ class Cerberus::Publisher::Campfire < Cerberus::Publisher::Base
+   def self.publish(state, manager, options)
+     url = options[:publisher, :campfire, :url]
++    preamble = options[:publisher, :campfire, :preamble, state.current_state]
+     
+     subject,body = Cerberus::Publisher::Base.formatted_message(state, manager, options)
++    Marshmallow.say(url, preamble) unless preamble.nil?
+     Marshmallow.say(url, subject)
+     Marshmallow.paste(url, body)
+   end
+---
+
+Props to "grant":http://grantbissett.com/ for the inspiration and finding of the title photo
+{% endraw %}

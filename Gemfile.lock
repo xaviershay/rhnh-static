@@ -4,6 +4,7 @@ GEM
     RedCloth (4.3.2)
     addressable (2.5.0)
       public_suffix (~> 2.0, >= 2.0.2)
+    coderay (0.9.7)
     colorator (1.1.0)
     ffi (1.9.14)
     forwardable-extended (2.6.0)
@@ -27,6 +28,7 @@ GEM
     jekyll-watch (1.5.0)
       listen (~> 3.0, < 3.1)
     kramdown (1.13.1)
+    lesstile (1.1.0)
     liquid (3.0.6)
     listen (3.0.8)
       rb-fsevent (~> 0.9, >= 0.9.4)
@@ -46,9 +48,12 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  RedCloth
+  coderay (= 0.9.7)
   jekyll (= 3.3.1)
   jekyll-feed (~> 0.6)
   jekyll-textile-converter
+  lesstile
 
 RUBY VERSION
    ruby 2.3.1p112

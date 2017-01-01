@@ -1,0 +1,180 @@
+---
+layout: post
+title:  "Straight Sailing with Magellan"
+date:   2006-06-24 11:23:00 +00:00
+tags:   ["Code", "Ruby", "plugin", "rails"]
+---
+{% raw %}
+"Magellan":/projects/magellan is a Ruby on Rails plugin that provides a framework for abstracting navigation logic out of your views and controllers, allowing you to write neater, more reusable code.
+
+h3. Table of Contents
+
+# "Using Magellan":#using
+## "Dynamic Links":#dynamic_links
+## "State":#state
+## "Testing":#testing
+# "Extra Morsels":#extra
+# "Conclusion":#conclusion
+# "Footnotes":#footnotes
+# "Bonus Material":#bonus
+
+h3. Why should I use Magellan?
+
+The short answer is you probably shouldn't. Sorry, thanks for stopping by, please visit the gift shop. To elaborate, many applications don't actually have complex navigational requirements. They are more generally of the type "go from page A to page B, then from there to page C", and that's that. While of course Magellan can neatly express these relationships, it adds a layer of complexity to your application for questionable benefit.
+
+Where Magellan excels is in expressing more complex requirements: "go from page A to page B, unless it's a Thursday, in which case go to page C. If we got to page C from page A, then go to page B, otherwise go to page A". Urgh. Where do you put this logic in a traditional rails app? You don't want this kind of logic in your views, and if you put it in your controllers you'll end up duplicating code. You need a better solution. 
+
+_You need Magellan._
+
+h3(#using). Using Magellan
+
+To use Magellan you need to understand three concepts:
+# Pages
+# Links
+# State
+
+State is a more advanced topic, so we'll go over that bit later on. You covered the first two in Web Coding 101, so I'll go over them first. The only difference in Magellan's usage of the terms "page" and "links" is a level of abstraction. Simply, a Magellan page represents a URL (rails or otherwise). Drop the following code into your @environment.rb@:
+
+--- ruby
+RHNH::Magellan::Navigator.draw do |map|
+  map.add_page :home, {:controller => 'home', :action => 'list'}
+end
+---
+
+Easy. To link to this page in a view, we use the @nav_link_to@ helper in our @.rhtml@ file instead of @link_to@. The first parameter is the name of the page we are currently on - in this case it is not strictly required and could be set to @nil@.
+
+--- ruby
+nav_link_to :current_page, :home
+---
+
+That in of itself isn't particularly exciting. Where things get tasty is when we start using links. Now, in basic usage a link acts the same way as a page[1]. We can create a next link that is different depending on which page you are on.
+
+--- ruby
+RHNH::Magellan::Navigator.draw do |map|
+  map.add_page :home1 do |p|
+    p.url = { :controller => 'home1' }
+    p.add_link :next, :home2
+  end
+  
+  map.add_page :home2 do |p|
+    p.url = { controller => 'home2' }
+    p.add_link :next, :home1
+  end
+end
+
+# Then in both home1.rhtml and home2.rhtml
+# @current_page is either :home1 or :home2
+nav_link_to @current_page, :next
+---
+
+As you can see we have de-coupled our navigation from the page itself. If we wanted to we could change the next link for home2 to home3 without having to change any of the code associated with home2. This makes our pages more modular and reusable, which is generally a Good Thing.
+
+h3(#dynamic_links). Dynamic Links
+
+Let's go back to our original example. I want the next link on page A to go to page B except on Thursdays, where it should go page C. The trick here is that in addition to just accepting a symbol for the link name (a "static link"), it can also accept a @lambda@ block that is evaluated at runtime. This is a little bit more convoluted, the block needs to return not a link name, but the actual page we want to go to. While initially slightly unintuitive, it allows for more flexibility and less code than having to specify extra links.
+
+--- ruby
+RHNH::Magellan::Navigator.draw do |map|
+  map.add_page :page_a do |p|
+    p.add_link :back, lambda {|pages, state|
+      # Thursday is the 4th day the of week
+      Time.new.wday == 4 ? pages[:page_b] : pages[:page_c]
+    }
+  end
+
+  map.add_page :page_b, { :controller => 'page_b' }
+  map.add_page :page_c, { :controller => 'page_c' }
+end
+---
+
+h3(#state). State
+
+State is just like session storage for your navigation logic. In fact, it actually uses a subset of session storage[2]. The reason we differentiate it from normal session variables is simply to keep a neat separation between our navigation logic and other modules that may require the session. In typical usage, you modify the state in your controller (using @set_nav_state@, and then make a decision based on that state in your navigation logic (using the @state@ parameter). A simple example is to have a dynamic back link depending on the previous page.
+
+--- ruby
+# Both page A and B have a link to page C
+def page_a; set_nav_state :back_page => 'page_a'; end;
+def page_b; set_nav_state :back_page => 'page_b'; end;
+
+# Page C
+nav_link_to 'Back', :page_c, :back
+
+# environment.rb
+RHNH::Magellan::Navigator.draw do |map|
+  map.add_page :page_a, { :controller => 'page_b' }
+  map.add_page :page_b, { :controller => 'page_c' }
+
+  map.add_page :page_c, { do |p|
+    p.add_link :back, lambda {|pages, state|
+      pages[state[:back_page]]
+    }
+  end
+end
+---
+
+h3(#testing). Testing your navigation
+
+As with any code, it is important to test your navigation logic. There are many ways to do this, depending on the requirements and complexity of your application. I recommend at least one class of unit tests for your logic, and also to add code to your functional tests to ensure your controllers are setting the correct state. Magellan provides one helper function here - @nav_state@ - which returns a hash of the current state.
+
+--- ruby
+class UnitTest < Test::Unit::TestCase
+  def setup
+    @nav = RHNH::Magellan::Navigator.instance
+  end
+  
+  def test_back_link
+    state = { :homepage => :home1 }
+    expected = { :controller => 'example', :action => 'home1' }
+      
+    assert_equal expected, @nav.get_url(:page1, :back, state)
+  end
+end
+---
+
+--- ruby
+class FunctionalTest < Test::Unit::TestCase
+  # Standard functional test setup code...
+  
+  def test_index
+    get 'index'
+    
+    assert_equal :home1, nav_state[:homepage]
+  end
+end
+---
+
+The tests included with the example that comes with Magellan provide a more complex example of navigation testing. I highly recommend you look over them.
+
+h3(#extra). Extra morsels
+
+You can specify a default link by adding a link to the map rather than a page. For instance, to specify a default @:back@ link:
+
+--- ruby
+RHNH::Magellan::Navigator.draw do |map|
+  map.add_page :home, { controller => 'home' }
+  map.add_link :back, :home
+end
+---
+
+To be extra fancy, you can return extra parameters from your navigation logic that are added to the @:params@ hash of the url. This is done by returning an array with both the page and the parameters in it.
+
+--- ruby
+RHNH::Magellan::Navigator.draw do |map|
+  map.add_page :home, { controller => 'home' }
+  map.add_link :back, lambda { |pages, state|
+    [pages[:home], {:message => 'You just hit a default link'}]
+  }
+end
+---
+
+h3(#conclusion). To conclude
+
+Magellan is a great way of managing the complexity of larger projects. By abstracting navigation logic out of your controllers and views you make your project much more modular and reusable. It can even be introduced incrementally - all your old @link_to@ calls will still work.
+
+h3(#footnotes). Footnotes
+
+fn1. To be technically correct, a page acts like a link. Magellan creates default links to pages with the same name as the page. For instance, unless you specify otherwise, @:home@ is actually a link to the page @:home@
+
+fn2. Magellan uses @session[:rhnh_navigator_state]@, so you may want to steer clear of that to avoid stepping on anyone's toes.
+
+{% endraw %}

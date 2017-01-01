@@ -1,0 +1,135 @@
+---
+layout: post
+title:  "Dropwizard logger for Ruby and WEBrick"
+date:   2014-08-17 22:30:19 +00:00
+tags:   ["Code", "dropwizard", "ruby", "webrick"]
+---
+{% raw %}
+Wouldn't it be great if instead of webrick logs looking like:
+
+---
+> ruby server.rb
+[2014-08-17 15:29:10] INFO  WEBrick 1.3.1
+[2014-08-17 15:29:10] INFO  ruby 2.1.1 (2014-02-24) [x86_64-darwin13.0]
+[2014-08-17 15:29:10] INFO  WEBrick::HTTPServer#start: pid=17304 port=8000
+D, [2014-08-17T15:29:11.452223 #17304] DEBUG -- : hello from in the request
+localhost - - [17/Aug/2014:15:29:11 PDT] "GET / HTTP/1.1" 200 13
+- -> /
+E, [2014-08-17T15:29:12.787505 #17304] ERROR -- : fail (RuntimeError)
+server.rb:57:in `block in <main>'
+/Users/xavier/.rubies/cruby-2.1.1/lib/ruby/2.1.0/webrick/httpservlet/prochandler.rb:38:in `call'
+/Users/xavier/.rubies/cruby-2.1.1/lib/ruby/2.1.0/webrick/httpservlet/prochandler.rb:38:in `do_GET'
+/Users/xavier/.rubies/cruby-2.1.1/lib/ruby/2.1.0/webrick/httpservlet/abstract.rb:106:in `service'
+/Users/xavier/.rubies/cruby-2.1.1/lib/ruby/2.1.0/webrick/httpserver.rb:138:in `service'
+/Users/xavier/.rubies/cruby-2.1.1/lib/ruby/2.1.0/webrick/httpserver.rb:94:in `run'
+/Users/xavier/.rubies/cruby-2.1.1/lib/ruby/2.1.0/webrick/server.rb:295:in `block in start_thread'
+localhost - - [17/Aug/2014:15:29:12 PDT] "GET /fail HTTP/1.1" 500 6
+- -> /fail
+---
+
+They looked like:
+
+---
+> ruby server.rb
+
+   ,~~.,''"'`'.~~.
+  : {` .- _ -. '} ;
+   `:   O(_)O   ;'
+    ';  ._|_,  ;`   i am starting the server
+     '`-.\_/,.'`
+
+INFO  [2014-08-17 22:28:13,186] webrick: WEBrick 1.3.1
+INFO  [2014-08-17 22:28:13,186] webrick: ruby 2.1.1 (2014-02-24) [x86_64-darwin13.0]
+INFO  [2014-08-17 22:28:13,187] webrick: WEBrick::HTTPServer#start: pid=17253 port=8000
+DEBUG [2014-08-17 22:28:14,738] app: hello from in the request
+INFO  [2014-08-17 15:28:14,736] webrick: GET / 200
+ERROR [2014-08-17 22:28:15,603] app: RuntimeError: fail
+! server.rb:57:in `block in <main>'
+! /Users/xavier/.rubies/cruby-2.1.1/lib/ruby/2.1.0/webrick/httpservlet/prochandler.rb:38:in `call'
+! /Users/xavier/.rubies/cruby-2.1.1/lib/ruby/2.1.0/webrick/httpservlet/prochandler.rb:38:in `do_GET'
+! /Users/xavier/.rubies/cruby-2.1.1/lib/ruby/2.1.0/webrick/httpservlet/abstract.rb:106:in `service'
+! /Users/xavier/.rubies/cruby-2.1.1/lib/ruby/2.1.0/webrick/httpserver.rb:138:in `service'
+! /Users/xavier/.rubies/cruby-2.1.1/lib/ruby/2.1.0/webrick/httpserver.rb:94:in `run'
+! /Users/xavier/.rubies/cruby-2.1.1/lib/ruby/2.1.0/webrick/server.rb:295:in `block in start_thread'
+INFO  [2014-08-17 15:28:15,602] webrick: GET /fail 500
+---
+
+I thought so, hence:
+
+--- Ruby
+require 'webrick'
+require 'logger'
+
+puts <<-BANNER
+
+   ,~~.,''"'`'.~~.
+  : {` .- _ -. '} ;
+   `:   O(_)O   ;'
+    ';  ._|_,  ;`   i am starting the server
+     '`-.\\_/,.'`
+
+BANNER
+
+class DropwizardLogger < Logger
+  def initialize(label, *args)
+    super(*args)
+    @label = label
+  end
+
+  def format_message(severity, timestamp, progname, msg)
+    "%-5s [%s] %s: %s\n" % [
+      severity,
+      timestamp.utc.strftime("%Y-%m-%d %H:%M:%S,%3N"),
+      @label,
+      msg2str(msg),
+    ]
+  end
+
+  def msg2str(msg)
+    case msg
+    when String
+      msg
+    when Exception
+      ("%s: %s" % [msg.class, msg.message]) +
+        (msg.backtrace ? msg.backtrace.map {|x| "\n! #{x}" }.join : "")
+    else
+      msg.inspect
+    end
+  end
+
+  def self.webrick_format(label)
+    "INFO  [%{%Y-%m-%d %H:%M:%S,%3N}t] #{label}: %m %U %s"
+  end
+end
+
+server = WEBrick::HTTPServer.new \
+  :Port      => 8000,
+  :Logger    => DropwizardLogger.new("webrick", $stdout).tap {|x|
+                  x.level = Logger::INFO
+                },
+  :AccessLog => [[$stdout, DropwizardLogger.webrick_format("webrick")]]
+
+$logger = DropwizardLogger.new("app", $stdout)
+
+server.mount_proc '/fail' do |req, res|
+  begin
+    raise 'fail'
+  rescue => e
+    $logger.error(e)
+  end
+  res.body = "failed"
+  res.status = 500
+end
+
+server.mount_proc '/' do |req, res|
+  $logger.debug("hello from in the request")
+  res.body = 'Hello, world!'
+end
+
+trap 'INT' do
+  server.shutdown
+end
+
+server.start
+---
+{% endraw %}

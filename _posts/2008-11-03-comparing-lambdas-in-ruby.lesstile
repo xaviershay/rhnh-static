@@ -1,0 +1,52 @@
+---
+layout: post
+title:  "Comparing lambdas in ruby"
+date:   2008-11-03 08:54:00 +00:00
+tags:   ["Code", "Ruby", "benchmark", "lambda", "parsetree", "proc", "ruby2ruby"]
+---
+{% raw %}
+@to_ruby@ is a really convenient way to compare the equality of two lambdas. It's a bit slow though. If we get our hands dirty (only a little!) with ParseTree, we can get a result 2 orders of magnitude quicker. I'd be interested to see if these benchmarks differ significantly on other versions of ruby.
+
+--- bash
+~ $ ruby -v
+ruby 1.8.6 (2007-09-23 patchlevel 110) [i686-darwin8.11.1]
+---
+
+--- Ruby
+require 'benchmark'
+require 'parse_tree'
+require 'ruby2ruby'
+
+def gen_lambda
+  lambda {|x| x + 1 }
+end
+
+Parser = ParseTree.new(false)
+
+# This only requires parse tree, not ruby2ruby
+def proc_identity(block)
+  klass = Class.new
+  name = "myproc"
+  klass.send(:define_method, name, &block)
+
+  # .last ignores the method name and definition - they're irrelevant
+  Parser.parse_tree_for_method(klass, name).last 
+end
+
+n = 1000
+Benchmark.bmbm do |x|
+  x.report("#to_ruby") { n.times { gen_lambda.to_ruby == gen_lambda.to_ruby }}
+  x.report("#to_sexp") { n.times { gen_lambda.to_sexp == gen_lambda.to_sexp }}
+  x.report("manual")   { n.times { proc_identity(gen_lambda) == proc_identity(gen_lambda) }}
+end
+---
+
+--- bash
+               user     system      total        real
+#to_ruby   4.460000   0.220000   4.680000 (  4.695327)
+#to_sexp   0.920000   0.190000   1.110000 (  1.110214)
+manual     0.030000   0.000000   0.030000 (  0.032768)
+---
+
+In case you were wondering, I was playing around with this while implementing "unique data generation for dm-sweatshop":http://github.com/xaviershay/dm-more/tree/master/dm-sweatshop
+{% endraw %}

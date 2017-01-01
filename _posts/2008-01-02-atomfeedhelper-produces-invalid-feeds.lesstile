@@ -1,0 +1,95 @@
+---
+layout: post
+title:  "AtomFeedHelper produces invalid feeds"
+date:   2008-01-02 21:15:00 +00:00
+tags:   ["Code", "Ruby", "atom", "rails"]
+---
+{% raw %}
+Summary: "@atom_feed@ is broken until changeset 8529":http://dev.rubyonrails.org/changeset/8529
+
+--- ruby
+# http://api.rubyonrails.org/classes/ActionView/Helpers/AtomFeedHelper.html#M000931
+atom_feed do |feed|
+  feed.title("My great blog!")
+  feed.updated((@posts.first.created_at))
+
+  for post in @posts
+    feed.entry(post) do |entry|
+      entry.title(post.title)
+      entry.content(post.body, :type => 'html')
+
+      entry.author do |author|
+        author.name("DHH")
+      end
+    end
+  end
+end
+---
+
+Produces the following feed (rails 2.0.2)
+
+--- xml
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xml:lang="en-US" xmlns="http://www.w3.org/2005/Atom">
+  <id>tag:localhost:posts</id>
+  <link type="text/html" rel="alternate" href="http://localhost:3000"/>
+  <title>My great blog!</title>
+  <updated>2007-12-23T04:23:07+11:00</updated>
+  <entry>
+    <id>tag:localhost:3000:Post1</id>
+    <published>2007-12-23T04:23:07+11:00</published>
+    <updated>2007-12-30T15:29:55+11:00</updated>
+    <link type="text/html" rel="alternate" href="http://localhost:3000/posts/1"/>
+    <title>First post</title>
+    <content type="html">Check out the first post</content>
+    <author>
+      <name>DHH</name>
+    </author>
+  </entry>
+</feed>
+---
+
+Let's run that through the "feed validator":http://feedvalidator.org/
+
+--- none
+line 3, column 25: id is not a valid TAG
+line 2, column 0: Missing atom:link with rel="self"
+line 8, column 32: id is not a valid TAG
+---
+
+Oh dear. Not a happy result. Let's fix it.
+
+Problem the first is the feed ID tag. It doesn't include a date, as per the "Tag URI specification":http://tools.ietf.org/html/rfc4151#section-2.1. This is a little bit tricky - you can't just add @Time.now.year@ as a default because that will change every year, and we need IDs to stay the same. We will provide an option to the user to specify the schema date, and produce a warning if they do not (as much as I'd like to just break it, the pragmatic side of me keeps backwards compatibility in).
+
+The entry tag has the same problem, but you'll also note it concatenates the class and the ID with no separator to create the ID. While it's an edge case, this will break if you have a class name ending in a number, so we need to add in a separator. I vote for a slash. Also, the port in the tag URI is inconsistent with the feed URI (no port), so remove it.
+
+For further reading, I recommend "How to make a good ID in Atom":http://diveintomark.org/archives/2004/05/28/howto-atom-id.
+
+The missing self link is just your garden variety bug - the documentation says it should be provided by default, but the code does not.
+
+I went ahead and fixed these problems. "Changeset 8529":http://dev.rubyonrails.org/changeset/8529. The example above, when you change the call to @atom_feed(:schema_date => 2008)@, looks like this.
+
+--- xml
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xml:lang="en-US" xmlns="http://www.w3.org/2005/Atom">
+  <id>tag:localhost:/posts</id>
+  <link type="text/html" rel="alternate" href="http://localhost:3000"/>
+  <link type="application/atom+xml" rel="self" href="http://localhost:3000/posts.atom"/>
+  <title>My great blog!</title>
+  <updated>2007-12-23T04:23:07+11:00</updated>
+  <entry>
+    <id>tag:localhost:Post/1</id>
+    <published>2007-12-23T04:23:07+11:00</published>
+    <updated>2007-12-30T15:29:55+11:00</updated>
+    <link type="text/html" rel="alternate" href="http://localhost:3000/posts/1"/>
+    <title>First post</title>
+    <content type="html">HOORAY. About ruby.</content>
+    <author>
+      <name>DHH</name>
+    </author>
+  </entry>
+</feed>
+---
+
+mmm, semantic goodness
+{% endraw %}
