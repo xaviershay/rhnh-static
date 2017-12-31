@@ -16,3 +16,5 @@ time to experiment with some new things however:
 * Continued leveling up in Haskell with a [Factorio data parser](https://github.com/xaviershay/factorio-hs) (likely broken on recent versions) and a woefully incomplete [clone of Opus Magnum](https://github.com/xaviershay/mopus-gagnum). I'm feeling reasonably confident with it now, and it's currently my go-to language for new projects.
 
 And as always, a [smattering](https://github.com/looker/looker-sdk-ruby/issues/55) [of](https://github.com/stripe-contrib/pagerbot/issues/46) [issues](https://github.com/seattlerb/minitest/pull/672) to help improve documentation. Leave things better than you found them!
+
+Next year, I'm looking forward to playing around with [Firebase](https://firebase.google.com/), and checking back in on [Rust](https://www.rust-lang.org/en-US/) to see how it's progressing.
