@@ -5,7 +5,8 @@ date: 2018-09-30
 layout: 'post'
 ---
 
-Given the following Servant API (boilerplate redacted for brevity):
+Given the following [Servant API](https://haskell-servant.github.io/)
+(boilerplate redacted for brevity):
 
 ``` haskell
 type MyAPI = "some-api" :> Get '[JSON] NoContent
