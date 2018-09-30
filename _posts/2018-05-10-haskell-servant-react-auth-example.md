@@ -1,6 +1,6 @@
 ---
 title: "Using Haskell Servant to Power a Decoupled React Single Page Application"
-tags: ['code']
+tags: ['code', 'haskell', 'servant']
 date: 2018-05-10
 layout: 'post'
 ---
