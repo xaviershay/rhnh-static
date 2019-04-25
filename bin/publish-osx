@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -xe
+
+exec env $(cat .env | xargs) \
+  java -cp $(bundle show s3_website)/*.jar s3.website.Push
