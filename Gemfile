@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 ruby '2.5.0'
 
-gem "jekyll", "3.3.1"
+gem "jekyll", "3.6.3"
 
 gem "lesstile"
 gem "coderay", "0.9.7"
