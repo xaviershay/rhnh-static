@@ -7,7 +7,8 @@ tags:   ["clojure", "code", "profiling"]
 {% raw %}
 Tonight I was so impressed by how easy it was to profile some Clojure code using built-in JVM tools that I had to share:
 
-<iframe src="http://player.vimeo.com/video/27237005?title=0&amp;byline=0&amp;portrait=0&amp;color=FFFACD" width="600" height="358" frameborder="0"></iframe><p><a href="http://vimeo.com/27237005">Profiling Clojure</a>.</p>
+<iframe src="https://player.vimeo.com/video/27237005?title=0&byline=0&portrait=0&color=FFFACD" width="600" height="358" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+<p><a href="https://vimeo.com/27237005">Profiling Clojure</a>.</p> 
 
 Today I also learned more about the Incanter API, and wrote some good code to "transform columns":http://stackoverflow.com/questions/5481777/how-can-i-modify-a-column-in-an-incanter-dataset/6921703#6921703, among other things.
 {% endraw %}
