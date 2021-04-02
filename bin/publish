@@ -9,4 +9,5 @@ set -xe
 
 # Weird workaround from
 # https://github.com/laurilehmijoki/s3_website/issues/323#issuecomment-486478591
-env $(cat .env | xargs) java -cp $(bundle show s3_website)/*.jar s3.website.Push
+# env $(cat .env | xargs) java -cp $(bundle show s3_website)/*.jar s3.website.Push
+PATH=/usr/lib/jvm/java-8-openjdk-amd64/bin/:$PATH s3_website push
