@@ -57,7 +57,7 @@ GEM
       RedCloth (~> 4.0)
     jekyll-watch (1.5.1)
       listen (~> 3.0)
-    jmespath (1.4.0)
+    jmespath (1.6.1)
     kramdown (1.17.0)
     lesstile (1.1.0)
     liquid (3.0.6)
